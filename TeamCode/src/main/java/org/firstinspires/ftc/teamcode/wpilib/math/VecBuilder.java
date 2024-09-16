@@ -56,30 +56,4 @@ public final class VecBuilder {
         return fillVec(Nat.N3(), n1, n2, n3);
     }
 
-    /**
-     * Returns a 4x1 vector containing the given elements.
-     *
-     * @param n1 the first element.
-     * @param n2 the second element.
-     * @param n3 the third element.
-     * @param n4 the fourth element.
-     * @return 4x1 vector
-     */
-    public static Vector<N4> fill(double n1, double n2, double n3, double n4) {
-        return fillVec(Nat.N4(), n1, n2, n3, n4);
-    }
-
-    /**
-     * Returns a 5x1 vector containing the given elements.
-     *
-     * @param n1 the first element.
-     * @param n2 the second element.
-     * @param n3 the third element.
-     * @param n4 the fourth element.
-     * @param n5 the fifth element.
-     * @return 5x1 vector
-     */
-    public static Vector<N5> fill(double n1, double n2, double n3, double n4, double n5) {
-        return fillVec(Nat.N5(), n1, n2, n3, n4, n5);
-    }
 }

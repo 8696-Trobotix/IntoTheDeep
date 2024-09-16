@@ -52,23 +52,5 @@ public interface Nat<T extends Num> {
         return N3.instance;
     }
 
-    /**
-     * Returns the Nat instance for 4.
-     *
-     * @return The Nat instance for 4.
-     */
-    static Nat<N4> N4() {
-        return N4.instance;
-    }
-
-    /**
-     * Returns the Nat instance for 5.
-     *
-     * @return The Nat instance for 5.
-     */
-    static Nat<N5> N5() {
-        return N5.instance;
-    }
-
-    // Couldn't be bothered to go past N5
+    // Couldn't be bothered to go past N3
 }
