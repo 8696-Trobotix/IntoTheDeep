@@ -12,8 +12,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-
 import org.firstinspires.ftc.teamcode.teamutils.SimplePIDFController;
+import org.firstinspires.ftc.teamcode.wpilib.math.VecBuilder;
 import org.firstinspires.ftc.teamcode.wpilib.math.estimator.MecanumDrivePoseEstimator;
 import org.firstinspires.ftc.teamcode.wpilib.math.geometry.Pose2d;
 import org.firstinspires.ftc.teamcode.wpilib.math.geometry.Rotation2d;
@@ -59,7 +59,9 @@ public class Drivebase {
             Constants.Drivebase.WHEEL_POSITIONS[1],
             Constants.Drivebase.WHEEL_POSITIONS[2],
             Constants.Drivebase.WHEEL_POSITIONS[3]);
-    odometry = new MecanumDrivePoseEstimator(kinematics, new Rotation2d(), new MecanumDriveWheelPositions(), new Pose2d());
+    odometry =
+        new MecanumDrivePoseEstimator(
+            kinematics, new Rotation2d(), new MecanumDriveWheelPositions(), new Pose2d());
 
     frontLeftDriveController =
         new SimplePIDFController(
@@ -109,39 +111,75 @@ public class Drivebase {
       lastTime = currentTime - .1;
     }
 
+    // We calculate motor velocity ourselves because REV sucks and only calculates velocity at 20 hz
+
     double frontLeftVel =
-        Constants.Drivebase.FRONT_LEFT_WHEEL_DIAMETER
-            * Units.rotationsToRadians(
-                getVelocity(frontLeftLastPos, lastTime, frontLeft.getCurrentPosition(), currentTime)
-                    / Constants.Drivebase.DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION);
+        getVelocity(
+            frontLeftLastPos,
+            lastTime,
+            Constants.Drivebase.FRONT_LEFT_WHEEL_DIAMETER
+                * Units.rotationsToRadians(
+                    frontLeft.getCurrentPosition()
+                        / Constants.Drivebase.DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION),
+            currentTime);
     frontLeft.setPower(
         frontLeftDriveController.calculate(frontLeftVel, wheelSpeeds.frontLeftMetersPerSecond));
+    frontLeftLastPos = frontLeft.getCurrentPosition();
 
     double frontRightVel =
-        Constants.Drivebase.FRONT_RIGHT_WHEEL_DIAMETER
-            * Units.rotationsToRadians(
-                frontRight.getVelocity()
-                    / Constants.Drivebase.DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION);
+        getVelocity(
+            frontRightLastPos,
+            lastTime,
+            Constants.Drivebase.FRONT_RIGHT_WHEEL_DIAMETER
+                * Units.rotationsToRadians(
+                    frontRight.getCurrentPosition()
+                        / Constants.Drivebase.DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION),
+            currentTime);
     frontRight.setPower(
         frontRightDriveController.calculate(frontRightVel, wheelSpeeds.frontRightMetersPerSecond));
+    frontRightLastPos = frontRight.getCurrentPosition();
 
     double backLeftVel =
-        Constants.Drivebase.BACK_LEFT_WHEEL_DIAMETER
-            * Units.rotationsToRadians(
-                backLeft.getVelocity()
-                    / Constants.Drivebase.DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION);
+        getVelocity(
+            backLeftLastPos,
+            lastTime,
+            Constants.Drivebase.BACK_LEFT_WHEEL_DIAMETER
+                * Units.rotationsToRadians(
+                    backLeft.getCurrentPosition()
+                        / Constants.Drivebase.DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION),
+            currentTime);
     backLeft.setPower(
         backLeftDriveController.calculate(backLeftVel, wheelSpeeds.rearLeftMetersPerSecond));
+    backLeftLastPos = backLeft.getCurrentPosition();
 
     double backRightVel =
-        Constants.Drivebase.BACK_RIGHT_WHEEL_DIAMETER
-            * Units.rotationsToRadians(
-                backRight.getVelocity()
-                    / Constants.Drivebase.DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION);
+        getVelocity(
+            backRightLastPos,
+            lastTime,
+            Constants.Drivebase.BACK_RIGHT_WHEEL_DIAMETER
+                * Units.rotationsToRadians(
+                    backRight.getCurrentPosition()
+                        / Constants.Drivebase.DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION),
+            currentTime);
     backRight.setPower(
         backRightDriveController.calculate(backRightVel, wheelSpeeds.rearRightMetersPerSecond));
+    backRightLastPos = backRight.getCurrentPosition();
+
+    odometry.updateWithTime(
+        currentTime,
+        new Rotation2d(),
+        new MecanumDriveWheelPositions(
+            frontLeftLastPos, frontRightLastPos, backLeftLastPos, backRightLastPos));
 
     lastTime = currentTime;
+  }
+
+  public void addVisionMeasurement(
+      Pose2d estimatedPose, double timestamp, double translationalStDev, double angularStDev) {
+    odometry.addVisionMeasurement(
+        estimatedPose,
+        timestamp,
+        VecBuilder.fill(translationalStDev, translationalStDev, angularStDev));
   }
 
   private double getVelocity(
