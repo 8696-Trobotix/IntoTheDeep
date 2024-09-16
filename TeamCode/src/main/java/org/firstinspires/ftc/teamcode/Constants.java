@@ -7,7 +7,8 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import com.arcrobotics.ftclib.geometry.Translation2d;
+
+import org.firstinspires.ftc.teamcode.wpilib.math.geometry.Translation2d;
 import org.firstinspires.ftc.teamcode.wpilib.math.utils.Units;
 
 public class Constants {

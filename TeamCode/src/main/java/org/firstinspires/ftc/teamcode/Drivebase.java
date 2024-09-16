@@ -7,18 +7,20 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import com.arcrobotics.ftclib.controller.PIDFController;
-import com.arcrobotics.ftclib.geometry.Pose2d;
-import com.arcrobotics.ftclib.geometry.Rotation2d;
-import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds;
-import com.arcrobotics.ftclib.kinematics.wpilibkinematics.MecanumDriveKinematics;
-import com.arcrobotics.ftclib.kinematics.wpilibkinematics.MecanumDriveOdometry;
-import com.arcrobotics.ftclib.kinematics.wpilibkinematics.MecanumDriveWheelSpeeds;
 import com.outoftheboxrobotics.photoncore.hardware.motor.PhotonDcMotor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+
+import org.firstinspires.ftc.teamcode.teamutils.SimplePIDFController;
+import org.firstinspires.ftc.teamcode.wpilib.math.estimator.MecanumDrivePoseEstimator;
+import org.firstinspires.ftc.teamcode.wpilib.math.geometry.Pose2d;
+import org.firstinspires.ftc.teamcode.wpilib.math.geometry.Rotation2d;
+import org.firstinspires.ftc.teamcode.wpilib.math.kinematics.ChassisSpeeds;
+import org.firstinspires.ftc.teamcode.wpilib.math.kinematics.MecanumDriveKinematics;
+import org.firstinspires.ftc.teamcode.wpilib.math.kinematics.MecanumDriveWheelPositions;
+import org.firstinspires.ftc.teamcode.wpilib.math.kinematics.MecanumDriveWheelSpeeds;
 import org.firstinspires.ftc.teamcode.wpilib.math.utils.Units;
 
 public class Drivebase {
@@ -28,12 +30,12 @@ public class Drivebase {
   private final PhotonDcMotor backRight;
 
   private final MecanumDriveKinematics kinematics;
-  private final MecanumDriveOdometry odometry;
+  private final MecanumDrivePoseEstimator odometry;
 
-  private final PIDFController frontLeftDriveController;
-  private final PIDFController frontRightDriveController;
-  private final PIDFController backLeftDriveController;
-  private final PIDFController backRightDriveController;
+  private final SimplePIDFController frontLeftDriveController;
+  private final SimplePIDFController frontRightDriveController;
+  private final SimplePIDFController backLeftDriveController;
+  private final SimplePIDFController backRightDriveController;
 
   public Drivebase(LinearOpMode opMode) {
     frontLeft = (PhotonDcMotor) opMode.hardwareMap.get(DcMotorEx.class, "frontLeft");
@@ -57,31 +59,31 @@ public class Drivebase {
             Constants.Drivebase.WHEEL_POSITIONS[1],
             Constants.Drivebase.WHEEL_POSITIONS[2],
             Constants.Drivebase.WHEEL_POSITIONS[3]);
-    odometry = new MecanumDriveOdometry(kinematics, new Rotation2d(), new Pose2d());
+    odometry = new MecanumDrivePoseEstimator(kinematics, new Rotation2d(), new MecanumDriveWheelPositions(), new Pose2d());
 
     frontLeftDriveController =
-        new PIDFController(
+        new SimplePIDFController(
             0,
             0,
             0,
             Units.rotationsPerMinuteToRadiansPerSecond(Constants.Drivebase.DRIVE_MOTOR_MAX_RPM)
                 * Constants.Drivebase.FRONT_LEFT_WHEEL_DIAMETER);
     frontRightDriveController =
-        new PIDFController(
+        new SimplePIDFController(
             0,
             0,
             0,
             Units.rotationsPerMinuteToRadiansPerSecond(Constants.Drivebase.DRIVE_MOTOR_MAX_RPM)
                 * Constants.Drivebase.FRONT_RIGHT_WHEEL_DIAMETER);
     backLeftDriveController =
-        new PIDFController(
+        new SimplePIDFController(
             0,
             0,
             0,
             Units.rotationsPerMinuteToRadiansPerSecond(Constants.Drivebase.DRIVE_MOTOR_MAX_RPM)
                 * Constants.Drivebase.BACK_LEFT_WHEEL_DIAMETER);
     backRightDriveController =
-        new PIDFController(
+        new SimplePIDFController(
             0,
             0,
             0,
@@ -94,13 +96,23 @@ public class Drivebase {
     drive(new ChassisSpeeds(vxMetersPerSecond, vyMetersPerSecond, omegaRadiansPerSecond));
   }
 
+  double lastTime = -1;
+  double frontLeftLastPos = 0;
+  double frontRightLastPos = 0;
+  double backLeftLastPos = 0;
+  double backRightLastPos = 0;
+
   public void drive(ChassisSpeeds chassisSpeeds) {
     MecanumDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(chassisSpeeds);
+    double currentTime = System.nanoTime() / 1e9;
+    if (lastTime == -1) {
+      lastTime = currentTime - .1;
+    }
 
     double frontLeftVel =
         Constants.Drivebase.FRONT_LEFT_WHEEL_DIAMETER
             * Units.rotationsToRadians(
-                frontLeft.getVelocity()
+                getVelocity(frontLeftLastPos, lastTime, frontLeft.getCurrentPosition(), currentTime)
                     / Constants.Drivebase.DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION);
     frontLeft.setPower(
         frontLeftDriveController.calculate(frontLeftVel, wheelSpeeds.frontLeftMetersPerSecond));
@@ -128,5 +140,12 @@ public class Drivebase {
                     / Constants.Drivebase.DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION);
     backRight.setPower(
         backRightDriveController.calculate(backRightVel, wheelSpeeds.rearRightMetersPerSecond));
+
+    lastTime = currentTime;
+  }
+
+  private double getVelocity(
+      double lastPos, double lastTime, double currentPos, double currentTime) {
+    return (currentPos - lastPos) / (currentTime - lastTime);
   }
 }

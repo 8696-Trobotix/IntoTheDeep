@@ -1,0 +1,17 @@
+package org.firstinspires.ftc.teamcode.wpilib.math.kinematics;
+
+import org.firstinspires.ftc.teamcode.wpilib.math.interpolation.Interpolatable;
+
+/**
+ * Interface for wheel positions.
+ *
+ * @param <T> Wheel positions type.
+ */
+public interface WheelPositions<T extends WheelPositions<T>> extends Interpolatable<T> {
+    /**
+     * Returns a copy of this instance.
+     *
+     * @return A copy.
+     */
+    T copy();
+}
