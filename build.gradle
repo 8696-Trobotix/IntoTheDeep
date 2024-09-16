@@ -15,6 +15,11 @@ buildscript {
     }
 }
 
+plugins {
+    id "java"
+    id "com.diffplug.spotless" version "6.25.0"
+}
+
 // This is now required because aapt2 has to be downloaded from the
 // google() repository beginning with version 3.2 of the Android Gradle Plugin
 allprojects {
@@ -26,4 +31,38 @@ allprojects {
 
 repositories {
     mavenCentral()
+}
+
+spotless {
+    java {
+        target fileTree(".") {
+            include "**/*.java"
+            exclude "**/build/**", "**/build-*/**", "**/wpilib/**", "FtcRobotController/**"
+        }
+        removeUnusedImports()
+        importOrder()
+        cleanthat()
+        googleJavaFormat()
+        licenseHeader("// Copyright (c) 2024 FRC 167\n// https://github.com/icrobotics-team167\n//\n// Use of this source code is governed by an MIT-style\n// license that can be found in the LICENSE file at\n// the root directory of this project.\n\n")
+        endWithNewline()
+    }
+    groovyGradle {
+        target fileTree(".") {
+            include "**/*.gradle"
+            exclude "**/build/**", "**/build-*/**"
+        }
+        greclipse()
+        indentWithSpaces(4)
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    format "misc", {
+        target fileTree(".") {
+            include "**/*.md", "**/.gitignore"
+            exclude "**/build/**", "**/build-*/**", "FtcRobotController/**"
+        }
+        trimTrailingWhitespace()
+        indentWithSpaces(2)
+        endWithNewline()
+    }
 }
