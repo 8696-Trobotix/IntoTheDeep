@@ -3,10 +3,11 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import static org.firstinspires.ftc.teamcode.Constants.Drivebase.*;
+
 import com.outoftheboxrobotics.photoncore.hardware.motor.PhotonDcMotor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import org.firstinspires.ftc.teamcode.teamutils.SimplePIDFController;
 import org.firstinspires.ftc.teamcode.wpilib.math.VecBuilder;
@@ -34,10 +35,10 @@ public class Drivebase {
   private final SimplePIDFController backRightDriveController;
 
   public Drivebase(LinearOpMode opMode) {
-    frontLeft = (PhotonDcMotor) opMode.hardwareMap.get(DcMotorEx.class, "frontLeft");
-    frontRight = (PhotonDcMotor) opMode.hardwareMap.get(DcMotorEx.class, "frontRight");
-    backLeft = (PhotonDcMotor) opMode.hardwareMap.get(DcMotorEx.class, "backLeft");
-    backRight = (PhotonDcMotor) opMode.hardwareMap.get(DcMotorEx.class, "backRight");
+    frontLeft = (PhotonDcMotor) opMode.hardwareMap.dcMotor.get("frontLeft");
+    frontRight = (PhotonDcMotor) opMode.hardwareMap.dcMotor.get("frontRight");
+    backLeft = (PhotonDcMotor) opMode.hardwareMap.dcMotor.get("backLeft");
+    backRight = (PhotonDcMotor) opMode.hardwareMap.dcMotor.get("backRight");
 
     frontRight.setDirection(DcMotorSimple.Direction.FORWARD);
     backRight.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -51,10 +52,7 @@ public class Drivebase {
 
     kinematics =
         new MecanumDriveKinematics(
-            Constants.Drivebase.WHEEL_POSITIONS[0],
-            Constants.Drivebase.WHEEL_POSITIONS[1],
-            Constants.Drivebase.WHEEL_POSITIONS[2],
-            Constants.Drivebase.WHEEL_POSITIONS[3]);
+            WHEEL_POSITIONS[0], WHEEL_POSITIONS[1], WHEEL_POSITIONS[2], WHEEL_POSITIONS[3]);
     odometry =
         new MecanumDrivePoseEstimator(
             kinematics, new Rotation2d(), new MecanumDriveWheelPositions(), new Pose2d());
@@ -64,34 +62,48 @@ public class Drivebase {
             0,
             0,
             0,
-            Units.rotationsPerMinuteToRadiansPerSecond(Constants.Drivebase.DRIVE_MOTOR_MAX_RPM)
-                * Constants.Drivebase.FRONT_LEFT_WHEEL_DIAMETER);
+            1
+                / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
+                    * FRONT_LEFT_WHEEL_DIAMETER));
     frontRightDriveController =
         new SimplePIDFController(
             0,
             0,
             0,
-            Units.rotationsPerMinuteToRadiansPerSecond(Constants.Drivebase.DRIVE_MOTOR_MAX_RPM)
-                * Constants.Drivebase.FRONT_RIGHT_WHEEL_DIAMETER);
+            1
+                / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
+                    * FRONT_RIGHT_WHEEL_DIAMETER));
     backLeftDriveController =
         new SimplePIDFController(
             0,
             0,
             0,
-            Units.rotationsPerMinuteToRadiansPerSecond(Constants.Drivebase.DRIVE_MOTOR_MAX_RPM)
-                * Constants.Drivebase.BACK_LEFT_WHEEL_DIAMETER);
+            1
+                / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
+                    * BACK_LEFT_WHEEL_DIAMETER));
     backRightDriveController =
         new SimplePIDFController(
             0,
             0,
             0,
-            Units.rotationsPerMinuteToRadiansPerSecond(Constants.Drivebase.DRIVE_MOTOR_MAX_RPM)
-                * Constants.Drivebase.BACK_RIGHT_WHEEL_DIAMETER);
+            1
+                / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
+                    * BACK_RIGHT_WHEEL_DIAMETER));
   }
 
-  public void drive(
-      double vxMetersPerSecond, double vyMetersPerSecond, double omegaRadiansPerSecond) {
-    drive(new ChassisSpeeds(vxMetersPerSecond, vyMetersPerSecond, omegaRadiansPerSecond));
+  private final double topSpeedMetersPerSecond =
+      Math.min(
+              Math.min(FRONT_LEFT_WHEEL_DIAMETER, FRONT_RIGHT_WHEEL_DIAMETER),
+              Math.min(BACK_LEFT_WHEEL_DIAMETER, FRONT_RIGHT_WHEEL_DIAMETER))
+          * Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM);
+  private final double drivebaseRadiusMeters = Math.hypot(TRACK_LENGTH / 2, TRACK_WIDTH / 2);
+
+  public void drive(double xInput, double yInput, double omegaInput) {
+    drive(
+        new ChassisSpeeds(
+            xInput * topSpeedMetersPerSecond,
+            yInput * topSpeedMetersPerSecond,
+            omegaInput * topSpeedMetersPerSecond / drivebaseRadiusMeters));
   }
 
   double lastTime = -1;
@@ -102,6 +114,7 @@ public class Drivebase {
 
   public void drive(ChassisSpeeds chassisSpeeds) {
     MecanumDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(chassisSpeeds);
+    wheelSpeeds.desaturate(topSpeedMetersPerSecond);
     double currentTime = System.nanoTime() / 1e9;
     if (lastTime == -1) {
       lastTime = currentTime - .1;
@@ -113,10 +126,9 @@ public class Drivebase {
         getVelocity(
             frontLeftLastPos,
             lastTime,
-            Constants.Drivebase.FRONT_LEFT_WHEEL_DIAMETER
+            FRONT_LEFT_WHEEL_DIAMETER
                 * Units.rotationsToRadians(
-                    frontLeft.getCurrentPosition()
-                        / Constants.Drivebase.DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION),
+                    frontLeft.getCurrentPosition() / DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION),
             currentTime);
     frontLeft.setPower(
         frontLeftDriveController.calculate(frontLeftVel, wheelSpeeds.frontLeftMetersPerSecond));
@@ -126,10 +138,9 @@ public class Drivebase {
         getVelocity(
             frontRightLastPos,
             lastTime,
-            Constants.Drivebase.FRONT_RIGHT_WHEEL_DIAMETER
+            FRONT_RIGHT_WHEEL_DIAMETER
                 * Units.rotationsToRadians(
-                    frontRight.getCurrentPosition()
-                        / Constants.Drivebase.DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION),
+                    frontRight.getCurrentPosition() / DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION),
             currentTime);
     frontRight.setPower(
         frontRightDriveController.calculate(frontRightVel, wheelSpeeds.frontRightMetersPerSecond));
@@ -139,10 +150,9 @@ public class Drivebase {
         getVelocity(
             backLeftLastPos,
             lastTime,
-            Constants.Drivebase.BACK_LEFT_WHEEL_DIAMETER
+            BACK_LEFT_WHEEL_DIAMETER
                 * Units.rotationsToRadians(
-                    backLeft.getCurrentPosition()
-                        / Constants.Drivebase.DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION),
+                    backLeft.getCurrentPosition() / DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION),
             currentTime);
     backLeft.setPower(
         backLeftDriveController.calculate(backLeftVel, wheelSpeeds.rearLeftMetersPerSecond));
@@ -152,10 +162,9 @@ public class Drivebase {
         getVelocity(
             backRightLastPos,
             lastTime,
-            Constants.Drivebase.BACK_RIGHT_WHEEL_DIAMETER
+            BACK_RIGHT_WHEEL_DIAMETER
                 * Units.rotationsToRadians(
-                    backRight.getCurrentPosition()
-                        / Constants.Drivebase.DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION),
+                    backRight.getCurrentPosition() / DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION),
             currentTime);
     backRight.setPower(
         backRightDriveController.calculate(backRightVel, wheelSpeeds.rearRightMetersPerSecond));
