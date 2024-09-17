@@ -51,13 +51,13 @@ public class Drivebase {
     // Convert from encoder ticks to meters
     // Distance per rotation (meters) / encoder ticks per rotation
     frontLeft.setConversionFactor(
-        FRONT_LEFT_WHEEL_DIAMETER * Math.PI / DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION);
+        DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION / (FRONT_LEFT_WHEEL_DIAMETER * Math.PI));
     frontRight.setConversionFactor(
-        FRONT_RIGHT_WHEEL_DIAMETER * Math.PI / DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION);
+        DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION / (FRONT_RIGHT_WHEEL_DIAMETER * Math.PI));
     backLeft.setConversionFactor(
-        BACK_LEFT_WHEEL_DIAMETER * Math.PI / DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION);
+        DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION / (BACK_LEFT_WHEEL_DIAMETER * Math.PI));
     backRight.setConversionFactor(
-        BACK_RIGHT_WHEEL_DIAMETER * Math.PI / DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION);
+        DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION / (BACK_RIGHT_WHEEL_DIAMETER * Math.PI));
 
     kinematics =
         new MecanumDriveKinematics(
@@ -139,6 +139,7 @@ public class Drivebase {
             frontRight.getPosition(),
             backLeft.getPosition(),
             backRight.getPosition()));
+
   }
 
   public void addVisionMeasurement(

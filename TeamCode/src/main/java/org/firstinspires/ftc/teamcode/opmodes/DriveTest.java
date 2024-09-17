@@ -18,7 +18,8 @@ public class DriveTest extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
-            drivebase.teleopDrive(-this.gamepad1.left_stick_x, -this.gamepad1.left_stick_y, -this.gamepad1.right_stick_x);
+            // WHY IS IT +Y FWD +x LEFT
+            drivebase.teleopDrive(this.gamepad1.left_stick_y, this.gamepad1.left_stick_x, this.gamepad1.right_stick_x);
         }
     }
 }

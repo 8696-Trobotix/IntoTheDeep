@@ -50,7 +50,7 @@ public class Motor {
    *
    * <p>Values > 1 are reductions, so a 4:1 reduction would make a factor of 4.
    *
-   * <p>A common use case is to convert from encoder ticks to rotations, with 1 / ticksPerRotation.
+   * <p>A common use case is to convert from encoder ticks to rotations.
    *
    * @param conversionFactor The new conversion factor.
    */
