@@ -20,6 +20,7 @@ import org.firstinspires.ftc.teamcode.wpilib.math.kinematics.Odometry;
 import org.firstinspires.ftc.teamcode.wpilib.math.kinematics.WheelPositions;
 import org.firstinspires.ftc.teamcode.wpilib.math.numbers.N1;
 import org.firstinspires.ftc.teamcode.wpilib.math.numbers.N3;
+import org.firstinspires.ftc.teamcode.teamutils.Utils;
 
 /**
  * This class wraps {@link Odometry} to fuse latency-compensated vision measurements with encoder
@@ -224,7 +225,7 @@ public class PoseEstimator<T extends WheelPositions<T>> {
    * @return The estimated pose of the robot in meters.
    */
   public Pose2d update(Rotation2d gyroAngle, T wheelPositions) {
-    return updateWithTime(System.nanoTime() / 1e9, gyroAngle, wheelPositions);
+    return updateWithTime(Utils.getTimeSeconds(), gyroAngle, wheelPositions);
   }
 
   /**

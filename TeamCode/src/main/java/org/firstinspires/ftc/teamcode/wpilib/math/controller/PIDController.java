@@ -3,6 +3,7 @@
 
 package org.firstinspires.ftc.teamcode.wpilib.math.controller;
 
+import org.firstinspires.ftc.teamcode.teamutils.Utils;
 import org.firstinspires.ftc.teamcode.wpilib.math.MathUtil;
 
 /** Implements a PID control loop. */
@@ -350,7 +351,7 @@ public class PIDController {
    * @return The next controller output.
    */
   public double calculate(double measurement) {
-    double currentTime = System.nanoTime() / 1e9;
+    double currentTime = Utils.getTimeSeconds();
     if (lastTime == -1) {
       lastTime = currentTime - .01;
     }

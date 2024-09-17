@@ -5,10 +5,8 @@ package org.firstinspires.ftc.teamcode;
 
 import static org.firstinspires.ftc.teamcode.Constants.Drivebase.*;
 
-import com.outoftheboxrobotics.photoncore.hardware.motor.PhotonDcMotor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import org.firstinspires.ftc.teamcode.teamutils.Motor;
 import org.firstinspires.ftc.teamcode.teamutils.SimplePIDFController;
 import org.firstinspires.ftc.teamcode.wpilib.math.VecBuilder;
 import org.firstinspires.ftc.teamcode.wpilib.math.estimator.MecanumDrivePoseEstimator;
@@ -21,10 +19,10 @@ import org.firstinspires.ftc.teamcode.wpilib.math.kinematics.MecanumDriveWheelSp
 import org.firstinspires.ftc.teamcode.wpilib.math.utils.Units;
 
 public class Drivebase {
-  private final PhotonDcMotor frontLeft;
-  private final PhotonDcMotor frontRight;
-  private final PhotonDcMotor backLeft;
-  private final PhotonDcMotor backRight;
+  private final Motor frontLeft;
+  private final Motor frontRight;
+  private final Motor backLeft;
+  private final Motor backRight;
 
   private final MecanumDriveKinematics kinematics;
   private final MecanumDrivePoseEstimator odometry;
@@ -35,20 +33,31 @@ public class Drivebase {
   private final SimplePIDFController backRightDriveController;
 
   public Drivebase(LinearOpMode opMode) {
-    frontLeft = (PhotonDcMotor) opMode.hardwareMap.dcMotor.get("frontLeft");
-    frontRight = (PhotonDcMotor) opMode.hardwareMap.dcMotor.get("frontRight");
-    backLeft = (PhotonDcMotor) opMode.hardwareMap.dcMotor.get("backLeft");
-    backRight = (PhotonDcMotor) opMode.hardwareMap.dcMotor.get("backRight");
+    frontLeft = new Motor(opMode, "frontLeft");
+    frontRight = new Motor(opMode, "frontRight");
+    backLeft = new Motor(opMode, "backLeft");
+    backRight = new Motor(opMode, "backRight");
 
-    frontLeft.setDirection(DcMotorSimple.Direction.FORWARD);
-    backLeft.setDirection(DcMotorSimple.Direction.FORWARD);
-    frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
-    backRight.setDirection(DcMotorSimple.Direction.REVERSE);
+    frontLeft.setInverted(false);
+    backLeft.setInverted(false);
+    frontRight.setInverted(true);
+    backRight.setInverted(true);
 
-    frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-    frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-    backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-    backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    frontLeft.setIdleBrake(true);
+    frontRight.setIdleBrake(true);
+    backLeft.setIdleBrake(true);
+    backRight.setIdleBrake(true);
+
+    // Convert from encoder ticks to meters
+    // Distance per rotation (meters) / encoder ticks per rotation
+    frontLeft.setConversionFactor(
+        FRONT_LEFT_WHEEL_DIAMETER * Math.PI / DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION);
+    frontRight.setConversionFactor(
+        FRONT_RIGHT_WHEEL_DIAMETER * Math.PI / DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION);
+    backLeft.setConversionFactor(
+        BACK_LEFT_WHEEL_DIAMETER * Math.PI / DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION);
+    backRight.setConversionFactor(
+        BACK_RIGHT_WHEEL_DIAMETER * Math.PI / DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION);
 
     kinematics =
         new MecanumDriveKinematics(
@@ -62,7 +71,7 @@ public class Drivebase {
             0,
             0,
             0,
-            1
+            12
                 / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
                     * FRONT_LEFT_WHEEL_DIAMETER));
     frontRightDriveController =
@@ -70,7 +79,7 @@ public class Drivebase {
             0,
             0,
             0,
-            1
+            12
                 / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
                     * FRONT_RIGHT_WHEEL_DIAMETER));
     backLeftDriveController =
@@ -78,7 +87,7 @@ public class Drivebase {
             0,
             0,
             0,
-            1
+            12
                 / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
                     * BACK_LEFT_WHEEL_DIAMETER));
     backRightDriveController =
@@ -86,7 +95,7 @@ public class Drivebase {
             0,
             0,
             0,
-            1
+            12
                 / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
                     * BACK_RIGHT_WHEEL_DIAMETER));
   }
@@ -106,77 +115,30 @@ public class Drivebase {
             omegaInput * topSpeedMetersPerSecond / drivebaseRadiusMeters));
   }
 
-  double lastTime = -1;
-  double frontLeftLastPos = 0;
-  double frontRightLastPos = 0;
-  double backLeftLastPos = 0;
-  double backRightLastPos = 0;
-
   public void drive(ChassisSpeeds chassisSpeeds) {
     MecanumDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(chassisSpeeds);
     wheelSpeeds.desaturate(topSpeedMetersPerSecond);
-    double currentTime = System.nanoTime() / 1e9;
-    if (lastTime == -1) {
-      lastTime = currentTime - .1;
-    }
 
-    // We calculate motor velocity ourselves because REV sucks and only calculates velocity at 20 hz
+    frontLeft.setVoltage(
+        frontLeftDriveController.calculate(
+            frontLeft.getVelocity(), wheelSpeeds.frontLeftMetersPerSecond));
+    frontRight.setVoltage(
+        frontRightDriveController.calculate(
+            frontRight.getVelocity(), wheelSpeeds.frontRightMetersPerSecond));
+    backLeft.setVoltage(
+        backLeftDriveController.calculate(
+            backLeft.getVelocity(), wheelSpeeds.rearLeftMetersPerSecond));
+    backRight.setVoltage(
+        backRightDriveController.calculate(
+            backRight.getVelocity(), wheelSpeeds.rearRightMetersPerSecond));
 
-    double frontLeftVel =
-        getVelocity(
-            frontLeftLastPos,
-            lastTime,
-            FRONT_LEFT_WHEEL_DIAMETER
-                * Units.rotationsToRadians(
-                    frontLeft.getCurrentPosition() / DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION),
-            currentTime);
-    frontLeft.setPower(
-        frontLeftDriveController.calculate(frontLeftVel, wheelSpeeds.frontLeftMetersPerSecond));
-    frontLeftLastPos = frontLeft.getCurrentPosition();
-
-    double frontRightVel =
-        getVelocity(
-            frontRightLastPos,
-            lastTime,
-            FRONT_RIGHT_WHEEL_DIAMETER
-                * Units.rotationsToRadians(
-                    frontRight.getCurrentPosition() / DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION),
-            currentTime);
-    frontRight.setPower(
-        frontRightDriveController.calculate(frontRightVel, wheelSpeeds.frontRightMetersPerSecond));
-    frontRightLastPos = frontRight.getCurrentPosition();
-
-    double backLeftVel =
-        getVelocity(
-            backLeftLastPos,
-            lastTime,
-            BACK_LEFT_WHEEL_DIAMETER
-                * Units.rotationsToRadians(
-                    backLeft.getCurrentPosition() / DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION),
-            currentTime);
-    backLeft.setPower(
-        backLeftDriveController.calculate(backLeftVel, wheelSpeeds.rearLeftMetersPerSecond));
-    backLeftLastPos = backLeft.getCurrentPosition();
-
-    double backRightVel =
-        getVelocity(
-            backRightLastPos,
-            lastTime,
-            BACK_RIGHT_WHEEL_DIAMETER
-                * Units.rotationsToRadians(
-                    backRight.getCurrentPosition() / DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION),
-            currentTime);
-    backRight.setPower(
-        backRightDriveController.calculate(backRightVel, wheelSpeeds.rearRightMetersPerSecond));
-    backRightLastPos = backRight.getCurrentPosition();
-
-    odometry.updateWithTime(
-        currentTime,
+    odometry.update(
         new Rotation2d(),
         new MecanumDriveWheelPositions(
-            frontLeftLastPos, frontRightLastPos, backLeftLastPos, backRightLastPos));
-
-    lastTime = currentTime;
+            frontLeft.getPosition(),
+            frontRight.getPosition(),
+            backLeft.getPosition(),
+            backRight.getPosition()));
   }
 
   public void addVisionMeasurement(
@@ -185,10 +147,5 @@ public class Drivebase {
         estimatedPose,
         timestamp,
         VecBuilder.fill(translationalStDev, translationalStDev, angularStDev));
-  }
-
-  private double getVelocity(
-      double lastPos, double lastTime, double currentPos, double currentTime) {
-    return (currentPos - lastPos) / (currentTime - lastTime);
   }
 }
