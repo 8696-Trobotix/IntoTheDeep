@@ -40,10 +40,10 @@ public class Drivebase {
     backLeft = (PhotonDcMotor) opMode.hardwareMap.dcMotor.get("backLeft");
     backRight = (PhotonDcMotor) opMode.hardwareMap.dcMotor.get("backRight");
 
-    frontRight.setDirection(DcMotorSimple.Direction.FORWARD);
-    backRight.setDirection(DcMotorSimple.Direction.FORWARD);
-    frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-    backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+    frontLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+    backLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+    frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
+    backRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
     frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -98,7 +98,7 @@ public class Drivebase {
           * Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM);
   private final double drivebaseRadiusMeters = Math.hypot(TRACK_LENGTH / 2, TRACK_WIDTH / 2);
 
-  public void drive(double xInput, double yInput, double omegaInput) {
+  public void teleopDrive(double xInput, double yInput, double omegaInput) {
     drive(
         new ChassisSpeeds(
             xInput * topSpeedMetersPerSecond,
