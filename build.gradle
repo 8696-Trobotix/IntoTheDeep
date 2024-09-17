@@ -37,14 +37,14 @@ spotless {
     java {
         target fileTree(".") {
             include "**/*.java"
-            exclude "**/build/**", "**/build-*/**", "**/wpilib/**", "FtcRobotController/**"
+            exclude "**/build/**", "**/build-*/**", "FtcRobotController/**"
         }
         removeUnusedImports()
         importOrder()
         cleanthat()
         googleJavaFormat()
-        licenseHeader("// Copyright (c) 2024 FRC 167\n// https://github.com/icrobotics-team167\n//\n// Use of this source code is governed by an MIT-style\n// license that can be found in the LICENSE file at\n// the root directory of this project.\n\n")
         endWithNewline()
+        licenseHeader("// Copyright (c) 2024-2025 FTC 8696\n// All rights reserved.\n\n")
     }
     groovyGradle {
         target fileTree(".") {

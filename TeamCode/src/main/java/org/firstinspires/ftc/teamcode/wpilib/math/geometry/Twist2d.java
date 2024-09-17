@@ -1,9 +1,10 @@
+// Copyright (c) 2024-2025 FTC 8696
+// All rights reserved.
+
 package org.firstinspires.ftc.teamcode.wpilib.math.geometry;
 
 import android.annotation.SuppressLint;
-
 import androidx.annotation.NonNull;
-
 import java.util.Objects;
 
 /**
@@ -13,56 +14,56 @@ import java.util.Objects;
  * <p>A Twist can be used to represent a difference between two poses.
  */
 public class Twist2d {
-    /** Linear "dx" component. */
-    public double dx;
+  /** Linear "dx" component. */
+  public double dx;
 
-    /** Linear "dy" component. */
-    public double dy;
+  /** Linear "dy" component. */
+  public double dy;
 
-    /** Angular "dtheta" component (radians). */
-    public double dtheta;
+  /** Angular "dtheta" component (radians). */
+  public double dtheta;
 
-    /** Default constructor. */
-    public Twist2d() {}
+  /** Default constructor. */
+  public Twist2d() {}
 
-    /**
-     * Constructs a Twist2d with the given values.
-     *
-     * @param dx Change in x direction relative to robot.
-     * @param dy Change in y direction relative to robot.
-     * @param dtheta Change in angle relative to robot.
-     */
-    public Twist2d(double dx, double dy, double dtheta) {
-        this.dx = dx;
-        this.dy = dy;
-        this.dtheta = dtheta;
+  /**
+   * Constructs a Twist2d with the given values.
+   *
+   * @param dx Change in x direction relative to robot.
+   * @param dy Change in y direction relative to robot.
+   * @param dtheta Change in angle relative to robot.
+   */
+  public Twist2d(double dx, double dy, double dtheta) {
+    this.dx = dx;
+    this.dy = dy;
+    this.dtheta = dtheta;
+  }
+
+  @SuppressLint("DefaultLocale")
+  @NonNull
+  @Override
+  public String toString() {
+    return String.format("Twist2d(dX: %.2f, dY: %.2f, dTheta: %.2f)", dx, dy, dtheta);
+  }
+
+  /**
+   * Checks equality between this Twist2d and another object.
+   *
+   * @param obj The other object.
+   * @return Whether the two objects are equal or not.
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof Twist2d) {
+      return Math.abs(((Twist2d) obj).dx - dx) < 1E-9
+          && Math.abs(((Twist2d) obj).dy - dy) < 1E-9
+          && Math.abs(((Twist2d) obj).dtheta - dtheta) < 1E-9;
     }
+    return false;
+  }
 
-    @SuppressLint("DefaultLocale")
-    @NonNull
-    @Override
-    public String toString() {
-        return String.format("Twist2d(dX: %.2f, dY: %.2f, dTheta: %.2f)", dx, dy, dtheta);
-    }
-
-    /**
-     * Checks equality between this Twist2d and another object.
-     *
-     * @param obj The other object.
-     * @return Whether the two objects are equal or not.
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof Twist2d) {
-            return Math.abs(((Twist2d) obj).dx - dx) < 1E-9
-                    && Math.abs(((Twist2d) obj).dy - dy) < 1E-9
-                    && Math.abs(((Twist2d) obj).dtheta - dtheta) < 1E-9;
-        }
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(dx, dy, dtheta);
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(dx, dy, dtheta);
+  }
 }

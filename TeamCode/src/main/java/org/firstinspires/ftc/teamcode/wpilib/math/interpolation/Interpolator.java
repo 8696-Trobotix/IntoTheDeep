@@ -1,3 +1,6 @@
+// Copyright (c) 2024-2025 FTC 8696
+// All rights reserved.
+
 package org.firstinspires.ftc.teamcode.wpilib.math.interpolation;
 
 import org.firstinspires.ftc.teamcode.wpilib.math.MathUtil;
@@ -10,22 +13,22 @@ import org.firstinspires.ftc.teamcode.wpilib.math.MathUtil;
  */
 @FunctionalInterface
 public interface Interpolator<T> {
-    /**
-     * Perform interpolation between two values.
-     *
-     * @param startValue The value to start at.
-     * @param endValue The value to end at.
-     * @param t How far between the two values to interpolate. This should be bounded to [0, 1].
-     * @return The interpolated value.
-     */
-    T interpolate(T startValue, T endValue, double t);
+  /**
+   * Perform interpolation between two values.
+   *
+   * @param startValue The value to start at.
+   * @param endValue The value to end at.
+   * @param t How far between the two values to interpolate. This should be bounded to [0, 1].
+   * @return The interpolated value.
+   */
+  T interpolate(T startValue, T endValue, double t);
 
-    /**
-     * Returns interpolator for Double.
-     *
-     * @return Interpolator for Double.
-     */
-    static Interpolator<Double> forDouble() {
-        return MathUtil::interpolate;
-    }
+  /**
+   * Returns interpolator for Double.
+   *
+   * @return Interpolator for Double.
+   */
+  static Interpolator<Double> forDouble() {
+    return MathUtil::interpolate;
+  }
 }

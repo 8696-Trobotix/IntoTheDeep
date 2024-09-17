@@ -1,3 +1,6 @@
+// Copyright (c) 2024-2025 FTC 8696
+// All rights reserved.
+
 package org.firstinspires.ftc.teamcode.wpilib.math.kinematics;
 
 import org.firstinspires.ftc.teamcode.wpilib.math.interpolation.Interpolatable;
@@ -8,10 +11,10 @@ import org.firstinspires.ftc.teamcode.wpilib.math.interpolation.Interpolatable;
  * @param <T> Wheel positions type.
  */
 public interface WheelPositions<T extends WheelPositions<T>> extends Interpolatable<T> {
-    /**
-     * Returns a copy of this instance.
-     *
-     * @return A copy.
-     */
-    T copy();
+  /**
+   * Returns a copy of this instance.
+   *
+   * @return A copy.
+   */
+  T copy();
 }
