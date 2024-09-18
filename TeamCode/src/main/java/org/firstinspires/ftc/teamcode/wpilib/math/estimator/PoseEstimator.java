@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
+import org.firstinspires.ftc.teamcode.teamutils.Utils;
 import org.firstinspires.ftc.teamcode.wpilib.math.Matrix;
 import org.firstinspires.ftc.teamcode.wpilib.math.Nat;
 import org.firstinspires.ftc.teamcode.wpilib.math.VecBuilder;
@@ -20,7 +21,6 @@ import org.firstinspires.ftc.teamcode.wpilib.math.kinematics.Odometry;
 import org.firstinspires.ftc.teamcode.wpilib.math.kinematics.WheelPositions;
 import org.firstinspires.ftc.teamcode.wpilib.math.numbers.N1;
 import org.firstinspires.ftc.teamcode.wpilib.math.numbers.N3;
-import org.firstinspires.ftc.teamcode.teamutils.Utils;
 
 /**
  * This class wraps {@link Odometry} to fuse latency-compensated vision measurements with encoder

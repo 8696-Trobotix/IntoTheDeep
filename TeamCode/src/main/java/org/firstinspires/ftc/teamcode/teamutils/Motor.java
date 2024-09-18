@@ -71,10 +71,11 @@ public class Motor {
   private double lastPos = 0;
   private double lastTime = -1;
 
-  // We calculate motor velocity ourselves because REV sucks and only calculates velocity at 20 hz
-
   /**
    * Gets the motor's current velocity.
+   *
+   * <p>We calculate motor velocity ourselves because REV sucks and only calculates velocity at 20
+   * hz.
    *
    * @return The velocity. Numerator units follow {@link Motor#getPosition()}. Denominator unit is
    *     seconds.
