@@ -29,9 +29,9 @@ public class MecanumDrivePoseEstimator extends PoseEstimator<MecanumDriveWheelPo
    * Constructs a MecanumDrivePoseEstimator with default standard deviations for the model and
    * vision measurements.
    *
-   * <p>The default standard deviations of the model states are 0.1 meters for x, 0.1 meters for y,
-   * and 0.1 radians for heading. The default standard deviations of the vision measurements are
-   * 0.45 meters for x, 0.45 meters for y, and 0.45 radians for heading.
+   * <p>The default standard deviations of the model states are 0.2 meters for x, 0.2 meters for
+   * y, and 0.2 radians for heading. The default standard deviations of the vision measurements are
+   * 0.1 meters for x, 0.1 meters for y, and 0.1 radians for heading.
    *
    * @param kinematics A correctly-configured kinematics object for your drivetrain.
    * @param gyroAngle The current gyro angle.
@@ -48,8 +48,8 @@ public class MecanumDrivePoseEstimator extends PoseEstimator<MecanumDriveWheelPo
         gyroAngle,
         wheelPositions,
         initialPoseMeters,
-        VecBuilder.fill(0.1, 0.1, 0.1),
-        VecBuilder.fill(0.45, 0.45, 0.45));
+        VecBuilder.fill(0.2, 0.2, 0.2),
+        VecBuilder.fill(0.1, 0.1, 0.1));
   }
 
   /**
