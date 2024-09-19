@@ -9,4 +9,20 @@ public class Utils {
   public static double getTimeSeconds() {
     return System.nanoTime() / 1e9;
   }
+
+  public static double average(double... numbers) {
+    double sum = 0;
+    for (double number : numbers) {
+      sum += number;
+    }
+    return sum /= numbers.length;
+  }
+
+  public static double minimum(double... numbers) {
+    double min = Double.POSITIVE_INFINITY;
+    for (double number : numbers) {
+      min = Math.min(min, number);
+    }
+    return min;
+  }
 }

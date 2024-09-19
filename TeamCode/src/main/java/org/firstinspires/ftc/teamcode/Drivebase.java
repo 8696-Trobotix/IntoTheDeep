@@ -8,6 +8,7 @@ import static org.firstinspires.ftc.teamcode.Constants.Drivebase.*;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.teamutils.Motor;
 import org.firstinspires.ftc.teamcode.teamutils.SimplePIDFController;
+import org.firstinspires.ftc.teamcode.teamutils.Utils;
 import org.firstinspires.ftc.teamcode.wpilib.math.VecBuilder;
 import org.firstinspires.ftc.teamcode.wpilib.math.estimator.MecanumDrivePoseEstimator;
 import org.firstinspires.ftc.teamcode.wpilib.math.geometry.Pose2d;
@@ -102,24 +103,27 @@ public class Drivebase {
             backRight.getPosition()));
   }
 
-  private final double topSpeedMetersPerSecond =
-      Math.min(
-              Math.min(FRONT_LEFT_WHEEL_DIAMETER, FRONT_RIGHT_WHEEL_DIAMETER),
-              Math.min(BACK_LEFT_WHEEL_DIAMETER, FRONT_RIGHT_WHEEL_DIAMETER))
+  public final double topTranslationalSpeedMetersPerSec =
+      Utils.minimum(
+              FRONT_LEFT_WHEEL_DIAMETER,
+              FRONT_RIGHT_WHEEL_DIAMETER,
+              BACK_LEFT_WHEEL_DIAMETER,
+              BACK_RIGHT_WHEEL_DIAMETER)
           * Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM);
-  private final double drivebaseRadiusMeters = Math.hypot(TRACK_LENGTH / 2, TRACK_WIDTH / 2);
+  public final double topAngularSpeedRadPerSec =
+      topTranslationalSpeedMetersPerSec / Math.hypot(TRACK_LENGTH / 2, TRACK_WIDTH / 2);
 
   public void teleopDrive(double xInput, double yInput, double omegaInput) {
     drive(
         new ChassisSpeeds(
-            xInput * topSpeedMetersPerSecond,
-            yInput * topSpeedMetersPerSecond,
-            omegaInput * topSpeedMetersPerSecond / drivebaseRadiusMeters));
+            xInput * topTranslationalSpeedMetersPerSec,
+            yInput * topTranslationalSpeedMetersPerSec,
+            omegaInput * topAngularSpeedRadPerSec));
   }
 
   public void drive(ChassisSpeeds chassisSpeeds) {
     MecanumDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(chassisSpeeds);
-    wheelSpeeds.desaturate(topSpeedMetersPerSecond);
+    wheelSpeeds.desaturate(topTranslationalSpeedMetersPerSec);
 
     frontLeft.setVoltage(
         frontLeftDriveController.calculate(
