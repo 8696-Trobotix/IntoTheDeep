@@ -69,15 +69,11 @@ public class Drivebase {
     frontLeftDriveController =
         new SimplePIDFController(
             0,
-            0,
-            0,
             12
                 / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
                     * FRONT_LEFT_WHEEL_DIAMETER));
     frontRightDriveController =
         new SimplePIDFController(
-            0,
-            0,
             0,
             12
                 / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
@@ -85,19 +81,25 @@ public class Drivebase {
     backLeftDriveController =
         new SimplePIDFController(
             0,
-            0,
-            0,
             12
                 / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
                     * BACK_LEFT_WHEEL_DIAMETER));
     backRightDriveController =
         new SimplePIDFController(
             0,
-            0,
-            0,
             12
                 / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
                     * BACK_RIGHT_WHEEL_DIAMETER));
+  }
+
+  public void periodic() {
+    odometry.update(
+        new Rotation2d(),
+        new MecanumDriveWheelPositions(
+            frontLeft.getPosition(),
+            frontRight.getPosition(),
+            backLeft.getPosition(),
+            backRight.getPosition()));
   }
 
   private final double topSpeedMetersPerSecond =
@@ -131,14 +133,6 @@ public class Drivebase {
     backRight.setVoltage(
         backRightDriveController.calculate(
             backRight.getVelocity(), wheelSpeeds.rearRightMetersPerSecond));
-
-    odometry.update(
-        new Rotation2d(),
-        new MecanumDriveWheelPositions(
-            frontLeft.getPosition(),
-            frontRight.getPosition(),
-            backLeft.getPosition(),
-            backRight.getPosition()));
   }
 
   public void addVisionMeasurement(

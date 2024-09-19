@@ -19,12 +19,14 @@ public class DriveTest extends LinearOpMode {
     telemetry.addData("Status", "Initialized");
 
     waitForStart();
-
+    telemetry.addData("Status", "Running");
     while (opModeIsActive()) {
       double startTime = Utils.getTimeSeconds();
 
       drivebase.teleopDrive(
           -this.gamepad1.left_stick_y, -this.gamepad1.left_stick_x, -this.gamepad1.right_stick_x);
+
+      drivebase.periodic();
 
       telemetry.addData("Loop frequency", 1.0 / (Utils.getTimeSeconds() - startTime));
     }
