@@ -25,4 +25,12 @@ public class Utils {
     }
     return min;
   }
+
+  public static double maximum(double... numbers) {
+    double max = Double.NEGATIVE_INFINITY;
+    for (double number : numbers) {
+      max = Math.max(max, number);
+    }
+    return max;
+  }
 }

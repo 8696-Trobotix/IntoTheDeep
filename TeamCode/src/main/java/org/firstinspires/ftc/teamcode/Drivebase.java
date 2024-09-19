@@ -9,13 +9,15 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.teamutils.Motor;
 import org.firstinspires.ftc.teamcode.teamutils.SimplePIDFController;
 import org.firstinspires.ftc.teamcode.teamutils.Utils;
+import org.firstinspires.ftc.teamcode.teamutils.estimator.OmniWheelPoseEstimator;
+import org.firstinspires.ftc.teamcode.teamutils.kinematics.OmniWheelKinematics;
+import org.firstinspires.ftc.teamcode.teamutils.kinematics.OmniWheelPositions;
 import org.firstinspires.ftc.teamcode.wpilib.math.VecBuilder;
-import org.firstinspires.ftc.teamcode.wpilib.math.estimator.MecanumDrivePoseEstimator;
 import org.firstinspires.ftc.teamcode.wpilib.math.geometry.Pose2d;
 import org.firstinspires.ftc.teamcode.wpilib.math.geometry.Rotation2d;
+import org.firstinspires.ftc.teamcode.wpilib.math.geometry.Transform2d;
 import org.firstinspires.ftc.teamcode.wpilib.math.kinematics.ChassisSpeeds;
 import org.firstinspires.ftc.teamcode.wpilib.math.kinematics.MecanumDriveKinematics;
-import org.firstinspires.ftc.teamcode.wpilib.math.kinematics.MecanumDriveWheelPositions;
 import org.firstinspires.ftc.teamcode.wpilib.math.kinematics.MecanumDriveWheelSpeeds;
 import org.firstinspires.ftc.teamcode.wpilib.math.utils.Units;
 
@@ -26,7 +28,7 @@ public class Drivebase {
   private final Motor backRight;
 
   private final MecanumDriveKinematics kinematics;
-  private final MecanumDrivePoseEstimator odometry;
+  private final OmniWheelPoseEstimator odometry;
 
   private final SimplePIDFController frontLeftDriveController;
   private final SimplePIDFController frontRightDriveController;
@@ -64,8 +66,11 @@ public class Drivebase {
         new MecanumDriveKinematics(
             WHEEL_POSITIONS[0], WHEEL_POSITIONS[1], WHEEL_POSITIONS[2], WHEEL_POSITIONS[3]);
     odometry =
-        new MecanumDrivePoseEstimator(
-            kinematics, new Rotation2d(), new MecanumDriveWheelPositions(), new Pose2d());
+        new OmniWheelPoseEstimator(
+            new OmniWheelKinematics(new Transform2d[] {}),
+            new Rotation2d(),
+            new OmniWheelPositions(),
+            new Pose2d());
 
     frontLeftDriveController =
         new SimplePIDFController(
@@ -94,13 +99,8 @@ public class Drivebase {
   }
 
   public void periodic() {
-    odometry.update(
-        new Rotation2d(),
-        new MecanumDriveWheelPositions(
-            frontLeft.getPosition(),
-            frontRight.getPosition(),
-            backLeft.getPosition(),
-            backRight.getPosition()));
+    // TODO: Implement sensors
+    odometry.update(new Rotation2d(), new OmniWheelPositions());
   }
 
   public final double topTranslationalSpeedMetersPerSec =
