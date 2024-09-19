@@ -6,10 +6,11 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.Drivebase;
 import org.firstinspires.ftc.teamcode.teamutils.Utils;
+import org.firstinspires.ftc.teamcode.wpilib.Timer;
 import org.firstinspires.ftc.teamcode.wpilib.math.kinematics.ChassisSpeeds;
 
 @Photon
-@Autonomous
+@Autonomous(preselectTeleOp = "DriveTest")
 public class AutoTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
@@ -18,8 +19,10 @@ public class AutoTest extends LinearOpMode {
         telemetry.addData("Status", "Initialized");
 
         waitForStart();
+        Timer timer = new Timer();
+        timer.start();
         telemetry.addData("Status", "Running");
-        while (opModeIsActive()) {
+        while (opModeIsActive() && !timer.hasElapsed(5)) {
             double startTime = Utils.getTimeSeconds();
 
             drivebase.drive(new ChassisSpeeds(1, 0, 0));
