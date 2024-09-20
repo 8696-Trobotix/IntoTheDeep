@@ -15,10 +15,10 @@ import org.firstinspires.ftc.teamcode.wpilib.math.numbers.N1;
 import org.firstinspires.ftc.teamcode.wpilib.math.numbers.N3;
 
 /**
- * This class wraps {@link MecanumDriveOdometry Mecanum Drive Odometry} to fuse latency-compensated
+ * This class wraps {@link OmniWheelOdometry} to fuse latency-compensated
  * vision measurements with mecanum drive encoder distance measurements. It will correct for noisy
  * measurements and encoder drift. It is intended to be a drop-in replacement for {@link
- * MecanumDriveOdometry}.
+ * OmniWheelOdometry}.
  *
  * <p>{@link OmniWheelPoseEstimator#update} should be called every robot loop.
  *
@@ -27,7 +27,7 @@ import org.firstinspires.ftc.teamcode.wpilib.math.numbers.N3;
  */
 public class OmniWheelPoseEstimator extends PoseEstimator<OmniWheelPositions> {
   /**
-   * Constructs a MecanumDrivePoseEstimator with default standard deviations for the model and
+   * Constructs a OmniWheelPoseEstimator with default standard deviations for the model and
    * vision measurements.
    *
    * <p>The default standard deviations of the model states are 0.01 meters for x, 0.01 meters for y,
@@ -54,7 +54,7 @@ public class OmniWheelPoseEstimator extends PoseEstimator<OmniWheelPositions> {
   }
 
   /**
-   * Constructs a MecanumDrivePoseEstimator.
+   * Constructs a OmniWheelPoseEstimator.
    *
    * @param kinematics A correctly-configured kinematics object for your drivetrain.
    * @param gyroAngle The current gyro angle.

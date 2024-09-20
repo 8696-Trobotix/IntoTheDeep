@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.wpilib.math.geometry.Rotation2d;
 import org.firstinspires.ftc.teamcode.wpilib.math.kinematics.Odometry;
 
 /**
- * Class for mecanum drive odometry. Odometry allows you to track the robot's position on the field
+ * Class for omni wheel odometry. Odometry allows you to track the robot's position on the field
  * over a course of a match using readings from your mecanum wheel encoders.
  *
  * <p>Teams can use odometry during the autonomous period for complex tasks like path following.
@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.wpilib.math.kinematics.Odometry;
  */
 public class OmniWheelOdometry extends Odometry<OmniWheelPositions> {
   /**
-   * Constructs a MecanumDriveOdometry object.
+   * Constructs a OmniWheelOdometry object.
    *
    * @param kinematics The mecanum drive kinematics for your drivetrain.
    * @param gyroAngle The angle reported by the gyroscope.
@@ -32,7 +32,7 @@ public class OmniWheelOdometry extends Odometry<OmniWheelPositions> {
   }
 
   /**
-   * Constructs a MecanumDriveOdometry object with the default pose at the origin.
+   * Constructs a OmniWheelOdometry object with the default pose at the origin.
    *
    * @param kinematics The mecanum drive kinematics for your drivetrain.
    * @param gyroAngle The angle reported by the gyroscope.
