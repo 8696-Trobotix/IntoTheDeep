@@ -1,7 +1,7 @@
 // Copyright (c) 2024-2025 FTC 8696
 // All rights reserved.
 
-package org.firstinspires.ftc.teamcode.teamutils;
+package org.firstinspires.ftc.teamcode.teamutils.controller;
 
 import org.firstinspires.ftc.teamcode.wpilib.math.controller.PIDController;
 import org.firstinspires.ftc.teamcode.wpilib.math.controller.SimpleMotorFeedforward;

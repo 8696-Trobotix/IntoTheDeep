@@ -7,7 +7,7 @@ import static org.firstinspires.ftc.teamcode.Constants.Drivebase.*;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.teamutils.Motor;
-import org.firstinspires.ftc.teamcode.teamutils.SimplePIDFController;
+import org.firstinspires.ftc.teamcode.teamutils.controller.SimplePIDFController;
 import org.firstinspires.ftc.teamcode.teamutils.Utils;
 import org.firstinspires.ftc.teamcode.teamutils.estimator.OmniWheelPoseEstimator;
 import org.firstinspires.ftc.teamcode.teamutils.kinematics.OmniWheelKinematics;
