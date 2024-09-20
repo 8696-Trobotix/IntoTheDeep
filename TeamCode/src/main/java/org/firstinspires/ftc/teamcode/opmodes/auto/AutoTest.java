@@ -5,9 +5,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.Drivebase;
-import org.firstinspires.ftc.teamcode.teamutils.Utils;
-import org.firstinspires.ftc.teamcode.wpilib.Timer;
-import org.firstinspires.ftc.teamcode.wpilib.math.kinematics.ChassisSpeeds;
+import org.firstinspires.ftc.teamcode.lib.teamlib.Utils;
+import org.firstinspires.ftc.teamcode.lib.wpilib.Timer;
+import org.firstinspires.ftc.teamcode.lib.wpilib.math.kinematics.ChassisSpeeds;
 
 @Photon
 @Autonomous(preselectTeleOp = "DriveTest")

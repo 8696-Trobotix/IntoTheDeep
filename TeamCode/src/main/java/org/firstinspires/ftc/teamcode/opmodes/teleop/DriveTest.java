@@ -7,7 +7,7 @@ import com.outoftheboxrobotics.photoncore.Photon;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Drivebase;
-import org.firstinspires.ftc.teamcode.teamutils.Utils;
+import org.firstinspires.ftc.teamcode.lib.teamlib.Utils;
 
 @Photon
 @TeleOp

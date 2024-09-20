@@ -3,8 +3,8 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import org.firstinspires.ftc.teamcode.wpilib.math.geometry.Translation2d;
-import org.firstinspires.ftc.teamcode.wpilib.math.utils.Units;
+import org.firstinspires.ftc.teamcode.lib.wpilib.math.geometry.Translation2d;
+import org.firstinspires.ftc.teamcode.lib.wpilib.math.utils.Units;
 
 public class Constants {
   private Constants() {}
