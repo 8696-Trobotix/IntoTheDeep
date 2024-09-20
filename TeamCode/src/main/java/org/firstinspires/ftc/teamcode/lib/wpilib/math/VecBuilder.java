@@ -8,7 +8,6 @@ import org.ejml.simple.SimpleMatrix;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.numbers.N1;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.numbers.N2;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.numbers.N3;
-import org.firstinspires.ftc.teamcode.wpilib.math.numbers.*;
 
 /** A class for constructing vectors (Nx1 matrices). */
 public final class VecBuilder {

@@ -7,7 +7,6 @@ import org.firstinspires.ftc.teamcode.lib.wpilib.math.numbers.N0;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.numbers.N1;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.numbers.N2;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.numbers.N3;
-import org.firstinspires.ftc.teamcode.wpilib.math.numbers.*;
 
 /**
  * A natural number expressed as a java class. The counterpart to {@link Num} that should be used as
