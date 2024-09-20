@@ -11,6 +11,29 @@ import org.firstinspires.ftc.teamcode.wpilib.math.geometry.Twist2d;
 import org.firstinspires.ftc.teamcode.wpilib.math.kinematics.ChassisSpeeds;
 import org.firstinspires.ftc.teamcode.wpilib.math.kinematics.Kinematics;
 
+/**
+ * Helper class that converts a chassis velocity (dx, dy, and dtheta components) into individual
+ * wheel speeds for an arbitrary number of omni wheels.
+ *
+ * <p>The inverse kinematics (converting from a desired chassis velocity to individual wheel speeds)
+ * uses the relative locations of the wheels with respect to the center of rotation. The center of
+ * rotation for inverse kinematics is also variable. This means that you can set your center of
+ * rotation in a corner of the robot to perform special evasion maneuvers.
+ *
+ * <p>Forward kinematics (converting an array of wheel speeds into the overall chassis motion) is
+ * performs the exact opposite of what inverse kinematics does. Since this is an overdetermined
+ * system (more equations than variables), we use a least-squares approximation.
+ *
+ * <p>The inverse kinematics: [wheelSpeeds] = [wheelLocations] * [chassisSpeeds] We take the
+ * Moore-Penrose pseudoinverse of [wheelLocations] and then multiply by [wheelSpeeds] to get our
+ * chassis speeds.
+ *
+ * <p>Forward kinematics is also used for odometry -- determining the position of the robot on the
+ * field using encoders and a gyro.
+ *
+ * <p>Note that in the special case of 4 wheels, angled 45 degrees, and positioned in a rectangle,
+ * also known as X-drive, it is identical to mecanum kinematics.
+ */
 public class OmniWheelKinematics implements Kinematics<OmniWheelSpeeds, OmniWheelPositions> {
   private final Transform2d[] wheelPositions;
 

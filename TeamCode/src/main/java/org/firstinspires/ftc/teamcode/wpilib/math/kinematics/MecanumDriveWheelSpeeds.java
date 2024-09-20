@@ -6,7 +6,7 @@ package org.firstinspires.ftc.teamcode.wpilib.math.kinematics;
 import android.annotation.SuppressLint;
 import androidx.annotation.NonNull;
 
-/** Represents the wheel speeds for a mecanum drive drivetrain. FTCLib's impl wasn't good enough. */
+/** Represents the wheel speeds for a mecanum drive drivetrain. */
 public class MecanumDriveWheelSpeeds {
   /** Speed of the front left wheel. */
   public double frontLeftMetersPerSecond;

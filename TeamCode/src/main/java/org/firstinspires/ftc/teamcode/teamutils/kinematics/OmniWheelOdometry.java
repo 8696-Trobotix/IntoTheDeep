@@ -9,10 +9,12 @@ import org.firstinspires.ftc.teamcode.wpilib.math.kinematics.Odometry;
 
 /**
  * Class for omni wheel odometry. Odometry allows you to track the robot's position on the field
- * over a course of a match using readings from your mecanum wheel encoders.
+ * over a course of a match using readings from your omni wheel encoders.
  *
  * <p>Teams can use odometry during the autonomous period for complex tasks like path following.
  * Furthermore, odometry can be used for latency compensation when using computer-vision systems.
+ *
+ * <p>Deadwheel odometry can be used with this.
  */
 public class OmniWheelOdometry extends Odometry<OmniWheelPositions> {
   /**

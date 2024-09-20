@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.teamutils.kinematics;
 
 import org.firstinspires.ftc.teamcode.teamutils.Utils;
 
+/** Represents the wheel speeds for a omni wheel drivetrain. */
 public class OmniWheelSpeeds {
     public double[] speeds;
 

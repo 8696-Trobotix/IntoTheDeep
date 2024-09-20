@@ -6,6 +6,7 @@ package org.firstinspires.ftc.teamcode.teamutils.kinematics;
 import org.firstinspires.ftc.teamcode.wpilib.math.MathUtil;
 import org.firstinspires.ftc.teamcode.wpilib.math.kinematics.WheelPositions;
 
+/** Represents the wheel positions for a omni wheel drivetrain. */
 public class OmniWheelPositions implements WheelPositions<OmniWheelPositions> {
   public double[] positions;
 
