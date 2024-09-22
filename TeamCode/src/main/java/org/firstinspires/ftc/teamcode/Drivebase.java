@@ -6,12 +6,15 @@ package org.firstinspires.ftc.teamcode;
 import static org.firstinspires.ftc.teamcode.Constants.Drivebase.*;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import java.util.function.DoubleSupplier;
 import org.firstinspires.ftc.teamcode.lib.teamlib.Motor;
 import org.firstinspires.ftc.teamcode.lib.teamlib.Utils;
 import org.firstinspires.ftc.teamcode.lib.teamlib.controller.SimplePIDFController;
 import org.firstinspires.ftc.teamcode.lib.teamlib.estimator.OmniWheelPoseEstimator;
 import org.firstinspires.ftc.teamcode.lib.teamlib.kinematics.OmniWheelKinematics;
 import org.firstinspires.ftc.teamcode.lib.teamlib.kinematics.OmniWheelPositions;
+import org.firstinspires.ftc.teamcode.lib.wpilib.commands.Command;
+import org.firstinspires.ftc.teamcode.lib.wpilib.commands.Subsystem;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.VecBuilder;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.geometry.Pose2d;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.geometry.Rotation2d;
@@ -21,7 +24,7 @@ import org.firstinspires.ftc.teamcode.lib.wpilib.math.kinematics.MecanumDriveKin
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.kinematics.MecanumDriveWheelSpeeds;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.utils.Units;
 
-public class Drivebase {
+public class Drivebase implements Subsystem {
   private final Motor frontLeft;
   private final Motor frontRight;
   private final Motor backLeft;
@@ -106,6 +109,7 @@ public class Drivebase {
                     * BACK_RIGHT_WHEEL_DIAMETER));
   }
 
+  @Override
   public void periodic() {
     // TODO: Implement sensors
     odometry.update(new Rotation2d(), new OmniWheelPositions());
@@ -121,12 +125,15 @@ public class Drivebase {
   public final double topAngularSpeedRadPerSec =
       topTranslationalSpeedMetersPerSec / Math.hypot(TRACK_LENGTH / 2, TRACK_WIDTH / 2);
 
-  public void teleopDrive(double xInput, double yInput, double omegaInput) {
-    drive(
-        new ChassisSpeeds(
-            xInput * topTranslationalSpeedMetersPerSec,
-            yInput * topTranslationalSpeedMetersPerSec,
-            omegaInput * topAngularSpeedRadPerSec));
+  public Command teleopDrive(
+      DoubleSupplier xInput, DoubleSupplier yInput, DoubleSupplier omegaInput) {
+    return run(
+        () ->
+            drive(
+                new ChassisSpeeds(
+                    xInput.getAsDouble() * topTranslationalSpeedMetersPerSec,
+                    yInput.getAsDouble() * topTranslationalSpeedMetersPerSec,
+                    omegaInput.getAsDouble() * topAngularSpeedRadPerSec)));
   }
 
   public void drive(ChassisSpeeds chassisSpeeds) {

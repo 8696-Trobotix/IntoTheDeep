@@ -8,13 +8,22 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Drivebase;
 import org.firstinspires.ftc.teamcode.lib.teamlib.Utils;
+import org.firstinspires.ftc.teamcode.lib.wpilib.commands.CommandScheduler;
 
 @Photon
 @TeleOp
 public class DriveTest extends LinearOpMode {
   @Override
   public void runOpMode() throws InterruptedException {
+    CommandScheduler scheduler = new CommandScheduler();
+
     Drivebase drivebase = new Drivebase(this);
+
+    drivebase.setDefaultCommand(
+        drivebase.teleopDrive(
+            () -> -this.gamepad1.left_stick_y,
+            () -> -this.gamepad1.left_stick_x,
+            () -> -this.gamepad1.right_stick_x));
 
     telemetry.addData("Status", "Initialized");
 
@@ -23,10 +32,7 @@ public class DriveTest extends LinearOpMode {
     while (opModeIsActive()) {
       double startTime = Utils.getTimeSeconds();
 
-      drivebase.teleopDrive(
-          -this.gamepad1.left_stick_y, -this.gamepad1.left_stick_x, -this.gamepad1.right_stick_x);
-
-      drivebase.periodic();
+      scheduler.run();
 
       telemetry.addData("Loop frequency", 1.0 / (Utils.getTimeSeconds() - startTime));
     }
