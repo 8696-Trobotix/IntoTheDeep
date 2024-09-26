@@ -56,6 +56,7 @@ public class Drivebase implements Subsystem {
 
     // Convert from encoder ticks to meters
     // Distance per rotation (meters) / encoder ticks per rotation
+    // The above has to be flipped over since it's a divide not a multiply for conversion factor
     frontLeft.setConversionFactor(
         DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION / (FRONT_LEFT_WHEEL_DIAMETER * Math.PI));
     frontRight.setConversionFactor(
@@ -130,13 +131,15 @@ public class Drivebase implements Subsystem {
     return run(
         () ->
             drive(
-                new ChassisSpeeds(
-                    xInput.getAsDouble() * topTranslationalSpeedMetersPerSec,
-                    yInput.getAsDouble() * topTranslationalSpeedMetersPerSec,
-                    omegaInput.getAsDouble() * topAngularSpeedRadPerSec)));
+                ChassisSpeeds.fromFieldRelativeSpeeds(
+                    new ChassisSpeeds(
+                        xInput.getAsDouble() * topTranslationalSpeedMetersPerSec,
+                        yInput.getAsDouble() * topTranslationalSpeedMetersPerSec,
+                        omegaInput.getAsDouble() * topAngularSpeedRadPerSec),
+                    new Rotation2d())));
   }
 
-  public void drive(ChassisSpeeds chassisSpeeds) {
+  private void drive(ChassisSpeeds chassisSpeeds) {
     MecanumDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(chassisSpeeds);
     wheelSpeeds.desaturate(topTranslationalSpeedMetersPerSec);
 
@@ -154,7 +157,7 @@ public class Drivebase implements Subsystem {
             backRight.getVelocity(), wheelSpeeds.rearRightMetersPerSecond));
   }
 
-  public void addVisionMeasurement(
+  private void addVisionMeasurement(
       Pose2d estimatedPose, double timestamp, double translationalStDev, double angularStDev) {
     odometry.addVisionMeasurement(
         estimatedPose,
