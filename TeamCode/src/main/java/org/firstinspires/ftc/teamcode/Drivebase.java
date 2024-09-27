@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.lib.teamlib.kinematics.OmniWheelPositions;
 import org.firstinspires.ftc.teamcode.lib.wpilib.commands.Command;
 import org.firstinspires.ftc.teamcode.lib.wpilib.commands.Subsystem;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.VecBuilder;
+import org.firstinspires.ftc.teamcode.lib.wpilib.math.controller.PIDController;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.geometry.Pose2d;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.geometry.Rotation2d;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.geometry.Transform2d;
@@ -37,6 +38,10 @@ public class Drivebase implements Subsystem {
   private final SimplePIDFController frontRightDriveController;
   private final SimplePIDFController backLeftDriveController;
   private final SimplePIDFController backRightDriveController;
+
+  private final PIDController xController;
+  private final PIDController yController;
+  private final PIDController yawController;
 
   public Drivebase(LinearOpMode opMode) {
     frontLeft = new Motor(opMode, "frontLeft");
@@ -108,6 +113,11 @@ public class Drivebase implements Subsystem {
             12
                 / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
                     * BACK_RIGHT_WHEEL_DIAMETER));
+
+    xController = new PIDController(5, 0, 0);
+    yController = new PIDController(5, 0, 0);
+    yawController = new PIDController(5, 0, 0);
+    yawController.enableContinuousInput(-Math.PI, Math.PI);
   }
 
   @Override
@@ -139,6 +149,36 @@ public class Drivebase implements Subsystem {
                     new Rotation2d())));
   }
 
+  public Command submersibleAlignIntake(
+      DoubleSupplier strafeSupplier, DoubleSupplier intakeSupplier) {
+    return run(
+        () -> {
+          double submursibleWidth = Units.inchesToMeters(30);
+          double minY = Units.inchesToMeters(Utils.FIELD_SIZE - submursibleWidth) / 2);
+          double maxY = Utils.FIELD_SIZE - minY;
+
+          double currentY = odometry.getEstimatedPosition().getY();
+          double targetX;
+          double yOut;
+          if (currentY > maxY || currentY < minY) {
+            targetX = Units.inchesToMeters(36);
+            yOut = yController.calculate(currentY, currentY > maxY ? maxY : minY);
+          } else {
+            targetX = Units.inchesToMeters(46);
+            yOut = strafeSupplier.getAsDouble();
+          }
+          if (Utils.IS_ON_RED) {
+            targetX = Utils.FIELD_SIZE - targetX;
+          }
+          fieldRelativeDrive(new ChassisSpeeds(
+          xController.calculate(odometry.getEstimatedPosition().getY(), targetX),
+              yOut,
+          yawController.calculate(
+              odometry.getEstimatedPosition().getRotation().getRadians(),
+              Utils.flipAllianceOnRed(new Rotation2d()).getRadians())));
+        });
+  }
+
   private void drive(ChassisSpeeds chassisSpeeds) {
     MecanumDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(chassisSpeeds);
     wheelSpeeds.desaturate(topTranslationalSpeedMetersPerSec);
@@ -155,6 +195,10 @@ public class Drivebase implements Subsystem {
     backRight.setVoltage(
         backRightDriveController.calculate(
             backRight.getVelocity(), wheelSpeeds.rearRightMetersPerSecond));
+  }
+
+  private void fieldRelativeDrive(ChassisSpeeds chassisSpeeds) {
+    drive(ChassisSpeeds.fromFieldRelativeSpeeds(chassisSpeeds, new Rotation2d()));
   }
 
   private void addVisionMeasurement(
