@@ -157,8 +157,8 @@ public class Drivebase implements Subsystem {
       DoubleSupplier strafeSupplier, DoubleSupplier intakeSupplier) {
     return run(
         () -> {
-          double submursibleWidth = Units.inchesToMeters(30);
-          double minY = Units.inchesToMeters(Utils.FIELD_SIZE - submursibleWidth) / 2;
+          double submersibleWidth = Units.inchesToMeters(30);
+          double minY = Units.inchesToMeters(Utils.FIELD_SIZE - submersibleWidth) / 2;
           double maxY = Utils.FIELD_SIZE - minY;
 
           double currentY = odometry.getEstimatedPosition().getY();
