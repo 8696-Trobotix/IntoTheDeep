@@ -149,12 +149,16 @@ public class Drivebase implements Subsystem {
                     new Rotation2d())));
   }
 
+  public Command driveVel(ChassisSpeeds speeds) {
+    return run(() -> drive(speeds));
+  }
+
   public Command submersibleAlignIntake(
       DoubleSupplier strafeSupplier, DoubleSupplier intakeSupplier) {
     return run(
         () -> {
           double submursibleWidth = Units.inchesToMeters(30);
-          double minY = Units.inchesToMeters(Utils.FIELD_SIZE - submursibleWidth) / 2);
+          double minY = Units.inchesToMeters(Utils.FIELD_SIZE - submursibleWidth) / 2;
           double maxY = Utils.FIELD_SIZE - minY;
 
           double currentY = odometry.getEstimatedPosition().getY();
@@ -170,12 +174,13 @@ public class Drivebase implements Subsystem {
           if (Utils.IS_ON_RED) {
             targetX = Utils.FIELD_SIZE - targetX;
           }
-          fieldRelativeDrive(new ChassisSpeeds(
-          xController.calculate(odometry.getEstimatedPosition().getY(), targetX),
-              yOut,
-          yawController.calculate(
-              odometry.getEstimatedPosition().getRotation().getRadians(),
-              Utils.flipAllianceOnRed(new Rotation2d()).getRadians())));
+          fieldRelativeDrive(
+              new ChassisSpeeds(
+                  xController.calculate(odometry.getEstimatedPosition().getY(), targetX),
+                  yOut,
+                  yawController.calculate(
+                      odometry.getEstimatedPosition().getRotation().getRadians(),
+                      Utils.flipAllianceOnRed(new Rotation2d()).getRadians())));
         });
   }
 

@@ -1,35 +1,37 @@
+// Copyright (c) 2024-2025 FTC 8696
+// All rights reserved.
+
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import com.outoftheboxrobotics.photoncore.Photon;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-
 import org.firstinspires.ftc.teamcode.Drivebase;
 import org.firstinspires.ftc.teamcode.lib.teamlib.Utils;
-import org.firstinspires.ftc.teamcode.lib.wpilib.Timer;
+import org.firstinspires.ftc.teamcode.lib.wpilib.commands.CommandScheduler;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.kinematics.ChassisSpeeds;
 
 @Photon
 @Autonomous(preselectTeleOp = "DriveTest")
 public class AutoTest extends LinearOpMode {
-    @Override
-    public void runOpMode() throws InterruptedException {
-        Drivebase drivebase = new Drivebase(this);
+  @Override
+  public void runOpMode() throws InterruptedException {
+    CommandScheduler scheduler = new CommandScheduler();
 
-        telemetry.addData("Status", "Initialized");
+    Drivebase drivebase = new Drivebase(this);
 
-        waitForStart();
-        Timer timer = new Timer();
-        timer.start();
-        telemetry.addData("Status", "Running");
-        while (opModeIsActive() && !timer.hasElapsed(5)) {
-            double startTime = Utils.getTimeSeconds();
+    drivebase.setDefaultCommand(drivebase.driveVel(new ChassisSpeeds(1, 0, 0)));
 
-            drivebase.drive(new ChassisSpeeds(1, 0, 0));
+    telemetry.addData("Status", "Initialized");
 
-            drivebase.periodic();
+    waitForStart();
+    telemetry.addData("Status", "Running");
+    while (opModeIsActive()) {
+      double startTime = Utils.getTimeSeconds();
 
-            telemetry.addData("Loop frequency", 1.0 / (Utils.getTimeSeconds() - startTime));
-        }
+      scheduler.run();
+
+      telemetry.addData("Loop frequency", 1.0 / (Utils.getTimeSeconds() - startTime));
     }
+  }
 }
