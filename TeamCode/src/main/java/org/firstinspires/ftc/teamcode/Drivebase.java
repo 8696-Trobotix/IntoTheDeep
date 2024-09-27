@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.lib.teamlib.kinematics.OmniWheelKinematics
 import org.firstinspires.ftc.teamcode.lib.teamlib.kinematics.OmniWheelPositions;
 import org.firstinspires.ftc.teamcode.lib.wpilib.commands.Command;
 import org.firstinspires.ftc.teamcode.lib.wpilib.commands.Subsystem;
+import org.firstinspires.ftc.teamcode.lib.wpilib.math.MathUtil;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.VecBuilder;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.controller.PIDController;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.geometry.Pose2d;
@@ -136,6 +137,40 @@ public class Drivebase implements Subsystem {
   public final double topAngularSpeedRadPerSec =
       topTranslationalSpeedMetersPerSec / Math.hypot(TRACK_LENGTH / 2, TRACK_WIDTH / 2);
 
+  private void drive(ChassisSpeeds chassisSpeeds) {
+    MecanumDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(chassisSpeeds);
+    wheelSpeeds.desaturate(topTranslationalSpeedMetersPerSec);
+
+    frontLeft.setVoltage(
+        frontLeftDriveController.calculate(
+            frontLeft.getVelocity(), wheelSpeeds.frontLeftMetersPerSecond));
+    frontRight.setVoltage(
+        frontRightDriveController.calculate(
+            frontRight.getVelocity(), wheelSpeeds.frontRightMetersPerSecond));
+    backLeft.setVoltage(
+        backLeftDriveController.calculate(
+            backLeft.getVelocity(), wheelSpeeds.rearLeftMetersPerSecond));
+    backRight.setVoltage(
+        backRightDriveController.calculate(
+            backRight.getVelocity(), wheelSpeeds.rearRightMetersPerSecond));
+  }
+
+  private void fieldRelativeDrive(ChassisSpeeds chassisSpeeds) {
+    drive(ChassisSpeeds.fromFieldRelativeSpeeds(chassisSpeeds, new Rotation2d()));
+  }
+
+  private void alignToPose(Pose2d pose) {
+    pose = Utils.flipAllianceOnRed(pose);
+
+    fieldRelativeDrive(
+        new ChassisSpeeds(
+            xController.calculate(odometry.getEstimatedPosition().getX(), pose.getX()),
+            yController.calculate(odometry.getEstimatedPosition().getY(), pose.getY()),
+            yawController.calculate(
+                odometry.getEstimatedPosition().getRotation().getRadians(),
+                pose.getRotation().getRadians())));
+  }
+
   public Command teleopDrive(
       DoubleSupplier xInput, DoubleSupplier yInput, DoubleSupplier omegaInput) {
     return run(
@@ -161,49 +196,28 @@ public class Drivebase implements Subsystem {
           double minY = Units.inchesToMeters(Utils.FIELD_SIZE - submersibleWidth) / 2;
           double maxY = Utils.FIELD_SIZE - minY;
 
-          double currentY = odometry.getEstimatedPosition().getY();
+          Pose2d currentPose = Utils.flipAllianceOnRed(odometry.getEstimatedPosition());
+
           double targetX;
-          double yOut;
-          if (currentY > maxY || currentY < minY) {
-            targetX = Units.inchesToMeters(36);
-            yOut = yController.calculate(currentY, currentY > maxY ? maxY : minY);
+          if (minY < currentPose.getY() && currentPose.getY() < maxY) {
+            targetX = 34;
           } else {
-            targetX = Units.inchesToMeters(46);
-            yOut = strafeSupplier.getAsDouble();
+            targetX = 24;
           }
-          if (Utils.IS_ON_RED) {
-            targetX = Utils.FIELD_SIZE - targetX;
-          }
-          fieldRelativeDrive(
-              new ChassisSpeeds(
-                  xController.calculate(odometry.getEstimatedPosition().getY(), targetX),
-                  yOut,
-                  yawController.calculate(
-                      odometry.getEstimatedPosition().getRotation().getRadians(),
-                      Utils.flipAllianceOnRed(new Rotation2d()).getRadians())));
+          double targetY = MathUtil.interpolate(minY, maxY, (strafeSupplier.getAsDouble() + 1) / 2);
+
+          alignToPose(new Pose2d(targetX, targetY, new Rotation2d()));
         });
   }
 
-  private void drive(ChassisSpeeds chassisSpeeds) {
-    MecanumDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(chassisSpeeds);
-    wheelSpeeds.desaturate(topTranslationalSpeedMetersPerSec);
-
-    frontLeft.setVoltage(
-        frontLeftDriveController.calculate(
-            frontLeft.getVelocity(), wheelSpeeds.frontLeftMetersPerSecond));
-    frontRight.setVoltage(
-        frontRightDriveController.calculate(
-            frontRight.getVelocity(), wheelSpeeds.frontRightMetersPerSecond));
-    backLeft.setVoltage(
-        backLeftDriveController.calculate(
-            backLeft.getVelocity(), wheelSpeeds.rearLeftMetersPerSecond));
-    backRight.setVoltage(
-        backRightDriveController.calculate(
-            backRight.getVelocity(), wheelSpeeds.rearRightMetersPerSecond));
-  }
-
-  private void fieldRelativeDrive(ChassisSpeeds chassisSpeeds) {
-    drive(ChassisSpeeds.fromFieldRelativeSpeeds(chassisSpeeds, new Rotation2d()));
+  public Command basketAlign() {
+    return run(
+        () ->
+            alignToPose(
+                new Pose2d(
+                    Units.inchesToMeters(24),
+                    Units.inchesToMeters(24),
+                    Rotation2d.fromDegrees(-135))));
   }
 
   private void addVisionMeasurement(
