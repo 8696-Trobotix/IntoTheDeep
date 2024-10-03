@@ -5,33 +5,17 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import com.outoftheboxrobotics.photoncore.Photon;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.Drivebase;
-import org.firstinspires.ftc.teamcode.lib.teamlib.Utils;
-import org.firstinspires.ftc.teamcode.lib.wpilib.commands.CommandScheduler;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.kinematics.ChassisSpeeds;
+import org.firstinspires.ftc.teamcode.opmodes.BaseOpMode;
 
 @Photon
 @Autonomous(preselectTeleOp = "DriveTest")
-public class AutoTest extends LinearOpMode {
+public class AutoTest extends BaseOpMode {
   @Override
-  public void runOpMode() throws InterruptedException {
-    CommandScheduler scheduler = new CommandScheduler();
-
+  public void startup() {
     Drivebase drivebase = new Drivebase(this);
 
     drivebase.setDefaultCommand(drivebase.driveVel(new ChassisSpeeds(1, 0, 0)));
-
-    telemetry.addData("Status", "Initialized");
-
-    waitForStart();
-    telemetry.addData("Status", "Running");
-    while (opModeIsActive()) {
-      double startTime = Utils.getTimeSeconds();
-
-      scheduler.run();
-
-      telemetry.addData("Loop frequency", 1.0 / (Utils.getTimeSeconds() - startTime));
-    }
   }
 }
