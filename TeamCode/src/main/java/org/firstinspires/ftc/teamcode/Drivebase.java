@@ -33,7 +33,7 @@ public class Drivebase implements Subsystem {
   private final Motor backRight;
 
   private final MecanumDriveKinematics kinematics;
-  private final OmniWheelPoseEstimator odometry;
+//  private final OmniWheelPoseEstimator odometry;
 
   private final SimplePIDFController frontLeftDriveController;
   private final SimplePIDFController frontRightDriveController;
@@ -75,12 +75,12 @@ public class Drivebase implements Subsystem {
     kinematics =
         new MecanumDriveKinematics(
             WHEEL_POSITIONS[0], WHEEL_POSITIONS[1], WHEEL_POSITIONS[2], WHEEL_POSITIONS[3]);
-    odometry =
-        new OmniWheelPoseEstimator(
-            new OmniWheelKinematics(new Transform2d[] {}),
-            new Rotation2d(),
-            new OmniWheelPositions(),
-            new Pose2d());
+//    odometry =
+//        new OmniWheelPoseEstimator(
+//            new OmniWheelKinematics(new Transform2d[] {}),
+//            new Rotation2d(),
+//            new OmniWheelPositions(),
+//            new Pose2d());
 
     frontLeftDriveController =
         new SimplePIDFController(
@@ -124,7 +124,7 @@ public class Drivebase implements Subsystem {
   @Override
   public void periodic() {
     // TODO: Implement sensors
-    odometry.update(new Rotation2d(), new OmniWheelPositions());
+//    odometry.update(new Rotation2d(), new OmniWheelPositions());
   }
 
   public final double topTranslationalSpeedMetersPerSec =
@@ -160,15 +160,15 @@ public class Drivebase implements Subsystem {
   }
 
   private void alignToPose(Pose2d pose) {
-    pose = Utils.flipAllianceOnRed(pose);
+//    pose = Utils.flipAllianceOnRed(pose);
 
-    fieldRelativeDrive(
-        new ChassisSpeeds(
-            xController.calculate(odometry.getEstimatedPosition().getX(), pose.getX()),
-            yController.calculate(odometry.getEstimatedPosition().getY(), pose.getY()),
-            yawController.calculate(
-                odometry.getEstimatedPosition().getRotation().getRadians(),
-                pose.getRotation().getRadians())));
+//    fieldRelativeDrive(
+//        new ChassisSpeeds(
+//            xController.calculate(odometry.getEstimatedPosition().getX(), pose.getX()),
+//            yController.calculate(odometry.getEstimatedPosition().getY(), pose.getY()),
+//            yawController.calculate(
+//                odometry.getEstimatedPosition().getRotation().getRadians(),
+//                pose.getRotation().getRadians())));
   }
 
   public Command teleopDrive(
@@ -192,21 +192,21 @@ public class Drivebase implements Subsystem {
       DoubleSupplier strafeSupplier, DoubleSupplier intakeSupplier) {
     return run(
         () -> {
-          double submersibleWidth = Units.inchesToMeters(30);
-          double minY = Units.inchesToMeters(Utils.FIELD_SIZE - submersibleWidth) / 2;
-          double maxY = Utils.FIELD_SIZE - minY;
-
-          Pose2d currentPose = Utils.flipAllianceOnRed(odometry.getEstimatedPosition());
-
-          double targetX;
-          if (minY < currentPose.getY() && currentPose.getY() < maxY) {
-            targetX = 34;
-          } else {
-            targetX = 24;
-          }
-          double targetY = MathUtil.interpolate(minY, maxY, (strafeSupplier.getAsDouble() + 1) / 2);
-
-          alignToPose(new Pose2d(targetX, targetY, new Rotation2d()));
+//          double submersibleWidth = Units.inchesToMeters(30);
+//          double minY = Units.inchesToMeters(Utils.FIELD_SIZE - submersibleWidth) / 2;
+//          double maxY = Utils.FIELD_SIZE - minY;
+//
+////          Pose2d currentPose = Utils.flipAllianceOnRed(odometry.getEstimatedPosition());
+//
+//          double targetX;
+//          if (minY < currentPose.getY() && currentPose.getY() < maxY) {
+//            targetX = 34;
+//          } else {
+//            targetX = 24;
+//          }
+//          double targetY = MathUtil.interpolate(minY, maxY, (strafeSupplier.getAsDouble() + 1) / 2);
+//
+//          alignToPose(new Pose2d(targetX, targetY, new Rotation2d()));
         });
   }
 
@@ -222,9 +222,9 @@ public class Drivebase implements Subsystem {
 
   private void addVisionMeasurement(
       Pose2d estimatedPose, double timestamp, double translationalStDev, double angularStDev) {
-    odometry.addVisionMeasurement(
-        estimatedPose,
-        timestamp,
-        VecBuilder.fill(translationalStDev, translationalStDev, angularStDev));
+//    odometry.addVisionMeasurement(
+//        estimatedPose,
+//        timestamp,
+//        VecBuilder.fill(translationalStDev, translationalStDev, angularStDev));
   }
 }

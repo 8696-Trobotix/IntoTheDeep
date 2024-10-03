@@ -3,6 +3,7 @@
 
 package org.firstinspires.ftc.teamcode.lib.teamlib.kinematics;
 
+import org.ejml.MatrixDimensionException;
 import org.ejml.simple.SimpleMatrix;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.geometry.Rotation2d;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.geometry.Transform2d;
@@ -41,13 +42,16 @@ public class OmniWheelKinematics implements Kinematics<OmniWheelSpeeds, OmniWhee
   private final SimpleMatrix forwardKinematics;
 
   public OmniWheelKinematics(Transform2d[] wheelPositions) {
+    if (wheelPositions.length == 0) {
+      throw new IllegalArgumentException("wheelPositions is empty!");
+    }
     this.wheelPositions = wheelPositions;
 
     // Columns:
     // 0: x
     // 1: y
     // 2: angle
-    inverseKinematics = new SimpleMatrix(wheelPositions.length, 3, true);
+    inverseKinematics = new SimpleMatrix(3, wheelPositions.length, true);
     setInverseKinematics(wheelPositions);
     forwardKinematics = inverseKinematics.pseudoInverse();
   }
@@ -59,8 +63,8 @@ public class OmniWheelKinematics implements Kinematics<OmniWheelSpeeds, OmniWhee
     SimpleMatrix chassisSpeedsVector = forwardKinematics.mult(wheelSpeedsVector);
     return new ChassisSpeeds(
         chassisSpeedsVector.get(0, 0),
-        chassisSpeedsVector.get(1, 0),
-        chassisSpeedsVector.get(2, 0));
+        chassisSpeedsVector.get(0, 1),
+        chassisSpeedsVector.get(0, 2));
   }
 
   @Override
@@ -105,9 +109,9 @@ public class OmniWheelKinematics implements Kinematics<OmniWheelSpeeds, OmniWhee
 
     SimpleMatrix chassisSpeedsVector =
         new SimpleMatrix(
-            3,
             1,
-            true,
+            3,
+            false,
             chassisSpeeds.vxMetersPerSecond,
             chassisSpeeds.vyMetersPerSecond,
             chassisSpeeds.omegaRadiansPerSecond);
@@ -127,7 +131,16 @@ public class OmniWheelKinematics implements Kinematics<OmniWheelSpeeds, OmniWhee
 
   public Twist2d toTwist2d(OmniWheelPositions positionDeltas) {
     SimpleMatrix moduleDeltaMatrix =
-        new SimpleMatrix(positionDeltas.positions.length, 1, true, positionDeltas.positions);
+        new SimpleMatrix(1, positionDeltas.positions.length, false, positionDeltas.positions);
+    if (moduleDeltaMatrix.getNumCols() != forwardKinematics.getNumRows()) {
+      throw new MatrixDimensionException(
+          "moduleDeltaMatrix had "
+              + moduleDeltaMatrix.getNumCols()
+              + " columns while forwardKinematics had "
+              + forwardKinematics.getNumRows()
+              + " rows!");
+    }
+
     SimpleMatrix chassisDeltaVector = forwardKinematics.mult(moduleDeltaMatrix);
 
     return new Twist2d(
@@ -136,7 +149,7 @@ public class OmniWheelKinematics implements Kinematics<OmniWheelSpeeds, OmniWhee
 
   private void setInverseKinematics(Transform2d[] newWheelPositions) {
     for (int i = 0; i < newWheelPositions.length; i++) {
-      inverseKinematics.setRow(
+      inverseKinematics.setColumn(
           i,
           0,
           newWheelPositions[i].getRotation().getCos(),
