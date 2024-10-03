@@ -3,10 +3,15 @@
 
 package org.firstinspires.ftc.teamcode.lib.teamlib;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.geometry.Pose2d;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.geometry.Rotation2d;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.geometry.Translation2d;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.utils.Units;
+
+import java.util.ArrayList;
 
 public class Utils {
   private Utils() {}
@@ -64,6 +69,20 @@ public class Utils {
       return rotation.plus(Rotation2d.fromDegrees(180));
     } else {
       return rotation;
+    }
+  }
+
+  public static class Telemetry {
+    private static final ArrayList<TelemetryPacket> packets = new ArrayList<>();
+
+    public static void addData(TelemetryPacket packet) {
+      packets.add(packet);
+    }
+
+    public static void send() {
+      for (TelemetryPacket packet : packets) {
+        FtcDashboard.getInstance().sendTelemetryPacket(packet);
+      }
     }
   }
 }

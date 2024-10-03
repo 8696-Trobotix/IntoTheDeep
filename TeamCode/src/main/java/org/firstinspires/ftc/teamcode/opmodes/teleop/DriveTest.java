@@ -3,6 +3,7 @@
 
 package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.outoftheboxrobotics.photoncore.Photon;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -16,23 +17,24 @@ public class DriveTest extends LinearOpMode {
   @Override
   public void runOpMode() throws InterruptedException {
     Drivebase drivebase = new Drivebase(this);
-
     drivebase.setDefaultCommand(
         drivebase.teleopDrive(
             () -> -this.gamepad1.left_stick_y,
             () -> -this.gamepad1.left_stick_x,
             () -> -this.gamepad1.right_stick_x));
 
-    telemetry.addData("Status", "Initialized");
-
     waitForStart();
-    telemetry.addData("Status", "Running");
     while (opModeIsActive()) {
       double startTime = Utils.getTimeSeconds();
 
       CommandScheduler.getInstance().run();
 
-      telemetry.addData("Loop frequency", 1.0 / (Utils.getTimeSeconds() - startTime));
+      TelemetryPacket timingsPacket = new TelemetryPacket();
+      double deltaTime = Utils.getTimeSeconds() - startTime;
+      timingsPacket.put("Timing (ms)", deltaTime * 1000);
+      timingsPacket.put("Frequency", 1.0 / deltaTime);
+
+      Utils.Telemetry.send();
     }
   }
 }
