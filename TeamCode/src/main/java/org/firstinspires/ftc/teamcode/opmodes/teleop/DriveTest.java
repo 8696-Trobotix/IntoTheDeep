@@ -15,8 +15,6 @@ import org.firstinspires.ftc.teamcode.lib.wpilib.commands.CommandScheduler;
 public class DriveTest extends LinearOpMode {
   @Override
   public void runOpMode() throws InterruptedException {
-    CommandScheduler scheduler = new CommandScheduler();
-
     Drivebase drivebase = new Drivebase(this);
 
     drivebase.setDefaultCommand(
@@ -32,7 +30,7 @@ public class DriveTest extends LinearOpMode {
     while (opModeIsActive()) {
       double startTime = Utils.getTimeSeconds();
 
-      scheduler.run();
+      CommandScheduler.getInstance().run();
 
       telemetry.addData("Loop frequency", 1.0 / (Utils.getTimeSeconds() - startTime));
     }
