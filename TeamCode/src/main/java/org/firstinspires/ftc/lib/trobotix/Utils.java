@@ -3,8 +3,6 @@
 
 package org.firstinspires.ftc.lib.trobotix;
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import java.util.ArrayList;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -72,28 +70,6 @@ public class Utils {
       return rotation.plus(Rotation2d.fromDegrees(180));
     } else {
       return rotation;
-    }
-  }
-
-  public static class Telemetry {
-    private static final ArrayList<TelemetryPacket> packets = new ArrayList<>();
-
-    private static TelemetryPacket timingsPacket = new TelemetryPacket();
-
-    public static void addData(TelemetryPacket packet) {
-      packets.add(packet);
-    }
-
-    public static void send() {
-      for (TelemetryPacket packet : packets) {
-        FtcDashboard.getInstance().sendTelemetryPacket(packet);
-      }
-      timingsPacket = new TelemetryPacket();
-      addData(timingsPacket);
-    }
-
-    public static void addTimings(String name, double time) {
-      timingsPacket.put(name, time);
     }
   }
 }

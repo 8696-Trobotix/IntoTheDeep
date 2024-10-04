@@ -26,11 +26,6 @@ public class BaseOpMode extends LinearOpMode {
       double schedulerRunTime = Utils.getTimeSeconds();
       double deltaT = schedulerRunTime - startTime;
 
-      Utils.Telemetry.addTimings("Main Thread/Scheduler Run Time (ms)", deltaT * 1000);
-      Utils.Telemetry.addTimings("Main Thread/Timings Send Time (ms)", telemetryDeltaT * 1000);
-      Utils.Telemetry.addTimings("Main Thread/Frequency", 1.0 / (deltaT + telemetryDeltaT));
-      Utils.Telemetry.send();
-
       startTime = Utils.getTimeSeconds();
       telemetryDeltaT = startTime - schedulerRunTime;
     }

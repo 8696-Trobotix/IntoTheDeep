@@ -210,29 +210,18 @@ public final class CommandScheduler {
     if (m_disabled) {
       return;
     }
-    //    m_watchdog.reset();
 
     // Run the periodic method of all registered subsystems.
-    double periodicStartTime = Utils.getTimeSeconds();
     for (Subsystem subsystem : m_subsystems.keySet()) {
       subsystem.periodic();
-      double periodicEndTime = Utils.getTimeSeconds();
-      Utils.Telemetry.addTimings(
-          "CommandScheduler/" + subsystem.getName() + ".periodic() (ms)",
-          (periodicEndTime - periodicStartTime) * 1000);
-      periodicStartTime = periodicEndTime;
     }
 
-    double buttonLoopStartTime = Utils.getTimeSeconds();
     // Cache the active instance to avoid concurrency problems if setActiveLoop() is called from
     // inside the button bindings.
     EventLoop loopCache = m_activeButtonLoop;
     // Poll buttons for new commands to add.
     loopCache.poll();
-    Utils.Telemetry.addTimings(
-        "CommandScheduler/Button Loop (ms)", (Utils.getTimeSeconds() - buttonLoopStartTime) * 1000);
 
-    double commandExecutionStartTime = Utils.getTimeSeconds();
     m_inRunLoop = true;
     // Run scheduled commands, remove finished commands.
     for (Iterator<Command> iterator = m_scheduledCommands.iterator(); iterator.hasNext(); ) {
@@ -242,10 +231,6 @@ public final class CommandScheduler {
       for (Consumer<Command> action : m_executeActions) {
         action.accept(command);
       }
-      double commandExecutionEndTime = Utils.getTimeSeconds();
-      Utils.Telemetry.addTimings(
-          "CommandScheduler/" + command.getName() + ".execute() (ms)",
-          (commandExecutionEndTime - commandExecutionStartTime) * 1000);
       if (command.isFinished()) {
         m_endingCommands.add(command);
         command.end(false);
@@ -256,11 +241,6 @@ public final class CommandScheduler {
         iterator.remove();
 
         m_requirements.keySet().removeAll(command.getRequirements());
-        double commandEndTime = Utils.getTimeSeconds();
-        Utils.Telemetry.addTimings(
-            "CommandScheduler/" + command.getName() + ".end(false) (ms)",
-            (commandEndTime - commandExecutionEndTime) * 1000);
-        commandExecutionStartTime = commandEndTime;
       }
     }
     m_inRunLoop = false;
@@ -301,8 +281,6 @@ public final class CommandScheduler {
         continue;
       }
       if (m_subsystems.containsKey(subsystem)) {
-        //        DriverStation.reportWarning("Tried to register an already-registered subsystem",
-        // true);
         continue;
       }
       m_subsystems.put(subsystem, null);
@@ -340,12 +318,9 @@ public final class CommandScheduler {
    */
   public void setDefaultCommand(Subsystem subsystem, Command defaultCommand) {
     if (subsystem == null) {
-      //      DriverStation.reportWarning("Tried to set a default command for a null subsystem",
-      // true);
       return;
     }
     if (defaultCommand == null) {
-      //      DriverStation.reportWarning("Tried to set a null default command", true);
       return;
     }
 
@@ -376,8 +351,6 @@ public final class CommandScheduler {
    */
   public void removeDefaultCommand(Subsystem subsystem) {
     if (subsystem == null) {
-      //      DriverStation.reportWarning("Tried to remove a default command for a null subsystem",
-      // true);
       return;
     }
 
@@ -437,7 +410,6 @@ public final class CommandScheduler {
       return;
     }
 
-    double startTime = Utils.getTimeSeconds();
     m_endingCommands.add(command);
     command.end(true);
     for (BiConsumer<Command, Optional<Command>> action : m_interruptActions) {
@@ -446,9 +418,6 @@ public final class CommandScheduler {
     m_endingCommands.remove(command);
     m_scheduledCommands.remove(command);
     m_requirements.keySet().removeAll(command.getRequirements());
-    double endTime = Utils.getTimeSeconds();
-    Utils.Telemetry.addTimings(
-        "CommandScheduler/" + command.getName() + ".end(true) (ms)", (endTime - startTime) * 1000);
   }
 
   /** Cancels all commands that are currently scheduled. */
