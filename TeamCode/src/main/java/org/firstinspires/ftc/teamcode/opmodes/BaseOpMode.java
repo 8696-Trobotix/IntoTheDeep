@@ -3,7 +3,6 @@
 
 package org.firstinspires.ftc.teamcode.opmodes;
 
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.outoftheboxrobotics.photoncore.Photon;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.lib.teamlib.Utils;
@@ -15,18 +14,20 @@ public class BaseOpMode extends LinearOpMode {
   public void runOpMode() throws InterruptedException {
     startup();
     waitForStart();
+    double startTime = Utils.getTimeSeconds();
+    double telemetryDeltaT = 0;
     while (opModeIsActive()) {
-      double startTime = Utils.getTimeSeconds();
-
       CommandScheduler.getInstance().run();
+      double schedulerRunTime = Utils.getTimeSeconds();
+      double deltaT = schedulerRunTime - startTime;
 
-      TelemetryPacket timingsPacket = new TelemetryPacket();
-      double deltaTime = Utils.getTimeSeconds() - startTime;
-      timingsPacket.put("Main Thread Timing (ms)", deltaTime * 1000);
-      timingsPacket.put("Main Thread Frequency", 1.0 / deltaTime);
-
-      Utils.Telemetry.addData(timingsPacket);
+      Utils.Telemetry.addTimings("Main Thread/Scheduler Run Time (ms)", deltaT * 1000);
+      Utils.Telemetry.addTimings("Main Thread/Timings Send Time (ms)", telemetryDeltaT * 1000);
+      Utils.Telemetry.addTimings("Main Thread/Frequency", 1.0 / (deltaT + telemetryDeltaT));
       Utils.Telemetry.send();
+
+      startTime = Utils.getTimeSeconds();
+      telemetryDeltaT = startTime - schedulerRunTime;
     }
   }
 

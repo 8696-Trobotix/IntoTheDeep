@@ -78,6 +78,8 @@ public class Utils {
   public static class Telemetry {
     private static final ArrayList<TelemetryPacket> packets = new ArrayList<>();
 
+    private static TelemetryPacket timingsPacket = new TelemetryPacket();
+
     public static void addData(TelemetryPacket packet) {
       packets.add(packet);
     }
@@ -86,6 +88,12 @@ public class Utils {
       for (TelemetryPacket packet : packets) {
         FtcDashboard.getInstance().sendTelemetryPacket(packet);
       }
+      timingsPacket = new TelemetryPacket();
+      addData(timingsPacket);
+    }
+
+    public static void addTimings(String name, double time) {
+      timingsPacket.put(name, time);
     }
   }
 }

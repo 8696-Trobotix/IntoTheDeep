@@ -10,6 +10,8 @@ import static org.firstinspires.ftc.teamcode.Constants.Drivebase.DRIVE_MOTOR_MAX
 import static org.firstinspires.ftc.teamcode.Constants.Drivebase.FRONT_LEFT_WHEEL_DIAMETER;
 import static org.firstinspires.ftc.teamcode.Constants.Drivebase.FRONT_RIGHT_WHEEL_DIAMETER;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.lib.teamlib.Motor;
 import org.firstinspires.ftc.teamcode.lib.teamlib.Utils;
@@ -94,6 +96,8 @@ public class WheelControlThread extends Thread {
 
   @Override
   public void run() {
+    double telemetryDeltaT = 0;
+    double startTime = Utils.getTimeSeconds();
     //noinspection InfiniteLoopStatement
     while (true) {
       // Read data
@@ -110,12 +114,28 @@ public class WheelControlThread extends Thread {
       } finally {
         Utils.THREAD_LOCK.readLock().unlock();
       }
+      double dataReadTime = Utils.getTimeSeconds();
 
       frontLeft.setVoltage(frontLeftDriveController.calculate(frontLeft.getVelocity(), speeds[0]));
       frontRight.setVoltage(
           frontRightDriveController.calculate(frontRight.getVelocity(), speeds[1]));
       backLeft.setVoltage(backLeftDriveController.calculate(backLeft.getVelocity(), speeds[2]));
       backRight.setVoltage(backRightDriveController.calculate(backRight.getVelocity(), speeds[3]));
+      double motorWriteTime = Utils.getTimeSeconds();
+
+      TelemetryPacket timingsPacket = new TelemetryPacket();
+      timingsPacket.put(
+          "Wheel Control Thread/Data Read Time (ms)", (dataReadTime - startTime) * 1000);
+      timingsPacket.put(
+          "Wheel Control Thread/Motor Write Time (ms)", (motorWriteTime - dataReadTime) * 1000);
+      timingsPacket.put("Wheel Control Thread/Timings Send Time (ms)", telemetryDeltaT * 1000);
+      double deltaT = (motorWriteTime - startTime) + telemetryDeltaT;
+      timingsPacket.put("Wheel Control Thread/Overall Time (ms)", deltaT * 1000);
+      timingsPacket.put("Wheel Control Thread/Frequency", 1.0 / deltaT);
+      FtcDashboard.getInstance().sendTelemetryPacket(timingsPacket);
+
+      startTime = Utils.getTimeSeconds();
+      telemetryDeltaT = startTime - motorWriteTime;
     }
   }
 
