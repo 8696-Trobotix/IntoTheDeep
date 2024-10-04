@@ -37,10 +37,10 @@ public class WheelControlThread extends Thread {
     backLeft = new Motor(opMode, "backLeft");
     backRight = new Motor(opMode, "backRight");
 
-    frontLeft.setInverted(true);
-    backLeft.setInverted(true);
-    frontRight.setInverted(false);
-    backRight.setInverted(false);
+    frontLeft.setInverted(false);
+    backLeft.setInverted(false);
+    frontRight.setInverted(true);
+    backRight.setInverted(true);
 
     frontLeft.setIdleBrake(true);
     frontRight.setIdleBrake(true);
