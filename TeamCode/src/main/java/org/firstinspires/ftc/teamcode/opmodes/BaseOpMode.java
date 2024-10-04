@@ -8,6 +8,11 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.lib.teamlib.Utils;
 import org.firstinspires.ftc.teamcode.lib.wpilib.commands.CommandScheduler;
 
+/**
+ * A base op mode that contains shared code. As all code defined in an op mode is in the init stage,
+ * and the active running is handled by the {@link CommandScheduler}, op mode classes only need to
+ * override {@link BaseOpMode#startup()}.
+ */
 @Photon
 public class BaseOpMode extends LinearOpMode {
   @Override
