@@ -9,7 +9,6 @@ import org.firstinspires.ftc.teamcode.hardware.drive.Drivebase;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.kinematics.ChassisSpeeds;
 import org.firstinspires.ftc.teamcode.opmodes.BaseOpMode;
 
-@Photon
 @Autonomous(preselectTeleOp = "DriveTest")
 public class AutoTest extends BaseOpMode {
   @Override

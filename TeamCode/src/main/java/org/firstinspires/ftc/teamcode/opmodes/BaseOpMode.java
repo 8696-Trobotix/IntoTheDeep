@@ -4,10 +4,12 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.outoftheboxrobotics.photoncore.Photon;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.lib.teamlib.Utils;
 import org.firstinspires.ftc.teamcode.lib.wpilib.commands.CommandScheduler;
 
+@Photon
 public class BaseOpMode extends LinearOpMode {
   @Override
   public void runOpMode() throws InterruptedException {

@@ -8,7 +8,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.hardware.drive.Drivebase;
 import org.firstinspires.ftc.teamcode.opmodes.BaseOpMode;
 
-@Photon
 @TeleOp
 public class DriveTest extends BaseOpMode {
   @Override
