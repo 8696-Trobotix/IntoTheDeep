@@ -92,6 +92,8 @@ public class WheelControlThread extends Thread {
             12
                 / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
                     * BACK_RIGHT_WHEEL_DIAMETER));
+
+    setDaemon(true);
   }
 
   @Override
