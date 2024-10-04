@@ -21,6 +21,7 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import org.firstinspires.ftc.teamcode.lib.teamlib.Utils;
 import org.firstinspires.ftc.teamcode.lib.wpilib.event.EventLoop;
 
 /**
@@ -82,18 +83,6 @@ public final class CommandScheduler {
   private final List<Command> m_toCancelCommands = new ArrayList<>();
   private final List<Optional<Command>> m_toCancelInterruptors = new ArrayList<>();
   private final Set<Command> m_endingCommands = new LinkedHashSet<>();
-
-  //  private final Watchdog m_watchdog = new Watchdog(1.0 / 100, () -> {});
-
-  //  /**
-  //   * Changes the period of the loop overrun watchdog. This should be kept in sync with the
-  //   * TimedRobot period.
-  //   *
-  //   * @param period Period in seconds.
-  //   */
-  //  public void setPeriod(double period) {
-  //    m_watchdog.setTimeout(period);
-  //  }
 
   /**
    * Get the default button poll.
@@ -224,18 +213,26 @@ public final class CommandScheduler {
     //    m_watchdog.reset();
 
     // Run the periodic method of all registered subsystems.
+    double periodicStartTime = Utils.getTimeSeconds();
     for (Subsystem subsystem : m_subsystems.keySet()) {
       subsystem.periodic();
-      //      m_watchdog.addEpoch(subsystem.getName() + ".periodic()");
+      double periodicEndTime = Utils.getTimeSeconds();
+      Utils.Telemetry.addTimings(
+          "CommandScheduler/" + subsystem.getName() + ".periodic() (ms)",
+          (periodicEndTime - periodicStartTime) * 1000);
+      periodicStartTime = periodicEndTime;
     }
 
+    double buttonLoopStartTime = Utils.getTimeSeconds();
     // Cache the active instance to avoid concurrency problems if setActiveLoop() is called from
     // inside the button bindings.
     EventLoop loopCache = m_activeButtonLoop;
     // Poll buttons for new commands to add.
     loopCache.poll();
-    //    m_watchdog.addEpoch("buttons.run()");
+    Utils.Telemetry.addTimings(
+        "CommandScheduler/Button Loop (ms)", (Utils.getTimeSeconds() - buttonLoopStartTime) * 1000);
 
+    double commandExecutionStartTime = Utils.getTimeSeconds();
     m_inRunLoop = true;
     // Run scheduled commands, remove finished commands.
     for (Iterator<Command> iterator = m_scheduledCommands.iterator(); iterator.hasNext(); ) {
@@ -245,7 +242,10 @@ public final class CommandScheduler {
       for (Consumer<Command> action : m_executeActions) {
         action.accept(command);
       }
-      //      m_watchdog.addEpoch(command.getName() + ".execute()");
+      double commandExecutionEndTime = Utils.getTimeSeconds();
+      Utils.Telemetry.addTimings(
+          "CommandScheduler/" + command.getName() + ".execute() (ms)",
+          (commandExecutionEndTime - commandExecutionStartTime) * 1000);
       if (command.isFinished()) {
         m_endingCommands.add(command);
         command.end(false);
@@ -256,7 +256,11 @@ public final class CommandScheduler {
         iterator.remove();
 
         m_requirements.keySet().removeAll(command.getRequirements());
-        //        m_watchdog.addEpoch(command.getName() + ".end(false)");
+        double commandEndTime = Utils.getTimeSeconds();
+        Utils.Telemetry.addTimings(
+            "CommandScheduler/" + command.getName() + ".end(false) (ms)",
+            (commandEndTime - commandExecutionEndTime) * 1000);
+        commandExecutionStartTime = commandEndTime;
       }
     }
     m_inRunLoop = false;
@@ -281,12 +285,6 @@ public final class CommandScheduler {
         schedule(subsystemCommand.getValue());
       }
     }
-
-    //    m_watchdog.disable();
-    //    if (m_watchdog.isExpired()) {
-    //      System.out.println("CommandScheduler loop overrun");
-    //      m_watchdog.printEpochs();
-    //    }
   }
 
   /**
@@ -439,6 +437,7 @@ public final class CommandScheduler {
       return;
     }
 
+    double startTime = Utils.getTimeSeconds();
     m_endingCommands.add(command);
     command.end(true);
     for (BiConsumer<Command, Optional<Command>> action : m_interruptActions) {
@@ -447,7 +446,9 @@ public final class CommandScheduler {
     m_endingCommands.remove(command);
     m_scheduledCommands.remove(command);
     m_requirements.keySet().removeAll(command.getRequirements());
-    //    m_watchdog.addEpoch(command.getName() + ".end(true)");
+    double endTime = Utils.getTimeSeconds();
+    Utils.Telemetry.addTimings(
+        "CommandScheduler/" + command.getName() + ".end(true) (ms)", (endTime - startTime) * 1000);
   }
 
   /** Cancels all commands that are currently scheduled. */
