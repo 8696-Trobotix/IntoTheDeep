@@ -3,13 +3,9 @@
 
 package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.outoftheboxrobotics.photoncore.Photon;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import org.firstinspires.ftc.teamcode.Drivebase;
-import org.firstinspires.ftc.teamcode.lib.teamlib.Utils;
-import org.firstinspires.ftc.teamcode.lib.wpilib.commands.CommandScheduler;
+import org.firstinspires.ftc.teamcode.hardware.drive.Drivebase;
 import org.firstinspires.ftc.teamcode.opmodes.BaseOpMode;
 
 @Photon

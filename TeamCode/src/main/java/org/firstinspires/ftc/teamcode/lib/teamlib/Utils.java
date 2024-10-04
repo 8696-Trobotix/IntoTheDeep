@@ -5,18 +5,20 @@ package org.firstinspires.ftc.teamcode.lib.teamlib;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-
+import java.util.ArrayList;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.geometry.Pose2d;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.geometry.Rotation2d;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.geometry.Translation2d;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.utils.Units;
 
-import java.util.ArrayList;
-
 public class Utils {
   private Utils() {}
 
   public static boolean IS_ON_RED = false;
+
+  public static ReadWriteLock THREAD_LOCK = new ReentrantReadWriteLock();
 
   public static double getTimeSeconds() {
     return System.nanoTime() / 1e9;
@@ -50,7 +52,8 @@ public class Utils {
 
   public static Pose2d flipAllianceOnRed(Pose2d pose) {
     if (IS_ON_RED) {
-      return new Pose2d(flipAllianceOnRed(pose.getTranslation()), flipAllianceOnRed(pose.getRotation()));
+      return new Pose2d(
+          flipAllianceOnRed(pose.getTranslation()), flipAllianceOnRed(pose.getRotation()));
     } else {
       return pose;
     }

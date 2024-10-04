@@ -3,9 +3,7 @@
 
 package org.firstinspires.ftc.teamcode.opmodes;
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.outoftheboxrobotics.photoncore.Photon;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.lib.teamlib.Utils;
 import org.firstinspires.ftc.teamcode.lib.wpilib.commands.CommandScheduler;
@@ -22,8 +20,8 @@ public class BaseOpMode extends LinearOpMode {
 
       TelemetryPacket timingsPacket = new TelemetryPacket();
       double deltaTime = Utils.getTimeSeconds() - startTime;
-      timingsPacket.put("Timing (ms)", deltaTime * 1000);
-      timingsPacket.put("Frequency", 1.0 / deltaTime);
+      timingsPacket.put("Main Thread Timing (ms)", deltaTime * 1000);
+      timingsPacket.put("Main Thread Frequency", 1.0 / deltaTime);
 
       Utils.Telemetry.addData(timingsPacket);
       Utils.Telemetry.send();
