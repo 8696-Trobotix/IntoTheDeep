@@ -11,7 +11,8 @@ import static org.firstinspires.ftc.teamcode.Constants.Drivebase.FRONT_LEFT_WHEE
 import static org.firstinspires.ftc.teamcode.Constants.Drivebase.FRONT_RIGHT_WHEEL_DIAMETER;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-
+import java.util.ArrayList;
+import java.util.function.Consumer;
 import org.firstinspires.ftc.lib.trobotix.Motor;
 import org.firstinspires.ftc.lib.trobotix.Utils;
 import org.firstinspires.ftc.lib.trobotix.controller.SimplePIDFController;
@@ -30,6 +31,8 @@ public class WheelControlThread extends Thread {
   private final SimplePIDFController frontRightDriveController;
   private final SimplePIDFController backLeftDriveController;
   private final SimplePIDFController backRightDriveController;
+
+  private final Consumer<Double> timingsConsumer;
 
   public WheelControlThread(OpMode opMode) {
     frontLeft = new Motor(opMode, "frontLeft");
@@ -93,12 +96,21 @@ public class WheelControlThread extends Thread {
                     * BACK_RIGHT_WHEEL_DIAMETER));
 
     setDaemon(true);
+
+    timingsConsumer =
+        (Double deltaTimeSec) -> {
+          opMode.telemetry.addData("WheelControlThread/Average run time (ms)", deltaTimeSec * 1000);
+          opMode.telemetry.addData("WheelControlThread/Frequency, (hz)", 1.0 / deltaTimeSec);
+        };
   }
+
+  private final ArrayList<Double> timeList = new ArrayList<>();
 
   @Override
   public void run() {
     //noinspection InfiniteLoopStatement
     while (true) {
+      double startTime = Utils.getTimeSeconds();
       // Read data
       double[] speeds;
       Utils.THREAD_LOCK.readLock().lock();
@@ -118,6 +130,7 @@ public class WheelControlThread extends Thread {
           frontRightDriveController.calculate(frontRight.getVelocity(), speeds[1]));
       backLeft.setVoltage(backLeftDriveController.calculate(backLeft.getVelocity(), speeds[2]));
       backRight.setVoltage(backRightDriveController.calculate(backRight.getVelocity(), speeds[3]));
+      timeList.add(startTime - Utils.getTimeSeconds());
     }
   }
 
@@ -125,6 +138,15 @@ public class WheelControlThread extends Thread {
     Utils.THREAD_LOCK.writeLock().lock();
     try {
       this.wheelSpeeds = wheelSpeeds;
+
+      if (!timeList.isEmpty()) {
+        double totalTime = 0;
+        for (Double time : timeList) {
+          totalTime += time;
+        }
+        timingsConsumer.accept(totalTime / timeList.size());
+        timeList.clear();
+      }
     } finally {
       Utils.THREAD_LOCK.writeLock().unlock();
     }

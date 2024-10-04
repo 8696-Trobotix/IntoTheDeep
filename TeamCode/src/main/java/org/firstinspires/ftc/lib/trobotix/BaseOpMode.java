@@ -5,7 +5,6 @@ package org.firstinspires.ftc.lib.trobotix;
 
 import com.outoftheboxrobotics.photoncore.Photon;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-
 import org.firstinspires.ftc.lib.wpilib.commands.CommandScheduler;
 
 /**
@@ -17,17 +16,19 @@ import org.firstinspires.ftc.lib.wpilib.commands.CommandScheduler;
 public class BaseOpMode extends LinearOpMode {
   @Override
   public void runOpMode() throws InterruptedException {
+    telemetry.setMsTransmissionInterval(20);
     startup();
     waitForStart();
     double startTime = Utils.getTimeSeconds();
-    double telemetryDeltaT = 0;
     while (opModeIsActive()) {
       CommandScheduler.getInstance().run();
-      double schedulerRunTime = Utils.getTimeSeconds();
-      double deltaT = schedulerRunTime - startTime;
+      double schedulerDeltaT = Utils.getTimeSeconds();
+      double deltaT = schedulerDeltaT - startTime;
 
+      telemetry.addData("Main thread/Run time (ms)", schedulerDeltaT * 1000);
+      telemetry.addData("Main thread/Frequency (hz)", 1.0 / schedulerDeltaT);
+      telemetry.update();
       startTime = Utils.getTimeSeconds();
-      telemetryDeltaT = startTime - schedulerRunTime;
     }
   }
 
