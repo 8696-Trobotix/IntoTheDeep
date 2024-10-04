@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.interpolation.Interpolatable;
 
 /** Represents a 2D pose containing translational and rotational elements. */

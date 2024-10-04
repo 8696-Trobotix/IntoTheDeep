@@ -1,8 +1,12 @@
+// Copyright (c) 2024-2025 FTC 8696
+// All rights reserved.
+
 package org.firstinspires.ftc.teamcode.lib.wpilib.commands;
+
+import static org.firstinspires.ftc.teamcode.lib.wpilib.util.ErrorMessages.requireNonNullParam;
 
 import java.util.Map;
 import java.util.function.Supplier;
-import static org.firstinspires.ftc.teamcode.lib.wpilib.util.ErrorMessages.requireNonNullParam;
 
 /**
  * A command composition that runs one of a selection of commands using a selector and a key to

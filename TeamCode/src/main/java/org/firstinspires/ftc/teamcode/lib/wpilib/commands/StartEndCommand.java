@@ -1,3 +1,6 @@
+// Copyright (c) 2024-2025 FTC 8696
+// All rights reserved.
+
 package org.firstinspires.ftc.teamcode.lib.wpilib.commands;
 
 import static org.firstinspires.ftc.teamcode.lib.wpilib.util.ErrorMessages.requireNonNullParam;
@@ -35,4 +38,3 @@ public class StartEndCommand extends FunctionalCommand {
     return bool -> run.run();
   }
 }
-

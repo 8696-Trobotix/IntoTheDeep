@@ -1,3 +1,6 @@
+// Copyright (c) 2024-2025 FTC 8696
+// All rights reserved.
+
 package org.firstinspires.ftc.teamcode.lib.teamlib.estimator;
 
 import org.firstinspires.ftc.teamcode.lib.teamlib.kinematics.OmniWheelKinematics;
@@ -12,23 +15,22 @@ import org.firstinspires.ftc.teamcode.lib.wpilib.math.numbers.N1;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.numbers.N3;
 
 /**
- * This class wraps {@link OmniWheelOdometry} to fuse latency-compensated
- * vision measurements with mecanum drive encoder distance measurements. It will correct for noisy
- * measurements and encoder drift. It is intended to be a drop-in replacement for {@link
- * OmniWheelOdometry}.
+ * This class wraps {@link OmniWheelOdometry} to fuse latency-compensated vision measurements with
+ * mecanum drive encoder distance measurements. It will correct for noisy measurements and encoder
+ * drift. It is intended to be a drop-in replacement for {@link OmniWheelOdometry}.
  *
  * <p>{@link OmniWheelPoseEstimator#update} should be called every robot loop.
  *
- * <p>{@link OmniWheelPoseEstimator#addVisionMeasurement} can be called as infrequently as you
- * want; if you never call it, then this class will behave mostly like regular encoder odometry.
+ * <p>{@link OmniWheelPoseEstimator#addVisionMeasurement} can be called as infrequently as you want;
+ * if you never call it, then this class will behave mostly like regular encoder odometry.
  */
 public class OmniWheelPoseEstimator extends PoseEstimator<OmniWheelPositions> {
   /**
-   * Constructs a OmniWheelPoseEstimator with default standard deviations for the model and
-   * vision measurements.
+   * Constructs a OmniWheelPoseEstimator with default standard deviations for the model and vision
+   * measurements.
    *
-   * <p>The default standard deviations of the model states are 0.01 meters for x, 0.01 meters for y,
-   * and 0.01 radians for heading. The default standard deviations of the vision measurements are
+   * <p>The default standard deviations of the model states are 0.01 meters for x, 0.01 meters for
+   * y, and 0.01 radians for heading. The default standard deviations of the vision measurements are
    * 0.1 meters for x, 0.1 meters for y, and 0.1 radians for heading.
    *
    * @param kinematics A correctly-configured kinematics object for your drivetrain.

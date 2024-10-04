@@ -11,7 +11,6 @@ import static org.firstinspires.ftc.teamcode.Constants.Drivebase.FRONT_LEFT_WHEE
 import static org.firstinspires.ftc.teamcode.Constants.Drivebase.FRONT_RIGHT_WHEEL_DIAMETER;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-
 import org.firstinspires.ftc.teamcode.lib.teamlib.Motor;
 import org.firstinspires.ftc.teamcode.lib.teamlib.Utils;
 import org.firstinspires.ftc.teamcode.lib.teamlib.controller.SimplePIDFController;
@@ -63,34 +62,34 @@ public class WheelControlThread extends Thread {
         new SimplePIDFController(
             24
                 / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
-                * FRONT_LEFT_WHEEL_DIAMETER),
+                    * FRONT_LEFT_WHEEL_DIAMETER),
             12
                 / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
-                * FRONT_LEFT_WHEEL_DIAMETER));
+                    * FRONT_LEFT_WHEEL_DIAMETER));
     frontRightDriveController =
         new SimplePIDFController(
             24
                 / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
-                * FRONT_RIGHT_WHEEL_DIAMETER),
+                    * FRONT_RIGHT_WHEEL_DIAMETER),
             12
                 / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
-                * FRONT_RIGHT_WHEEL_DIAMETER));
+                    * FRONT_RIGHT_WHEEL_DIAMETER));
     backLeftDriveController =
         new SimplePIDFController(
             24
                 / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
-                * BACK_LEFT_WHEEL_DIAMETER),
+                    * BACK_LEFT_WHEEL_DIAMETER),
             12
                 / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
-                * BACK_LEFT_WHEEL_DIAMETER));
+                    * BACK_LEFT_WHEEL_DIAMETER));
     backRightDriveController =
         new SimplePIDFController(
             24
                 / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
-                * BACK_RIGHT_WHEEL_DIAMETER),
+                    * BACK_RIGHT_WHEEL_DIAMETER),
             12
                 / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
-                * BACK_RIGHT_WHEEL_DIAMETER));
+                    * BACK_RIGHT_WHEEL_DIAMETER));
   }
 
   @Override

@@ -3,13 +3,13 @@
 
 package org.firstinspires.ftc.teamcode.lib.wpilib.math.estimator;
 
-import org.firstinspires.ftc.teamcode.lib.wpilib.math.kinematics.MecanumDriveKinematics;
-import org.firstinspires.ftc.teamcode.lib.wpilib.math.kinematics.MecanumDriveOdometry;
-import org.firstinspires.ftc.teamcode.lib.wpilib.math.kinematics.MecanumDriveWheelPositions;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.Matrix;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.VecBuilder;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.geometry.Pose2d;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.geometry.Rotation2d;
+import org.firstinspires.ftc.teamcode.lib.wpilib.math.kinematics.MecanumDriveKinematics;
+import org.firstinspires.ftc.teamcode.lib.wpilib.math.kinematics.MecanumDriveOdometry;
+import org.firstinspires.ftc.teamcode.lib.wpilib.math.kinematics.MecanumDriveWheelPositions;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.numbers.N1;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.numbers.N3;
 
@@ -29,9 +29,9 @@ public class MecanumDrivePoseEstimator extends PoseEstimator<MecanumDriveWheelPo
    * Constructs a MecanumDrivePoseEstimator with default standard deviations for the model and
    * vision measurements.
    *
-   * <p>The default standard deviations of the model states are 0.2 meters for x, 0.2 meters for
-   * y, and 0.2 radians for heading. The default standard deviations of the vision measurements are
-   * 0.1 meters for x, 0.1 meters for y, and 0.1 radians for heading.
+   * <p>The default standard deviations of the model states are 0.2 meters for x, 0.2 meters for y,
+   * and 0.2 radians for heading. The default standard deviations of the vision measurements are 0.1
+   * meters for x, 0.1 meters for y, and 0.1 radians for heading.
    *
    * @param kinematics A correctly-configured kinematics object for your drivetrain.
    * @param gyroAngle The current gyro angle.

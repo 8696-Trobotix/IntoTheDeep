@@ -7,12 +7,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
-
-import org.firstinspires.ftc.teamcode.lib.wpilib.math.interpolation.Interpolatable;
-import org.firstinspires.ftc.teamcode.lib.wpilib.math.interpolation.TimeInterpolatableBuffer;
-import org.firstinspires.ftc.teamcode.lib.wpilib.math.kinematics.Kinematics;
-import org.firstinspires.ftc.teamcode.lib.wpilib.math.kinematics.Odometry;
-import org.firstinspires.ftc.teamcode.lib.wpilib.math.kinematics.WheelPositions;
 import org.firstinspires.ftc.teamcode.lib.teamlib.Utils;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.Matrix;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.Nat;
@@ -20,6 +14,11 @@ import org.firstinspires.ftc.teamcode.lib.wpilib.math.VecBuilder;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.geometry.Pose2d;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.geometry.Rotation2d;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.geometry.Twist2d;
+import org.firstinspires.ftc.teamcode.lib.wpilib.math.interpolation.Interpolatable;
+import org.firstinspires.ftc.teamcode.lib.wpilib.math.interpolation.TimeInterpolatableBuffer;
+import org.firstinspires.ftc.teamcode.lib.wpilib.math.kinematics.Kinematics;
+import org.firstinspires.ftc.teamcode.lib.wpilib.math.kinematics.Odometry;
+import org.firstinspires.ftc.teamcode.lib.wpilib.math.kinematics.WheelPositions;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.numbers.N1;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.numbers.N3;
 

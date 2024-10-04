@@ -6,9 +6,8 @@ package org.firstinspires.ftc.teamcode.lib.wpilib.math.geometry;
 import android.annotation.SuppressLint;
 import androidx.annotation.NonNull;
 import java.util.Objects;
-
-import org.firstinspires.ftc.teamcode.lib.wpilib.math.interpolation.Interpolatable;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.MathUtil;
+import org.firstinspires.ftc.teamcode.lib.wpilib.math.interpolation.Interpolatable;
 import org.firstinspires.ftc.teamcode.lib.wpilib.math.utils.Units;
 
 /**

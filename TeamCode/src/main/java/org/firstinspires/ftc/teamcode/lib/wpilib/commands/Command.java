@@ -1,12 +1,14 @@
+// Copyright (c) 2024-2025 FTC 8696
+// All rights reserved.
+
 package org.firstinspires.ftc.teamcode.lib.wpilib.commands;
 
 import static org.firstinspires.ftc.teamcode.lib.wpilib.util.ErrorMessages.requireNonNullParam;
 
-import org.firstinspires.ftc.teamcode.lib.teamlib.BooleanConsumer;
-
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
+import org.firstinspires.ftc.teamcode.lib.teamlib.BooleanConsumer;
 
 /**
  * A state machine representing a complete action to be performed by the robot. Commands are run by

@@ -1,7 +1,11 @@
+// Copyright (c) 2024-2025 FTC 8696
+// All rights reserved.
+
 package org.firstinspires.ftc.teamcode.lib.wpilib.commands;
 
-import java.util.function.BooleanSupplier;
 import static org.firstinspires.ftc.teamcode.lib.wpilib.util.ErrorMessages.requireNonNullParam;
+
+import java.util.function.BooleanSupplier;
 
 /**
  * A command composition that runs one of two commands, depending on the value of the given
