@@ -98,8 +98,8 @@ public class WheelControlThread extends Thread {
     while (true) {
       // Read data
       double[] speeds;
+      Utils.THREAD_LOCK.readLock().lock();
       try {
-        Utils.THREAD_LOCK.readLock().lock();
         speeds =
             new double[] {
               wheelSpeeds.frontLeftMetersPerSecond,
@@ -120,8 +120,8 @@ public class WheelControlThread extends Thread {
   }
 
   public void setWheelSpeeds(MecanumDriveWheelSpeeds wheelSpeeds) {
+    Utils.THREAD_LOCK.writeLock().lock();
     try {
-      Utils.THREAD_LOCK.writeLock().lock();
       this.wheelSpeeds = wheelSpeeds;
     } finally {
       Utils.THREAD_LOCK.writeLock().unlock();
