@@ -4,6 +4,7 @@
 package org.firstinspires.ftc.lib.trobotix;
 
 import com.outoftheboxrobotics.photoncore.hardware.PhotonLynxVoltageSensor;
+import com.outoftheboxrobotics.photoncore.hardware.motor.PhotonAdvancedDcMotor;
 import com.outoftheboxrobotics.photoncore.hardware.motor.PhotonDcMotor;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -11,36 +12,84 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import org.firstinspires.ftc.lib.wpilib.math.MathUtil;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
-/** Wrapper for {@link PhotonDcMotor} to add extra functionality */
+/** Wrapper for {@link PhotonAdvancedDcMotor} for extra functionality and cleaner code. */
 public class Motor {
-  private final PhotonDcMotor motorInternal;
+  private final PhotonAdvancedDcMotor motorInternal;
   private final PhotonLynxVoltageSensor voltageSensor;
 
   public Motor(OpMode opMode, String name) {
-    motorInternal = (PhotonDcMotor) opMode.hardwareMap.dcMotor.get(name);
+    motorInternal = new PhotonAdvancedDcMotor((PhotonDcMotor) opMode.hardwareMap.dcMotor.get(name));
     voltageSensor = opMode.hardwareMap.getAll(PhotonLynxVoltageSensor.class).iterator().next();
   }
 
+  /**
+   * By default, a motor will typically move counterclockwise when positive voltage is sent. (The
+   * only exception is Neverest motors which is clockwise positive.)
+   *
+   * <p>However, that isn't always desired. Sometimes we may want to have the opposite behaviour.
+   *
+   * @param inverted If the motor is inverted or not.
+   */
   public void setInverted(boolean inverted) {
-    motorInternal.setDirection(
-        inverted ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.FORWARD);
+    motorInternal
+        .getMotor()
+        .setDirection(inverted ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.FORWARD);
   }
 
+  /**
+   * Typically, we want the motor to stop when we stop applying power to it. However, we
+   * occasionally want it to keep coasting when no more power is applied.
+   *
+   * @param brake Whether or not the motor brakes when no power is applied.
+   */
   public void setIdleBrake(boolean brake) {
-    motorInternal.setZeroPowerBehavior(
-        brake ? DcMotor.ZeroPowerBehavior.BRAKE : DcMotor.ZeroPowerBehavior.FLOAT);
+    motorInternal
+        .getMotor()
+        .setZeroPowerBehavior(
+            brake ? DcMotor.ZeroPowerBehavior.BRAKE : DcMotor.ZeroPowerBehavior.FLOAT);
   }
 
-  public void set(double power) {
-    motorInternal.setPower(MathUtil.clamp(power, -1, 1));
+  /**
+   * Sets the tolerance for which setting new power values is ignored.
+   *
+   * <p>It's a waste of processor time to tell the motor to move at .9 power and immediately tell it
+   * to move at .901 power, so we use the cache tolerance to ignore the latter command. Default
+   * value is 0.001. (.1% duty cycle)
+   *
+   * @param tolerance The new power tolerance.
+   */
+  public void setTolerance(double tolerance) {
+    motorInternal.setCacheTolerance(tolerance);
   }
 
+  /**
+   * Sets the duty cycle of the motor.
+   *
+   * @param dutyCycle The duty cycle to set. From -1 to 1.
+   */
+  public void set(double dutyCycle) {
+    motorInternal.setPower(MathUtil.clamp(dutyCycle, -1, 1));
+  }
+
+  /**
+   * Set the voltage of the motor.
+   *
+   * <p>This compensates for voltage sag by raising the duty cycle when voltage drops, allowing for
+   * a more consistent experience with commanding motor power.
+   *
+   * @param volts The motor voltage to set. From -12 to 12.
+   */
   public void setVoltage(double volts) {
     set(volts / voltageSensor.getCachedVoltage());
   }
 
+  /**
+   * Gets the current draw of the motor.
+   *
+   * @return Current draw. Amps.
+   */
   public double getCurrentDraw() {
-    return motorInternal.getCorrectedCurrent(CurrentUnit.AMPS);
+    return motorInternal.getMotor().getCorrectedCurrent(CurrentUnit.AMPS);
   }
 
   private double conversionFactor = 1;
@@ -65,7 +114,7 @@ public class Motor {
    *     Motor#setConversionFactor(double conversionFactor)}.
    */
   public double getPosition() {
-    return motorInternal.getCurrentPosition() / conversionFactor;
+    return motorInternal.getMotor().getCurrentPosition() / conversionFactor;
   }
 
   private double lastPos = 0;
