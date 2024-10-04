@@ -5,7 +5,7 @@ package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.hardware.drive.Drivebase;
-import org.firstinspires.ftc.teamcode.opmodes.BaseOpMode;
+import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
 
 @TeleOp
 public class DriveTest extends BaseOpMode {
