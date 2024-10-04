@@ -15,6 +15,7 @@ public abstract class SubsystemBase implements Subsystem {
   public SubsystemBase() {
     String name = this.getClass().getSimpleName();
     name = name.substring(name.lastIndexOf('.') + 1);
+    m_name = name;
     CommandScheduler.getInstance().registerSubsystem(this);
   }
 

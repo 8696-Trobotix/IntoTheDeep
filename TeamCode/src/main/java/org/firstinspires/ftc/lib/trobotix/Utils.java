@@ -29,7 +29,7 @@ public class Utils {
     for (double number : numbers) {
       sum += number;
     }
-    return sum /= numbers.length;
+    return sum / numbers.length;
   }
 
   public static double minimum(double... numbers) {
