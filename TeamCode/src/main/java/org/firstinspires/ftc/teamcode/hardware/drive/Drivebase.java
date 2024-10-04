@@ -47,6 +47,8 @@ public class Drivebase implements Subsystem {
     yController = new PIDController(5, 0, 0);
     yawController = new PIDController(5, 0, 0);
     yawController.enableContinuousInput(-Math.PI, Math.PI);
+
+    wheelControlThread.start();
   }
 
   @Override
