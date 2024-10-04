@@ -13,11 +13,11 @@ import static org.firstinspires.ftc.teamcode.Constants.Drivebase.FRONT_RIGHT_WHE
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import org.firstinspires.ftc.teamcode.lib.teamlib.Motor;
-import org.firstinspires.ftc.teamcode.lib.teamlib.Utils;
-import org.firstinspires.ftc.teamcode.lib.teamlib.controller.SimplePIDFController;
-import org.firstinspires.ftc.teamcode.lib.wpilib.math.kinematics.MecanumDriveWheelSpeeds;
-import org.firstinspires.ftc.teamcode.lib.wpilib.math.utils.Units;
+import org.firstinspires.ftc.lib.trobotix.Motor;
+import org.firstinspires.ftc.lib.trobotix.Utils;
+import org.firstinspires.ftc.lib.trobotix.controller.SimplePIDFController;
+import org.firstinspires.ftc.lib.wpilib.math.kinematics.MecanumDriveWheelSpeeds;
+import org.firstinspires.ftc.lib.wpilib.math.utils.Units;
 
 public class WheelControlThread extends Thread {
   private MecanumDriveWheelSpeeds wheelSpeeds = new MecanumDriveWheelSpeeds();

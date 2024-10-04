@@ -3,10 +3,9 @@
 
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
-import com.outoftheboxrobotics.photoncore.Photon;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import org.firstinspires.ftc.lib.wpilib.math.kinematics.ChassisSpeeds;
 import org.firstinspires.ftc.teamcode.hardware.drive.Drivebase;
-import org.firstinspires.ftc.teamcode.lib.wpilib.math.kinematics.ChassisSpeeds;
 import org.firstinspires.ftc.teamcode.opmodes.BaseOpMode;
 
 @Autonomous(preselectTeleOp = "DriveTest")
