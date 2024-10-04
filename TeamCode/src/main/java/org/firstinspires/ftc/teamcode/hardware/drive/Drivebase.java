@@ -6,6 +6,8 @@ package org.firstinspires.ftc.teamcode.hardware.drive;
 import static org.firstinspires.ftc.teamcode.Constants.Drivebase.*;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+
 import java.util.function.DoubleSupplier;
 import org.firstinspires.ftc.lib.trobotix.Utils;
 import org.firstinspires.ftc.lib.wpilib.commands.Command;
@@ -28,7 +30,7 @@ public class Drivebase implements Subsystem {
   private final PIDController yController;
   private final PIDController yawController;
 
-  public Drivebase(LinearOpMode opMode) {
+  public Drivebase(OpMode opMode) {
     kinematics =
         new MecanumDriveKinematics(
             WHEEL_POSITIONS[0], WHEEL_POSITIONS[1], WHEEL_POSITIONS[2], WHEEL_POSITIONS[3]);

@@ -13,6 +13,8 @@ import static org.firstinspires.ftc.teamcode.Constants.Drivebase.FRONT_RIGHT_WHE
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+
 import org.firstinspires.ftc.lib.trobotix.Motor;
 import org.firstinspires.ftc.lib.trobotix.Utils;
 import org.firstinspires.ftc.lib.trobotix.controller.SimplePIDFController;
@@ -32,7 +34,7 @@ public class WheelControlThread extends Thread {
   private final SimplePIDFController backLeftDriveController;
   private final SimplePIDFController backRightDriveController;
 
-  public WheelControlThread(LinearOpMode opMode) {
+  public WheelControlThread(OpMode opMode) {
     frontLeft = new Motor(opMode, "frontLeft");
     frontRight = new Motor(opMode, "frontRight");
     backLeft = new Motor(opMode, "backLeft");
