@@ -3,7 +3,6 @@
 
 package org.firstinspires.ftc.lib.trobotix;
 
-import java.util.ArrayList;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Pose2d;

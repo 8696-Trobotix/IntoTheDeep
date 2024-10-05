@@ -23,7 +23,8 @@ public class DeadwheelsWithGyroPositions implements WheelPositions<DeadwheelsWit
   }
 
   public DeadwheelsWithGyroPositions plus(DeadwheelsWithGyroPositions other) {
-    return new DeadwheelsWithGyroPositions(xMeters + other.xMeters, yMeters + other.yMeters, yaw.plus(other.yaw));
+    return new DeadwheelsWithGyroPositions(
+        xMeters + other.xMeters, yMeters + other.yMeters, yaw.plus(other.yaw));
   }
 
   public DeadwheelsWithGyroPositions minus(DeadwheelsWithGyroPositions other) {

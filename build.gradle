@@ -34,6 +34,7 @@ repositories {
 }
 
 spotless {
+    lineEndings "UNIX"
     java {
         target fileTree(".") {
             include "**/*.java"
