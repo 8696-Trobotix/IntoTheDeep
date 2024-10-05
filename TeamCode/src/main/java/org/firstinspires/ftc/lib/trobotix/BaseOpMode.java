@@ -22,11 +22,11 @@ public class BaseOpMode extends LinearOpMode {
     double startTime = Utils.getTimeSeconds();
     while (opModeIsActive()) {
       CommandScheduler.getInstance().run();
-      double schedulerDeltaT = Utils.getTimeSeconds();
-      double deltaT = schedulerDeltaT - startTime;
+      double schedulerTime = Utils.getTimeSeconds();
+      double deltaT = schedulerTime - startTime;
 
-      telemetry.addData("Main thread/Run time (ms)", schedulerDeltaT * 1000);
-      telemetry.addData("Main thread/Frequency (hz)", 1.0 / schedulerDeltaT);
+      telemetry.addData("Main thread/Run time (ms)", deltaT * 1000);
+      telemetry.addData("Main thread/Frequency (hz)", 1.0 / deltaT);
       telemetry.update();
       startTime = Utils.getTimeSeconds();
     }
