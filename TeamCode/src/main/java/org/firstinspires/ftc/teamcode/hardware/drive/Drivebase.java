@@ -5,7 +5,9 @@ package org.firstinspires.ftc.teamcode.hardware.drive;
 
 import static org.firstinspires.ftc.teamcode.Constants.Drivebase.*;
 
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.IMU;
 import java.util.function.DoubleSupplier;
 import org.firstinspires.ftc.lib.trobotix.Utils;
 import org.firstinspires.ftc.lib.wpilib.commands.Command;
@@ -21,6 +23,8 @@ import org.firstinspires.ftc.lib.wpilib.math.utils.Units;
 public class Drivebase implements Subsystem {
   private final MecanumDriveKinematics kinematics;
   //  private final OmniWheelPoseEstimator odometry;
+
+  private final IMU gyro;
 
   private final WheelControlThread wheelControlThread;
 
@@ -38,6 +42,14 @@ public class Drivebase implements Subsystem {
     //            new Rotation2d(),
     //            new OmniWheelPositions(),
     //            new Pose2d());
+
+    gyro = opMode.hardwareMap.get(IMU.class, "imu");
+    gyro.initialize(
+        new IMU.Parameters(
+            new RevHubOrientationOnRobot(
+                RevHubOrientationOnRobot.LogoFacingDirection.FORWARD,
+                RevHubOrientationOnRobot.UsbFacingDirection.UP)));
+    gyro.resetYaw();
 
     wheelControlThread = new WheelControlThread(opMode);
 
@@ -73,7 +85,7 @@ public class Drivebase implements Subsystem {
   }
 
   private void fieldRelativeDrive(ChassisSpeeds chassisSpeeds) {
-    drive(ChassisSpeeds.fromFieldRelativeSpeeds(chassisSpeeds, new Rotation2d()));
+    drive(ChassisSpeeds.fromFieldRelativeSpeeds(chassisSpeeds, getYaw()));
   }
 
   private void alignToPose(Pose2d pose) {
@@ -92,13 +104,11 @@ public class Drivebase implements Subsystem {
       DoubleSupplier xInput, DoubleSupplier yInput, DoubleSupplier omegaInput) {
     return run(
         () ->
-            drive(
-                ChassisSpeeds.fromFieldRelativeSpeeds(
-                    new ChassisSpeeds(
-                        xInput.getAsDouble() * topTranslationalSpeedMetersPerSec,
-                        yInput.getAsDouble() * topTranslationalSpeedMetersPerSec,
-                        omegaInput.getAsDouble() * topAngularSpeedRadPerSec),
-                    new Rotation2d())));
+            fieldRelativeDrive(
+                new ChassisSpeeds(
+                    xInput.getAsDouble() * topTranslationalSpeedMetersPerSec,
+                    yInput.getAsDouble() * topTranslationalSpeedMetersPerSec,
+                    omegaInput.getAsDouble() * topAngularSpeedRadPerSec)));
   }
 
   public Command driveVel(ChassisSpeeds speeds) {
@@ -145,5 +155,9 @@ public class Drivebase implements Subsystem {
     //        estimatedPose,
     //        timestamp,
     //        VecBuilder.fill(translationalStDev, translationalStDev, angularStDev));
+  }
+
+  private Rotation2d getYaw() {
+    return Rotation2d.fromDegrees(gyro.getRobotYawPitchRollAngles().getYaw());
   }
 }
