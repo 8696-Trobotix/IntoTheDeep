@@ -56,9 +56,9 @@ public class OmniWheelKinematics implements Kinematics<OmniWheelSpeeds, OmniWhee
 
   @Override
   public ChassisSpeeds toChassisSpeeds(OmniWheelSpeeds wheelSpeeds) {
-    SimpleMatrix wheelSpeedsVector =
+    var wheelSpeedsVector =
         new SimpleMatrix(wheelSpeeds.speeds.length, 1, true, wheelSpeeds.speeds);
-    SimpleMatrix chassisSpeedsVector = forwardKinematics.mult(wheelSpeedsVector);
+    var chassisSpeedsVector = forwardKinematics.mult(wheelSpeedsVector);
     return new ChassisSpeeds(
         chassisSpeedsVector.get(0, 0),
         chassisSpeedsVector.get(0, 1),
@@ -105,7 +105,7 @@ public class OmniWheelKinematics implements Kinematics<OmniWheelSpeeds, OmniWhee
       m_prevCoR = centerOfRotationMeters;
     }
 
-    SimpleMatrix chassisSpeedsVector =
+    var chassisSpeedsVector =
         new SimpleMatrix(
             1,
             3,
@@ -113,7 +113,7 @@ public class OmniWheelKinematics implements Kinematics<OmniWheelSpeeds, OmniWhee
             chassisSpeeds.vxMetersPerSecond,
             chassisSpeeds.vyMetersPerSecond,
             chassisSpeeds.omegaRadiansPerSecond);
-    SimpleMatrix wheelsVector = inverseKinematics.mult(chassisSpeedsVector);
+    var wheelsVector = inverseKinematics.mult(chassisSpeedsVector);
 
     double[] retSpeeds = new double[wheelPositions.length];
     for (int i = 0; i < retSpeeds.length; i++) {
@@ -128,10 +128,10 @@ public class OmniWheelKinematics implements Kinematics<OmniWheelSpeeds, OmniWhee
   }
 
   public Twist2d toTwist2d(OmniWheelPositions positionDeltas) {
-    SimpleMatrix moduleDeltaMatrix =
+    var moduleDeltaMatrix =
         new SimpleMatrix(positionDeltas.positions.length, 1, true, positionDeltas.positions);
 
-    SimpleMatrix chassisDeltaVector = forwardKinematics.mult(moduleDeltaMatrix);
+    var chassisDeltaVector = forwardKinematics.mult(moduleDeltaMatrix);
 
     return new Twist2d(
         chassisDeltaVector.get(0, 0), chassisDeltaVector.get(0, 1), chassisDeltaVector.get(0, 1));

@@ -99,7 +99,7 @@ public class WheelControlThread extends Thread {
   @Override
   public void run() {
     while (Utils.opModeActiveSupplier.getAsBoolean()) {
-      double startTime = Utils.getTimeSeconds();
+      var startTime = Utils.getTimeSeconds();
       // Read data
       double[] speeds;
       synchronized (wheelSpeeds) {
@@ -110,7 +110,7 @@ public class WheelControlThread extends Thread {
           frontRightDriveController.calculate(frontRight.getVelocity(), speeds[1]));
       backLeft.setVoltage(backLeftDriveController.calculate(backLeft.getVelocity(), speeds[2]));
       backRight.setVoltage(backRightDriveController.calculate(backRight.getVelocity(), speeds[3]));
-      double dT = Utils.getTimeSeconds() - startTime;
+      var dT = Utils.getTimeSeconds() - startTime;
       TelemetryThread.addData("WheelControlThread/Timing (ms)", dT * 1000);
       TelemetryThread.addData("WheelControlThread/Frequency", 1.0 / dT);
     }

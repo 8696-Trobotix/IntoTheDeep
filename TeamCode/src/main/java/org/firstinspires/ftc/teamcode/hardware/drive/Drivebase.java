@@ -78,7 +78,7 @@ public class Drivebase implements Subsystem {
       topTranslationalSpeedMetersPerSec / Math.hypot(TRACK_LENGTH / 2, TRACK_WIDTH / 2);
 
   private void drive(ChassisSpeeds chassisSpeeds) {
-    MecanumDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(chassisSpeeds);
+    var wheelSpeeds = kinematics.toWheelSpeeds(chassisSpeeds);
     wheelSpeeds.desaturate(topTranslationalSpeedMetersPerSec);
 
     wheelControlThread.setWheelSpeeds(wheelSpeeds);

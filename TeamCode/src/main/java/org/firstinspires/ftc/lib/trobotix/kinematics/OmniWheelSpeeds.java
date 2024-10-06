@@ -18,7 +18,7 @@ public class OmniWheelSpeeds {
   }
 
   public OmniWheelSpeeds plus(OmniWheelSpeeds wheelPositions) {
-    double[] newPositions = new double[this.speeds.length];
+    var newPositions = new double[this.speeds.length];
     for (int i = 0; i < this.speeds.length; i++) {
       newPositions[i] = this.speeds[i] + wheelPositions.speeds[i];
     }
@@ -30,7 +30,7 @@ public class OmniWheelSpeeds {
   }
 
   public OmniWheelSpeeds unaryMinus() {
-    double[] newPositions = new double[this.speeds.length];
+    var newPositions = new double[this.speeds.length];
     for (int i = 0; i < this.speeds.length; i++) {
       newPositions[i] = -this.speeds[i];
     }
@@ -38,7 +38,7 @@ public class OmniWheelSpeeds {
   }
 
   public OmniWheelSpeeds times(double scalar) {
-    double[] newPositions = new double[this.speeds.length];
+    var newPositions = new double[this.speeds.length];
     for (int i = 0; i < this.speeds.length; i++) {
       newPositions[i] = this.speeds[i] * scalar;
     }

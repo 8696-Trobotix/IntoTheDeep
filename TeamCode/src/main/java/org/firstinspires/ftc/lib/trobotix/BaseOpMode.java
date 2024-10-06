@@ -21,9 +21,9 @@ public class BaseOpMode extends LinearOpMode {
     startup();
     waitForStart();
     while (opModeIsActive()) {
-      double startTime = Utils.getTimeSeconds();
+      var startTime = Utils.getTimeSeconds();
       CommandScheduler.getInstance().run();
-      double schedulerTime = Utils.getTimeSeconds();
+      var schedulerTime = Utils.getTimeSeconds();
 
       TelemetryThread.addTiming("Main Thread", schedulerTime - startTime);
       startTime = Utils.getTimeSeconds();

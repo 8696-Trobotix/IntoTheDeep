@@ -50,9 +50,9 @@ public class TelemetryThread {
 
   private static void run() {
     FtcDashboard.getInstance().setTelemetryTransmissionInterval((int) Math.round(1000 / FREQUENCY));
-    double startTime = Utils.getTimeSeconds();
+    var startTime = Utils.getTimeSeconds();
     while (Utils.opModeActiveSupplier.getAsBoolean()) {
-      TelemetryPacket packet = new TelemetryPacket();
+      var packet = new TelemetryPacket();
 
       synchronized (PENDING_DATA) {
         PENDING_DATA
@@ -62,8 +62,8 @@ public class TelemetryThread {
         PENDING_DATA.clear();
       }
 
-      double endTime = Utils.getTimeSeconds();
-      double dT = endTime - startTime;
+      var endTime = Utils.getTimeSeconds();
+      var dT = endTime - startTime;
       packet.put("TelemetryThread/Timing (ms)", dT * 1000);
       packet.put("TelemetryThread/Runtime %", FREQUENCY * dT * 100);
 
