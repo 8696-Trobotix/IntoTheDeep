@@ -11,43 +11,57 @@ import org.firstinspires.ftc.lib.wpilib.Timer;
 public class TelemetryThread {
   private static final Thread thread;
 
+  private static final boolean ENABLED = true;
+
   static {
     thread = new Thread(TelemetryThread::run);
     thread.setDaemon(true);
     thread.setName("TelemetryThread");
   }
 
-  public void start() {
-    thread.start();
+  public static void start() {
+    if (ENABLED) {
+      thread.start();
+    }
   }
 
   private static final HashMap<String, Object> PENDING_DATA = new HashMap<>();
 
   public static void addData(String name, Object object) {
-    Utils.THREAD_LOCK.writeLock().lock();
-    try {
+    if (!ENABLED) {
+      return;
+    }
+    synchronized (PENDING_DATA) {
       PENDING_DATA.put(name, object);
-    } finally {
-      Utils.THREAD_LOCK.writeLock().unlock();
+    }
+  }
+
+  public static void addTiming(String name, double timingSeconds) {
+    if (!ENABLED) {
+      return;
+    }
+    synchronized (PENDING_DATA) {
+      PENDING_DATA.put(name + "/Timing (ms)", timingSeconds * 1000);
+      PENDING_DATA.put(name + "Frequency (hz)", 1.0 / timingSeconds);
     }
   }
 
   private static final double FREQUENCY = 10;
 
   private static void run() {
+    FtcDashboard.getInstance().setTelemetryTransmissionInterval((int) Math.round(1000 / FREQUENCY));
     double startTime = Utils.getTimeSeconds();
-    while (true) {
+    while (Utils.opModeActiveSupplier.getAsBoolean()) {
       TelemetryPacket packet = new TelemetryPacket();
-      Utils.THREAD_LOCK.readLock().lock();
-      try {
+
+      synchronized (PENDING_DATA) {
         PENDING_DATA
             .entrySet()
             .iterator()
             .forEachRemaining((entry) -> packet.put(entry.getKey(), entry.getValue()));
         PENDING_DATA.clear();
-      } finally {
-        Utils.THREAD_LOCK.readLock().unlock();
       }
+
       double endTime = Utils.getTimeSeconds();
       double dT = endTime - startTime;
       packet.put("TelemetryThread/Timing (ms)", dT * 1000);

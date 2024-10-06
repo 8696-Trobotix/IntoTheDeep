@@ -5,6 +5,8 @@ package org.firstinspires.ftc.lib.trobotix;
 
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.BooleanSupplier;
+
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Pose2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Translation2d;
@@ -15,7 +17,7 @@ public class Utils {
 
   public static boolean IS_ON_RED = false;
 
-  public static ReadWriteLock THREAD_LOCK = new ReentrantReadWriteLock();
+  public static BooleanSupplier opModeActiveSupplier;
 
   public static double getTimeSeconds() {
     return System.nanoTime() / 1e9;
