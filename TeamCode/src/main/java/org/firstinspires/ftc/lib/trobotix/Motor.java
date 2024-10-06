@@ -135,9 +135,9 @@ public class Motor {
       lastTime = Utils.getTimeSeconds();
       return 0;
     }
-    double currentPos = getPosition();
-    double currentTime = Utils.getTimeSeconds();
-    double velocity = (currentPos - lastPos) / (currentTime - lastTime);
+    var currentPos = getPosition();
+    var currentTime = Utils.getTimeSeconds();
+    var velocity = (currentPos - lastPos) / (currentTime - lastTime);
     lastPos = currentPos;
     lastTime = currentTime;
     return velocity;

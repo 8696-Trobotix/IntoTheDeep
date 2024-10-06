@@ -25,7 +25,7 @@ public class OmniWheelPositions implements WheelPositions<OmniWheelPositions> {
 
   @Override
   public OmniWheelPositions interpolate(OmniWheelPositions endValue, double t) {
-    double[] newPositions = new double[positions.length];
+    var newPositions = new double[positions.length];
     for (int i = 0; i < positions.length; i++) {
       newPositions[i] = MathUtil.interpolate(positions[i], endValue.positions[i], t);
     }
@@ -33,7 +33,7 @@ public class OmniWheelPositions implements WheelPositions<OmniWheelPositions> {
   }
 
   public OmniWheelPositions plus(OmniWheelPositions wheelPositions) {
-    double[] newPositions = new double[this.positions.length];
+    var newPositions = new double[this.positions.length];
     for (int i = 0; i < this.positions.length; i++) {
       newPositions[i] = this.positions[i] + wheelPositions.positions[i];
     }
@@ -45,7 +45,7 @@ public class OmniWheelPositions implements WheelPositions<OmniWheelPositions> {
   }
 
   public OmniWheelPositions unaryMinus() {
-    double[] newPositions = new double[this.positions.length];
+    var newPositions = new double[this.positions.length];
     for (int i = 0; i < this.positions.length; i++) {
       newPositions[i] = -this.positions[i];
     }
@@ -53,7 +53,7 @@ public class OmniWheelPositions implements WheelPositions<OmniWheelPositions> {
   }
 
   public OmniWheelPositions times(double scalar) {
-    double[] newPositions = new double[this.positions.length];
+    var newPositions = new double[this.positions.length];
     for (int i = 0; i < this.positions.length; i++) {
       newPositions[i] = this.positions[i] * scalar;
     }
