@@ -11,7 +11,6 @@ import static org.firstinspires.ftc.teamcode.Constants.Drivebase.FRONT_LEFT_WHEE
 import static org.firstinspires.ftc.teamcode.Constants.Drivebase.FRONT_RIGHT_WHEEL_DIAMETER;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import java.util.ArrayList;
 import org.firstinspires.ftc.lib.trobotix.Motor;
 import org.firstinspires.ftc.lib.trobotix.TelemetryThread;
 import org.firstinspires.ftc.lib.trobotix.Utils;
