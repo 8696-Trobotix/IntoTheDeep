@@ -11,17 +11,13 @@ import static org.firstinspires.ftc.teamcode.Constants.Drivebase.FRONT_LEFT_WHEE
 import static org.firstinspires.ftc.teamcode.Constants.Drivebase.FRONT_RIGHT_WHEEL_DIAMETER;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import java.util.ArrayList;
-import java.util.function.Consumer;
+import org.firstinspires.ftc.lib.trobotix.EndableThread;
 import org.firstinspires.ftc.lib.trobotix.Motor;
-import org.firstinspires.ftc.lib.trobotix.Utils;
 import org.firstinspires.ftc.lib.trobotix.controller.SimplePIDFController;
 import org.firstinspires.ftc.lib.wpilib.math.kinematics.MecanumDriveWheelSpeeds;
 import org.firstinspires.ftc.lib.wpilib.math.utils.Units;
 
-public class WheelControlThread extends Thread {
-  private MecanumDriveWheelSpeeds wheelSpeeds = new MecanumDriveWheelSpeeds();
-
+public class WheelControlThread extends EndableThread {
   private final Motor frontLeft;
   private final Motor frontRight;
   private final Motor backLeft;
@@ -32,9 +28,8 @@ public class WheelControlThread extends Thread {
   private final SimplePIDFController backLeftDriveController;
   private final SimplePIDFController backRightDriveController;
 
-  private final Consumer<Double> timingsConsumer;
-
   public WheelControlThread(OpMode opMode) {
+    super("Wheel Control Thread");
     frontLeft = new Motor(opMode, "frontLeft");
     frontRight = new Motor(opMode, "frontRight");
     backLeft = new Motor(opMode, "backLeft");
@@ -94,61 +89,29 @@ public class WheelControlThread extends Thread {
             12
                 / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
                     * BACK_RIGHT_WHEEL_DIAMETER));
-
-    setDaemon(true);
-
-    timingsConsumer =
-        (Double deltaTimeSec) -> {
-          opMode.telemetry.addData("WheelControlThread/Average run time (ms)", deltaTimeSec * 1000);
-          opMode.telemetry.addData("WheelControlThread/Frequency, (hz)", 1.0 / deltaTimeSec);
-        };
   }
 
-  private final ArrayList<Double> timeList = new ArrayList<>();
+  private final double[] wheelSpeeds = new double[4];
 
   @Override
-  public void run() {
-    //noinspection InfiniteLoopStatement
-    while (true) {
-      double startTime = Utils.getTimeSeconds();
-      // Read data
-      double[] speeds;
-      Utils.THREAD_LOCK.readLock().lock();
-      try {
-        speeds =
-            new double[] {
-              wheelSpeeds.frontLeftMetersPerSecond,
-              wheelSpeeds.frontRightMetersPerSecond,
-              wheelSpeeds.rearLeftMetersPerSecond,
-              wheelSpeeds.rearRightMetersPerSecond
-            };
-      } finally {
-        Utils.THREAD_LOCK.readLock().unlock();
-      }
-      frontLeft.setVoltage(frontLeftDriveController.calculate(frontLeft.getVelocity(), speeds[0]));
-      frontRight.setVoltage(
-          frontRightDriveController.calculate(frontRight.getVelocity(), speeds[1]));
-      backLeft.setVoltage(backLeftDriveController.calculate(backLeft.getVelocity(), speeds[2]));
-      backRight.setVoltage(backRightDriveController.calculate(backRight.getVelocity(), speeds[3]));
-      timeList.add(startTime - Utils.getTimeSeconds());
+  public void loop() {
+    // Read data
+    double[] speeds;
+    synchronized (wheelSpeeds) {
+      speeds = wheelSpeeds.clone();
     }
+    frontLeft.setVoltage(frontLeftDriveController.calculate(frontLeft.getVelocity(), speeds[0]));
+    frontRight.setVoltage(frontRightDriveController.calculate(frontRight.getVelocity(), speeds[1]));
+    backLeft.setVoltage(backLeftDriveController.calculate(backLeft.getVelocity(), speeds[2]));
+    backRight.setVoltage(backRightDriveController.calculate(backRight.getVelocity(), speeds[3]));
   }
 
   public void setWheelSpeeds(MecanumDriveWheelSpeeds wheelSpeeds) {
-    Utils.THREAD_LOCK.writeLock().lock();
-    try {
-      this.wheelSpeeds = wheelSpeeds;
-
-      if (!timeList.isEmpty()) {
-        double totalTime = 0;
-        for (Double time : timeList) {
-          totalTime += time;
-        }
-        timingsConsumer.accept(totalTime / timeList.size());
-        timeList.clear();
-      }
-    } finally {
-      Utils.THREAD_LOCK.writeLock().unlock();
+    synchronized (this.wheelSpeeds) {
+      this.wheelSpeeds[0] = wheelSpeeds.frontLeftMetersPerSecond;
+      this.wheelSpeeds[1] = wheelSpeeds.frontRightMetersPerSecond;
+      this.wheelSpeeds[2] = wheelSpeeds.rearLeftMetersPerSecond;
+      this.wheelSpeeds[3] = wheelSpeeds.rearRightMetersPerSecond;
     }
   }
 }

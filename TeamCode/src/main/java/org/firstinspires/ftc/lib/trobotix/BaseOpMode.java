@@ -16,20 +16,13 @@ import org.firstinspires.ftc.lib.wpilib.commands.CommandScheduler;
 public class BaseOpMode extends LinearOpMode {
   @Override
   public void runOpMode() throws InterruptedException {
-    telemetry.setMsTransmissionInterval(20);
     startup();
     waitForStart();
-    double startTime = Utils.getTimeSeconds();
+    Utils.startThreads();
     while (opModeIsActive()) {
       CommandScheduler.getInstance().run();
-      double schedulerTime = Utils.getTimeSeconds();
-      double deltaT = schedulerTime - startTime;
-
-      telemetry.addData("Main thread/Run time (ms)", deltaT * 1000);
-      telemetry.addData("Main thread/Frequency (hz)", 1.0 / deltaT);
-      telemetry.update();
-      startTime = Utils.getTimeSeconds();
     }
+    Utils.endThreads();
   }
 
   public void startup() {}

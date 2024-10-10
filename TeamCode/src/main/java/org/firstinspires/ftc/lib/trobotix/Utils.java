@@ -3,8 +3,7 @@
 
 package org.firstinspires.ftc.lib.trobotix;
 
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.ArrayList;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Pose2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Translation2d;
@@ -14,8 +13,6 @@ public class Utils {
   private Utils() {}
 
   public static boolean IS_ON_RED = false;
-
-  public static ReadWriteLock THREAD_LOCK = new ReentrantReadWriteLock();
 
   public static double getTimeSeconds() {
     return System.nanoTime() / 1e9;
@@ -70,5 +67,28 @@ public class Utils {
     } else {
       return rotation;
     }
+  }
+
+  private static final ArrayList<EndableThread> threads = new ArrayList<>();
+
+  protected static void registerThread(EndableThread thread) {
+    threads.add(thread);
+  }
+
+  protected static void startThreads() {
+    threads.forEach(
+        (thread) -> {
+          try {
+            thread.start();
+          } catch (Exception e) {
+            throw new RuntimeException(
+                "Failed to start " + thread.NAME + " with exception: " + e);
+          }
+        });
+  }
+
+  protected static void endThreads() {
+    threads.forEach(EndableThread::disable);
+    threads.clear();
   }
 }

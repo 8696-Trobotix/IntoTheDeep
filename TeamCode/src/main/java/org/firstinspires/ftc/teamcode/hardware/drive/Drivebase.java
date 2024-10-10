@@ -57,8 +57,6 @@ public class Drivebase implements Subsystem {
     yController = new PIDController(5, 0, 0);
     yawController = new PIDController(5, 0, 0);
     yawController.enableContinuousInput(-Math.PI, Math.PI);
-
-    wheelControlThread.start();
   }
 
   @Override
@@ -158,6 +156,7 @@ public class Drivebase implements Subsystem {
   }
 
   private Rotation2d getYaw() {
-    return Rotation2d.fromDegrees(gyro.getRobotYawPitchRollAngles().getYaw());
+    return new Rotation2d();
+    //    return Rotation2d.fromDegrees(gyro.getRobotYawPitchRollAngles().getYaw());
   }
 }
