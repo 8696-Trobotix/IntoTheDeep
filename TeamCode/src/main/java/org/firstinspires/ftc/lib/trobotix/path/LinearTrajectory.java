@@ -22,13 +22,7 @@ public class LinearTrajectory implements Trajectory {
   private final TrapezoidProfile.State angularStartState;
   private final TrapezoidProfile.State angularEndState;
 
-  public LinearTrajectory(
-      Pose2d start,
-      Pose2d end,
-      double maxLinearSpeedMetersPerSec,
-      double maxLinearAccelMetersPerSecSquared,
-      double maxAngularSpeedRadPerSec,
-      double maxAngularAccelRadPerSecSquared) {
+  protected LinearTrajectory(Pose2d start, Pose2d end, Constraints constraints) {
     this.start = start;
     this.end = end;
     lineAngleRad = end.minus(start).getTranslation().getAngle().getRadians();
@@ -37,20 +31,22 @@ public class LinearTrajectory implements Trajectory {
     linearProfile =
         new TrapezoidProfile(
             new TrapezoidProfile.Constraints(
-                maxLinearSpeedMetersPerSec, maxLinearAccelMetersPerSecSquared));
+                constraints.maxLinearSpeedMetersPerSec(),
+                constraints.maxLinearAccelMetersPerSecSquared()));
     linearEndState =
         new TrapezoidProfile.State(end.getTranslation().getDistance(start.getTranslation()), 0);
 
     angularProfile =
         new TrapezoidProfile(
             new TrapezoidProfile.Constraints(
-                maxAngularSpeedRadPerSec, maxAngularAccelRadPerSecSquared));
+                constraints.maxAngularSpeedRadPerSec(),
+                constraints.maxAngularAccelRadPerSecSquared()));
     angularStartState = new TrapezoidProfile.State(start.getRotation().getRadians(), 0);
     angularEndState = new TrapezoidProfile.State(end.getRotation().getRadians(), 0);
   }
 
   @Override
-  public TrajectorySample sample(double time) {
+  public Sample sample(double time) {
     var linearState = linearProfile.calculate(time, linearStartState, linearEndState);
     var angularState = angularProfile.calculate(time, angularStartState, angularEndState);
 
@@ -66,6 +62,6 @@ public class LinearTrajectory implements Trajectory {
             linearState.velocity * Math.sin(lineAngleRad),
             angularState.velocity);
 
-    return new TrajectorySample(pose, speed);
+    return new Sample(pose, speed);
   }
 }

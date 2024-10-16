@@ -74,14 +74,14 @@ public class Drivebase implements Subsystem {
   public final double topAngularSpeedRadPerSec =
       topTranslationalSpeedMetersPerSec / Math.hypot(TRACK_LENGTH / 2, TRACK_WIDTH / 2);
 
-  private void drive(ChassisSpeeds chassisSpeeds) {
+  public void drive(ChassisSpeeds chassisSpeeds) {
     var wheelSpeeds = kinematics.toWheelSpeeds(chassisSpeeds);
     wheelSpeeds.desaturate(topTranslationalSpeedMetersPerSec);
 
     wheelControlThread.setWheelSpeeds(wheelSpeeds);
   }
 
-  private void fieldRelativeDrive(ChassisSpeeds chassisSpeeds) {
+  public void fieldRelativeDrive(ChassisSpeeds chassisSpeeds) {
     drive(ChassisSpeeds.fromFieldRelativeSpeeds(chassisSpeeds, getYaw()));
   }
 
@@ -152,6 +152,10 @@ public class Drivebase implements Subsystem {
     //        estimatedPose,
     //        timestamp,
     //        VecBuilder.fill(translationalStDev, translationalStDev, angularStDev));
+  }
+
+  public Pose2d getPose() {
+    return new Pose2d();
   }
 
   private Rotation2d getYaw() {

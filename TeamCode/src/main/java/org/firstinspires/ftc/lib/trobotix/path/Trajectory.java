@@ -7,7 +7,17 @@ import org.firstinspires.ftc.lib.wpilib.math.geometry.Pose2d;
 import org.firstinspires.ftc.lib.wpilib.math.kinematics.ChassisSpeeds;
 
 public interface Trajectory {
-  TrajectorySample sample(double time);
+  Sample sample(double time);
 
-  record TrajectorySample(Pose2d pose, ChassisSpeeds speeds) {}
+  record Constraints(
+      double maxLinearSpeedMetersPerSec,
+      double maxLinearAccelMetersPerSecSquared,
+      double maxAngularSpeedRadPerSec,
+      double maxAngularAccelRadPerSecSquared) {}
+
+  record Sample(Pose2d pose, ChassisSpeeds speeds) {}
+
+  static LinearTrajectory linear(Pose2d start, Pose2d end, Constraints constraints) {
+    return new LinearTrajectory(start, end, constraints);
+  }
 }

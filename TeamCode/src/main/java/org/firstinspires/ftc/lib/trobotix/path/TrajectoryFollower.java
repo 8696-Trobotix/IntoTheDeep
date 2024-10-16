@@ -3,45 +3,40 @@
 
 package org.firstinspires.ftc.lib.trobotix.path;
 
-import static org.firstinspires.ftc.lib.wpilib.commands.Commands.run;
 import static org.firstinspires.ftc.lib.wpilib.commands.Commands.runOnce;
 
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 import org.firstinspires.ftc.lib.wpilib.Timer;
 import org.firstinspires.ftc.lib.wpilib.commands.Command;
 import org.firstinspires.ftc.lib.wpilib.math.controller.PIDController;
-import org.firstinspires.ftc.lib.wpilib.math.geometry.Pose2d;
 import org.firstinspires.ftc.lib.wpilib.math.kinematics.ChassisSpeeds;
+import org.firstinspires.ftc.teamcode.hardware.drive.Drivebase;
 
 public class TrajectoryFollower {
   private final PIDController xController;
   private final PIDController yController;
   private final PIDController yawController;
 
-  private final Supplier<Pose2d> poseSupplier;
-  private final Consumer<ChassisSpeeds> driveMethod;
+  private final Drivebase drivebase;
 
-  public TrajectoryFollower(Supplier<Pose2d> poseSupplier, Consumer<ChassisSpeeds> driveMethod) {
+  public TrajectoryFollower(Drivebase drivebase) {
     xController = new PIDController(5, 0, 0);
     yController = new PIDController(5, 0, 0);
     yawController = new PIDController(5, 0, 0);
     yawController.enableContinuousInput(-Math.PI, Math.PI);
 
-    this.poseSupplier = poseSupplier;
-    this.driveMethod = driveMethod;
+    this.drivebase = drivebase;
   }
 
   public Command followPath(Trajectory trajectory) {
     Timer timer = new Timer();
     return runOnce(timer::start)
         .andThen(
-            run(
+            drivebase.run(
                 () -> {
-                  Trajectory.TrajectorySample sample = trajectory.sample(timer.get());
-                  Pose2d pose = poseSupplier.get();
+                  var sample = trajectory.sample(timer.get());
+                  var pose = drivebase.getPose();
 
-                  driveMethod.accept(
+                  drivebase.fieldRelativeDrive(
                       new ChassisSpeeds(
                           sample.speeds().vxMetersPerSecond
                               + xController.calculate(pose.getX(), sample.pose().getX()),
