@@ -13,7 +13,6 @@ import static org.firstinspires.ftc.teamcode.Constants.Drivebase.FRONT_RIGHT_WHE
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.lib.trobotix.EndableThread;
 import org.firstinspires.ftc.lib.trobotix.Motor;
-import org.firstinspires.ftc.lib.trobotix.Utils;
 import org.firstinspires.ftc.lib.trobotix.controller.SimplePIDFController;
 import org.firstinspires.ftc.lib.wpilib.math.kinematics.MecanumDriveWheelSpeeds;
 import org.firstinspires.ftc.lib.wpilib.math.utils.Units;

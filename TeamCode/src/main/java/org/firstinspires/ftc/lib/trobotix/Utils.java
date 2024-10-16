@@ -81,8 +81,7 @@ public class Utils {
           try {
             thread.start();
           } catch (Exception e) {
-            throw new RuntimeException(
-                "Failed to start " + thread.NAME + " with exception: " + e);
+            throw new RuntimeException("Failed to start " + thread.NAME + " with exception: " + e);
           }
         });
   }
