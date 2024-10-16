@@ -3,6 +3,7 @@
 
 package org.firstinspires.ftc.lib.trobotix;
 
+import com.outoftheboxrobotics.photoncore.PeriodicSupplier;
 import com.outoftheboxrobotics.photoncore.hardware.PhotonLynxVoltageSensor;
 import com.outoftheboxrobotics.photoncore.hardware.motor.PhotonAdvancedDcMotor;
 import com.outoftheboxrobotics.photoncore.hardware.motor.PhotonDcMotor;
@@ -10,16 +11,21 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import org.firstinspires.ftc.lib.wpilib.math.MathUtil;
+import org.firstinspires.ftc.lib.wpilib.math.filter.LinearFilter;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 /** Wrapper for {@link PhotonAdvancedDcMotor} for extra functionality and cleaner code. */
 public class Motor {
   private final PhotonAdvancedDcMotor motorInternal;
   private final PhotonLynxVoltageSensor voltageSensor;
+  private final PeriodicSupplier<Double> currentSensor;
 
   public Motor(OpMode opMode, String name) {
     motorInternal = new PhotonAdvancedDcMotor((PhotonDcMotor) opMode.hardwareMap.dcMotor.get(name));
     voltageSensor = opMode.hardwareMap.getAll(PhotonLynxVoltageSensor.class).iterator().next();
+    currentSensor =
+        new PeriodicSupplier<>(
+            () -> motorInternal.getMotor().getCurrentAsync(CurrentUnit.AMPS), 50);
   }
 
   /**
@@ -62,12 +68,35 @@ public class Motor {
     motorInternal.setCacheTolerance(tolerance);
   }
 
+  private double currentLimitAmps = -1;
+
+  /**
+   * Sets the current limit of the motor.
+   *
+   * <p>Motors can draw hell of a lot of current when pushed hard, and if too many motors draw too
+   * much current, the voltage sag can cause things to brown out. To prevent this, the duty cycle of
+   * the motor is reduced when the limit is hit.
+   *
+   * <p>This applies a supply current limit. The better way to do current limiting is stator
+   * limiting where the current is measured from the motor stators, but FTC hardware doesn't have
+   * that. You can approximate it by taking the supply current draw and dividing it by duty cycle,
+   * but it's less accurate and it's more costly on performance.
+   */
+  public void setCurrentLimit(double currentLimitAmps) {
+    this.currentLimitAmps = currentLimitAmps;
+  }
+
+  private final LinearFilter currentFilter = LinearFilter.movingAverage(3);
+
   /**
    * Sets the duty cycle of the motor.
    *
-   * @param dutyCycle The duty cycle to set. From -1 to 1.
+   * @param dutyCycle The duty cycle to set. Clamped between -1 and 1.
    */
   public void set(double dutyCycle) {
+    if (currentLimitAmps > 0 && currentFilter.calculate(currentSensor.get()) > currentLimitAmps) {
+      dutyCycle *= currentLimitAmps / currentFilter.lastValue();
+    }
     motorInternal.setPower(MathUtil.clamp(dutyCycle, -1, 1));
   }
 
@@ -80,7 +109,8 @@ public class Motor {
    * @param volts The motor voltage to set. From -12 to 12.
    */
   public void setVoltage(double volts) {
-    set(volts / voltageSensor.getCachedVoltage());
+    var currentVoltage = MathUtil.clamp(-12, 12, voltageSensor.getCachedVoltage());
+    set(volts / currentVoltage);
   }
 
   /**
