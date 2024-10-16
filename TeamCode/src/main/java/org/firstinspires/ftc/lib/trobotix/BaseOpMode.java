@@ -15,19 +15,14 @@ import org.firstinspires.ftc.lib.wpilib.commands.CommandScheduler;
 @Photon
 public class BaseOpMode extends LinearOpMode {
   @Override
-  public void runOpMode() throws InterruptedException {
-    Utils.opModeActiveSupplier = () -> !isStopRequested();
-    TelemetryThread.start();
+  public void runOpMode() {
     startup();
     waitForStart();
+    Utils.startThreads();
     while (opModeIsActive()) {
-      var startTime = Utils.getTimeSeconds();
       CommandScheduler.getInstance().run();
-      var schedulerTime = Utils.getTimeSeconds();
-
-      TelemetryThread.addTiming("Main Thread", schedulerTime - startTime);
-      startTime = Utils.getTimeSeconds();
     }
+    Utils.endThreads();
   }
 
   public void startup() {}

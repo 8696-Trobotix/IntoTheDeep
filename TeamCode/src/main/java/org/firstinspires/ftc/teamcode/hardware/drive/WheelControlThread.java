@@ -11,16 +11,14 @@ import static org.firstinspires.ftc.teamcode.Constants.Drivebase.FRONT_LEFT_WHEE
 import static org.firstinspires.ftc.teamcode.Constants.Drivebase.FRONT_RIGHT_WHEEL_DIAMETER;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import org.firstinspires.ftc.lib.trobotix.EndableThread;
 import org.firstinspires.ftc.lib.trobotix.Motor;
-import org.firstinspires.ftc.lib.trobotix.TelemetryThread;
 import org.firstinspires.ftc.lib.trobotix.Utils;
 import org.firstinspires.ftc.lib.trobotix.controller.SimplePIDFController;
 import org.firstinspires.ftc.lib.wpilib.math.kinematics.MecanumDriveWheelSpeeds;
 import org.firstinspires.ftc.lib.wpilib.math.utils.Units;
 
-public class WheelControlThread extends Thread {
-  private final double[] wheelSpeeds = new double[4];
-
+public class WheelControlThread extends EndableThread {
   private final Motor frontLeft;
   private final Motor frontRight;
   private final Motor backLeft;
@@ -32,6 +30,7 @@ public class WheelControlThread extends Thread {
   private final SimplePIDFController backRightDriveController;
 
   public WheelControlThread(OpMode opMode) {
+    super("Wheel Control Thread");
     frontLeft = new Motor(opMode, "frontLeft");
     frontRight = new Motor(opMode, "frontRight");
     backLeft = new Motor(opMode, "backLeft");
@@ -91,28 +90,21 @@ public class WheelControlThread extends Thread {
             12
                 / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
                     * BACK_RIGHT_WHEEL_DIAMETER));
-
-    setDaemon(true);
   }
 
+  private final double[] wheelSpeeds = new double[4];
+
   @Override
-  public void run() {
-    while (Utils.opModeActiveSupplier.getAsBoolean()) {
-      var startTime = Utils.getTimeSeconds();
-      // Read data
-      double[] speeds;
-      synchronized (wheelSpeeds) {
-        speeds = wheelSpeeds.clone();
-      }
-      frontLeft.setVoltage(frontLeftDriveController.calculate(frontLeft.getVelocity(), speeds[0]));
-      frontRight.setVoltage(
-          frontRightDriveController.calculate(frontRight.getVelocity(), speeds[1]));
-      backLeft.setVoltage(backLeftDriveController.calculate(backLeft.getVelocity(), speeds[2]));
-      backRight.setVoltage(backRightDriveController.calculate(backRight.getVelocity(), speeds[3]));
-      var dT = Utils.getTimeSeconds() - startTime;
-      TelemetryThread.addData("WheelControlThread/Timing (ms)", dT * 1000);
-      TelemetryThread.addData("WheelControlThread/Frequency", 1.0 / dT);
+  public void loop() {
+    // Read data
+    double[] speeds;
+    synchronized (wheelSpeeds) {
+      speeds = wheelSpeeds.clone();
     }
+    frontLeft.setVoltage(frontLeftDriveController.calculate(frontLeft.getVelocity(), speeds[0]));
+    frontRight.setVoltage(frontRightDriveController.calculate(frontRight.getVelocity(), speeds[1]));
+    backLeft.setVoltage(backLeftDriveController.calculate(backLeft.getVelocity(), speeds[2]));
+    backRight.setVoltage(backRightDriveController.calculate(backRight.getVelocity(), speeds[3]));
   }
 
   public void setWheelSpeeds(MecanumDriveWheelSpeeds wheelSpeeds) {

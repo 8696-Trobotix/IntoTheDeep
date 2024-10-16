@@ -3,7 +3,7 @@
 
 package org.firstinspires.ftc.lib.trobotix;
 
-import java.util.function.BooleanSupplier;
+import java.util.ArrayList;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Pose2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Translation2d;
@@ -14,14 +14,12 @@ public class Utils {
 
   public static boolean IS_ON_RED = false;
 
-  public static BooleanSupplier opModeActiveSupplier;
-
   public static double getTimeSeconds() {
     return System.nanoTime() / 1e9;
   }
 
   public static double average(double... numbers) {
-    var sum = 0;
+    var sum = 0.0;
     for (var number : numbers) {
       sum += number;
     }
@@ -69,5 +67,28 @@ public class Utils {
     } else {
       return rotation;
     }
+  }
+
+  private static final ArrayList<EndableThread> threads = new ArrayList<>();
+
+  protected static void registerThread(EndableThread thread) {
+    threads.add(thread);
+  }
+
+  protected static void startThreads() {
+    threads.forEach(
+        (thread) -> {
+          try {
+            thread.start();
+          } catch (Exception e) {
+            throw new RuntimeException(
+                "Failed to start " + thread.NAME + " with exception: " + e);
+          }
+        });
+  }
+
+  protected static void endThreads() {
+    threads.forEach(EndableThread::disable);
+    threads.clear();
   }
 }
