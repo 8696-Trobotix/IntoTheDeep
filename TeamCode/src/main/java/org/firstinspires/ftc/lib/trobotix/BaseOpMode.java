@@ -15,7 +15,7 @@ import org.firstinspires.ftc.lib.wpilib.commands.CommandScheduler;
 @Photon
 public class BaseOpMode extends LinearOpMode {
   @Override
-  public void runOpMode() throws InterruptedException {
+  public void runOpMode() {
     startup();
     waitForStart();
     Utils.startThreads();
