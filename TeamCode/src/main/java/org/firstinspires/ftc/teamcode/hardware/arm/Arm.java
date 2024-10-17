@@ -26,6 +26,10 @@ public class Arm extends SubsystemBase {
     motor.setVoltage(feedforward.calculate(motor.getPosition(), velRadPerSec));
   }
 
+  public Command maintainAngle() {
+    return run(() ->  runVel(0));
+  }
+
   public Command raise() {
     //    return run(() -> runVel(1));
     return run(() -> motor.setVoltage(12));

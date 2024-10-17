@@ -14,6 +14,8 @@ public class ArmTest extends BaseOpMode {
     var arm = new Arm(this);
     var claw = new Claw(this);
 
+    arm.setDefaultCommand(arm.maintainAngle());
+
     new Trigger(() -> this.gamepad1.y).whileTrue(arm.raise());
     new Trigger(() -> this.gamepad1.a).whileTrue(arm.lower());
 
