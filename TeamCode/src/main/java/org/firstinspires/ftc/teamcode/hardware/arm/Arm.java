@@ -16,12 +16,14 @@ public class Arm extends SubsystemBase {
 
   public Arm(OpMode opMode) {
     motor = new Motor(opMode, "motor1");
+    motor.setInverted(true);
+    motor.setConversionFactor(5281.1 / (Math.PI * 2));
 
     feedforward = new SimpleArmFeedforward(0, 0, 0);
   }
 
   private void runVel(double velRadPerSec) {
-    motor.setVoltage(feedforward.calculate(getAngleRad(), velRadPerSec));
+    motor.setVoltage(feedforward.calculate(motor.getPosition(), velRadPerSec));
   }
 
   public Command raise() {
@@ -32,9 +34,5 @@ public class Arm extends SubsystemBase {
   public Command lower() {
     //    return run(() -> runVel(-1));
     return run(() -> motor.setVoltage(-12));
-  }
-
-  private double getAngleRad() {
-    return Math.PI / 2;
   }
 }
