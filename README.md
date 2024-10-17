@@ -26,6 +26,8 @@ The main code for the robot.
   - Package for hardware control code.
   - [`org.firstinspires.ftc.teamcode.hardware.drive`](https://github.com/8696-Trobotix/IntoTheDeep/tree/main/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/hardware/drive)
     - Code for the drivebase.
+  - [`org.firstinspires.ftc.teamcode.hardware.arm`](https://github.com/8696-Trobotix/IntoTheDeep/tree/main/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/hardware/arm)
+    - Code for the arm.
 - [`org.firstinspires.ftc.teamcode.opmodes`](https://github.com/8696-Trobotix/IntoTheDeep/tree/main/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/opmodes)
   - Package for op modes that the robot runs.
   - [`org.firstinspires.ftc.teamcode.opmodes.teleop`](https://github.com/8696-Trobotix/IntoTheDeep/tree/main/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/opmodes/teleop)
