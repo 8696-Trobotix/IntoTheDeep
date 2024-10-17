@@ -47,8 +47,9 @@ public class EndableThread extends Thread {
         (thread) -> {
           try {
             thread.start();
-          } catch (Exception e) {
-            throw new RuntimeException("Failed to start " + thread.NAME + " with exception: " + e);
+          } catch (IllegalThreadStateException e) {
+            throw new RuntimeException(
+                "Failed to start " + thread.NAME + " due to an IllegalThreadStateException: " + e);
           }
         });
   }
