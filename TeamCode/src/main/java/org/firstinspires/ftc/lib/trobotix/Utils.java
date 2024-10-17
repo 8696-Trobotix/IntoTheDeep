@@ -68,26 +68,4 @@ public class Utils {
       return rotation;
     }
   }
-
-  private static final ArrayList<EndableThread> threads = new ArrayList<>();
-
-  protected static void registerThread(EndableThread thread) {
-    threads.add(thread);
-  }
-
-  protected static void startThreads() {
-    threads.forEach(
-        (thread) -> {
-          try {
-            thread.start();
-          } catch (Exception e) {
-            throw new RuntimeException("Failed to start " + thread.NAME + " with exception: " + e);
-          }
-        });
-  }
-
-  protected static void endThreads() {
-    threads.forEach(EndableThread::disable);
-    threads.clear();
-  }
 }

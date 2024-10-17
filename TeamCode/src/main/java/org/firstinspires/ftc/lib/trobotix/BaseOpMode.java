@@ -18,11 +18,11 @@ public class BaseOpMode extends LinearOpMode {
   public final void runOpMode() {
     startup();
     waitForStart();
-    Utils.startThreads();
+    EndableThread.startThreads();
     while (opModeIsActive()) {
       CommandScheduler.getInstance().run();
     }
-    Utils.endThreads();
+    EndableThread.endThreads();
   }
 
   public void startup() {}

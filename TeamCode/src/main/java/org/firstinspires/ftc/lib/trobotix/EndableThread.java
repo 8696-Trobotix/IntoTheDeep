@@ -3,18 +3,23 @@
 
 package org.firstinspires.ftc.lib.trobotix;
 
+import java.util.ArrayList;
+
+/**
+ * A {@link Thread} that runs a method on a loop, that is able to end cleanly when an op mode ends.
+ */
 public class EndableThread extends Thread {
   public final String NAME;
   private volatile boolean ENABLED = true;
 
   public EndableThread(String name) {
     this.NAME = name;
-    Utils.registerThread(this);
+    threads.add(this);
     setDaemon(true);
   }
 
   @Override
-  public void run() {
+  public final void run() {
     preStart();
     while (ENABLED) {
       loop();
@@ -33,5 +38,23 @@ public class EndableThread extends Thread {
 
   protected void disable() {
     ENABLED = false;
+  }
+
+  private static final ArrayList<EndableThread> threads = new ArrayList<>();
+
+  protected static void startThreads() {
+    threads.forEach(
+        (thread) -> {
+          try {
+            thread.start();
+          } catch (Exception e) {
+            throw new RuntimeException("Failed to start " + thread.NAME + " with exception: " + e);
+          }
+        });
+  }
+
+  protected static void endThreads() {
+    threads.forEach(EndableThread::disable);
+    threads.clear();
   }
 }
