@@ -10,12 +10,17 @@ import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
 import org.firstinspires.ftc.lib.wpilib.math.kinematics.ChassisSpeeds;
 import org.firstinspires.ftc.teamcode.hardware.drive.Drivebase;
 
-@Autonomous(preselectTeleOp = "DriveTest")
-public class AutoTest extends BaseOpMode {
+@Autonomous
+public class SpecimenThenPark extends BaseOpMode {
   @Override
   public void startup() {
-    Drivebase drivebase = new Drivebase(this);
+    var drivebase = new Drivebase(this);
 
-    getEnableTrigger().onTrue(drivebase.driveVel(new ChassisSpeeds(1, 0, 0)).withTimeout(1));
+    getEnableTrigger()
+        .onTrue(
+            sequence(
+                drivebase.driveVel(new ChassisSpeeds(1, 0, 0)).withTimeout(1),
+                drivebase.driveVel(new ChassisSpeeds(-1, 0, 0)).withTimeout(1),
+                drivebase.driveVel(new ChassisSpeeds(0, -1, 0))));
   }
 }

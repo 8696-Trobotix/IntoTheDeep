@@ -97,6 +97,10 @@ public class Drivebase implements Subsystem {
     //                pose.getRotation().getRadians())));
   }
 
+  public Command goToPoint(Pose2d pose) {
+    return run(() -> alignToPose(pose));
+  }
+
   public Command teleopDrive(
       DoubleSupplier xInput, DoubleSupplier yInput, DoubleSupplier omegaInput) {
     return run(
