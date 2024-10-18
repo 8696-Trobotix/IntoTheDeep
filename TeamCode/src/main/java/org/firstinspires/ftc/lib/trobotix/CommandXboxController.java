@@ -1,25 +1,26 @@
+// Copyright (c) 2024-2025 FTC 8696
+// All rights reserved.
+
 package org.firstinspires.ftc.lib.trobotix;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.Range;
-
 import org.firstinspires.ftc.lib.wpilib.commands.CommandScheduler;
 import org.firstinspires.ftc.lib.wpilib.commands.button.Trigger;
 import org.firstinspires.ftc.lib.wpilib.event.EventLoop;
 
-/**
- * A wrapper for {@link Gamepad} with {@link Trigger} factories for command-based.
- */
+/** A wrapper for {@link Gamepad} with {@link Trigger} factories for command-based. */
 public class CommandXboxController {
   private final OpMode opMode;
   private final boolean primary;
 
   /**
-   * Construct an instance of a controller.
+   * Construct an instance of an Xbox controller.
    *
    * @param opMode The opMode.
-   * @param primary Whether or not this should use the primary driver or secondary driver's controller
+   * @param primary Whether or not this should use the primary driver or secondary driver's
+   *     controller
    */
   public CommandXboxController(OpMode opMode, boolean primary) {
     this.opMode = opMode;
@@ -27,6 +28,14 @@ public class CommandXboxController {
   }
 
   private Gamepad getGamepad() {
+    // We don't directly use the Gamepad object itself, as instead of the values inside Gamepad
+    // being mutated, the value of gamepad1/gamepad2 itself is replaced when new data comes in.
+    //
+    // The behaviour is counter-intuitive, completely undocumented AFAIK, and not immediately
+    // obvious from source-code trawling. From looking at how the values inside Gamepad are marked
+    // volatile you would think that it's mutating and not replacing the whole thing, but nope.
+    // The values inside Gamepad (Ex, left_bumper) should be treated as final even though they're
+    // actually volatile variables.
     return primary ? opMode.gamepad1 : opMode.gamepad2;
   }
 
@@ -203,7 +212,7 @@ public class CommandXboxController {
    *     loop.
    */
   public Trigger y(EventLoop loop) {
-    return new Trigger(loop, ()->getGamepad().y);
+    return new Trigger(loop, () -> getGamepad().y);
   }
 
   /**
