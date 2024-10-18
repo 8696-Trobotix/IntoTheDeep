@@ -8,7 +8,7 @@ import java.util.ArrayList;
 /**
  * A {@link Thread} that runs a method on a loop, that is able to end cleanly when an op mode ends.
  */
-public class EndableThread extends Thread {
+public abstract class EndableThread extends Thread {
   public final String NAME;
   private volatile boolean ENABLED = true;
 
