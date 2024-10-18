@@ -9,8 +9,9 @@ import java.util.ArrayList;
  * A {@link Thread} that runs a method on a loop, that is able to end cleanly when an op mode ends.
  */
 public abstract class EndableThread extends Thread {
-  public final String NAME;
-  private volatile boolean ENABLED = true;
+  private static volatile boolean ENABLED = true;
+
+  private final String NAME;
 
   public EndableThread(String name) {
     this.NAME = name;
@@ -40,13 +41,10 @@ public abstract class EndableThread extends Thread {
   /** Runs when the op mode is stopped. */
   public void end() {}
 
-  protected void disable() {
-    ENABLED = false;
-  }
-
   private static final ArrayList<EndableThread> threads = new ArrayList<>();
 
   protected static void startThreads() {
+    ENABLED = true;
     threads.forEach(
         (thread) -> {
           try {
@@ -58,7 +56,7 @@ public abstract class EndableThread extends Thread {
   }
 
   protected static void endThreads() {
-    threads.forEach(EndableThread::disable);
+    ENABLED = false;
     threads.clear();
   }
 }
