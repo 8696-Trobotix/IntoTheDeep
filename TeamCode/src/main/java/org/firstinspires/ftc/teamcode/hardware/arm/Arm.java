@@ -15,7 +15,7 @@ public class Arm extends SubsystemBase {
   private final Motor motor;
 
   public Arm(OpMode opMode) {
-    motor = new Motor(opMode, "motor1");
+    motor = new Motor(opMode, "armMotor");
     motor.setInverted(true);
     motor.setConversionFactor(5281.1 / (Math.PI * 2));
 
@@ -27,7 +27,7 @@ public class Arm extends SubsystemBase {
   }
 
   public Command maintainAngle() {
-    return run(() ->  runVel(0));
+    return run(() -> runVel(0));
   }
 
   public Command raise() {
