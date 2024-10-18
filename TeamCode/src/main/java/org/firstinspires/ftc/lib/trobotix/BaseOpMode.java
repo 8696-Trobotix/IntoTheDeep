@@ -30,7 +30,18 @@ public class BaseOpMode extends LinearOpMode {
 
   public void startup() {}
 
-  public final Trigger getEnableTrigger() {
+  public final Trigger enableTrigger() {
     return enableTrigger;
+  }
+
+  private final CommandXboxController primaryController = new CommandXboxController(this, true);
+  private final CommandXboxController secondaryController = new CommandXboxController(this, false);
+
+  public final CommandXboxController primaryController() {
+    return primaryController;
+  }
+
+  public final CommandXboxController getSecondaryController() {
+    return secondaryController;
   }
 }
