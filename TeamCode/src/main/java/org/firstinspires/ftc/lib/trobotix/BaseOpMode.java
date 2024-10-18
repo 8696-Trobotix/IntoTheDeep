@@ -19,8 +19,12 @@ public class BaseOpMode extends LinearOpMode {
     startup();
     waitForStart();
     EndableThread.startThreads();
+    double lastTime = Utils.getTimeSeconds();
     while (opModeIsActive()) {
       CommandScheduler.getInstance().run();
+      double currentTime = Utils.getTimeSeconds();
+      Telemetry.addTiming("Main", currentTime - lastTime);
+      lastTime = currentTime;
     }
     EndableThread.endThreads();
   }

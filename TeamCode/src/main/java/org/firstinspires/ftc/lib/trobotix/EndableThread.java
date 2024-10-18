@@ -21,8 +21,12 @@ public abstract class EndableThread extends Thread {
   @Override
   public final void run() {
     preStart();
+    double lastTime = Utils.getTimeSeconds();
     while (ENABLED) {
       loop();
+      double currentTime = Utils.getTimeSeconds();
+      Telemetry.addTiming(NAME, currentTime - lastTime);
+      lastTime = currentTime;
     }
     end();
   }

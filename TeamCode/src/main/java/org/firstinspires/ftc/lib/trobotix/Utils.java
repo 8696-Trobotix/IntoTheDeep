@@ -3,7 +3,6 @@
 
 package org.firstinspires.ftc.lib.trobotix;
 
-import java.util.ArrayList;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Pose2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Translation2d;
