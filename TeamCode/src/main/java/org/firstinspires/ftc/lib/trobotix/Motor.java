@@ -137,6 +137,8 @@ public class Motor {
     this.conversionFactor = conversionFactor;
   }
 
+  private double offset = 0;
+
   /**
    * Gets the motor's current position.
    *
@@ -145,6 +147,10 @@ public class Motor {
    */
   public double getPosition() {
     return motorInternal.getMotor().getCurrentPosition() / conversionFactor;
+  }
+
+  public void setPosition(double position) {
+    offset += getPosition() - position;
   }
 
   private double lastPos = 0;
