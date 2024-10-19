@@ -30,15 +30,15 @@ public class WheelControlThread extends EndableThread {
 
   public WheelControlThread(OpMode opMode) {
     super("Wheel Control Thread");
-    frontLeft = new Motor(opMode, "frontLeft");
-    frontRight = new Motor(opMode, "frontRight");
-    backLeft = new Motor(opMode, "backLeft");
-    backRight = new Motor(opMode, "backRight");
+    frontLeft = new Motor(opMode, "frontLeft"); // 1
+    frontRight = new Motor(opMode, "frontRight"); // 3
+    backLeft = new Motor(opMode, "backLeft"); // 0
+    backRight = new Motor(opMode, "backRight"); // 2
 
     frontLeft.setInverted(false);
-    backLeft.setInverted(false);
+    backLeft.setInverted(true);
     frontRight.setInverted(true);
-    backRight.setInverted(true);
+    backRight.setInverted(false);
 
     frontLeft.setIdleBrake(true);
     frontRight.setIdleBrake(true);
