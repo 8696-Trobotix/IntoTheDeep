@@ -9,6 +9,32 @@ import java.util.HashMap;
 import org.firstinspires.ftc.lib.wpilib.Timer;
 
 public class Telemetry {
+  private static final boolean ENABLED = true;
+
+  private static TelemetryThread instance;
+
+  private static TelemetryThread getThread() {
+    if (ENABLED && instance == null) {
+      instance = new TelemetryThread();
+      instance.start();
+    }
+    return instance;
+  }
+
+  public static void addData(String name, Object data) {
+    if (!ENABLED) {
+      return;
+    }
+    getThread().addData(name, data);
+  }
+
+  public static void addTiming(String name, double timingSeconds) {
+    if (!ENABLED) {
+      return;
+    }
+    getThread().addTiming(name, timingSeconds);
+  }
+
   private static class TelemetryThread extends Thread {
     TelemetryThread() {
       setName("Telemetry Thread");
@@ -46,30 +72,5 @@ public class Telemetry {
         pendingData.put(name + "/Frequency (hz)", 1.0 / timingSeconds);
       }
     }
-  }
-
-  private static TelemetryThread instance;
-  private static final boolean ENABLED = true;
-
-  private static TelemetryThread getThread() {
-    if (ENABLED && instance == null) {
-      instance = new TelemetryThread();
-      instance.start();
-    }
-    return instance;
-  }
-
-  public static void addData(String name, Object data) {
-    if (!ENABLED) {
-      return;
-    }
-    getThread().addData(name, data);
-  }
-
-  public static void addTiming(String name, double timingSeconds) {
-    if (!ENABLED) {
-      return;
-    }
-    getThread().addData(name, timingSeconds);
   }
 }
