@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.lib.trobotix.EndableThread;
 import org.firstinspires.ftc.lib.trobotix.Motor;
 import org.firstinspires.ftc.lib.trobotix.controller.SimpleArmPIDFController;
+import org.firstinspires.ftc.lib.wpilib.math.MathUtil;
 import org.firstinspires.ftc.lib.wpilib.math.controller.PIDController;
 import org.firstinspires.ftc.lib.wpilib.math.utils.Units;
 
@@ -16,6 +17,9 @@ public class ArmControlThread extends EndableThread {
   private final PIDController positionController;
   private final SimpleArmPIDFController velocityController;
   private final Motor motor;
+
+  private final double minAngleRad = Units.degreesToRadians(4);
+  private final double maxAngleRad = Units.degreesToRadians(80);
 
   public ArmControlThread(OpMode opMode) {
     super("Arm Control Thread");
@@ -35,7 +39,7 @@ public class ArmControlThread extends EndableThread {
 
   public void setTargetPos(double angleRad) {
     positionControl = true;
-    targetPos = angleRad;
+    targetPos = MathUtil.clamp(angleRad, minAngleRad, maxAngleRad);
   }
 
   public void setTargetVel(double velRadPerSec) {
@@ -45,10 +49,14 @@ public class ArmControlThread extends EndableThread {
 
   @Override
   public void loop() {
+    double currentPos = motor.getPosition();
     if (positionControl) {
-      targetVel = positionController.calculate(motor.getPosition(), targetPos);
+      targetVel = positionController.calculate(currentPos, targetPos);
+    }
+    if ((targetVel < 0 && currentPos <= minAngleRad) || (targetVel > 0 && currentPos >= maxAngleRad)) {
+      targetVel = 0;
     }
     motor.setVoltage(
-        velocityController.calculate(motor.getVelocity(), targetVel, motor.getPosition()));
+        velocityController.calculate(motor.getVelocity(), targetVel, currentPos));
   }
 }
