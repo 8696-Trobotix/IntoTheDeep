@@ -27,6 +27,7 @@ public class ArmControlThread extends EndableThread {
     motor = new Motor(opMode, "armMotor");
     motor.setInverted(true);
     motor.setConversionFactor(5281.1 / (Math.PI * 2));
+    motor.setPosition(minAngleRad);
 
     positionController = new PIDController(5, 0, .5);
     velocityController =
@@ -34,7 +35,7 @@ public class ArmControlThread extends EndableThread {
   }
 
   private volatile boolean positionControl = false;
-  private volatile double targetPos = 0;
+  private volatile double targetPos = minAngleRad;
   private volatile double targetVel = 0;
 
   public void setTargetPos(double angleRad) {
