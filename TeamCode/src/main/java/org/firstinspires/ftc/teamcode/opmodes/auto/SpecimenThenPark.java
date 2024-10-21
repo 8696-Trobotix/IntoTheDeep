@@ -16,7 +16,7 @@ public class SpecimenThenPark extends BaseOpMode {
   public void startup() {
     var drivebase = new Drivebase(this);
 
-    getEnableTrigger()
+    enableTrigger()
         .onTrue(
             sequence(
                 drivebase.driveVel(new ChassisSpeeds(1, 0, 0)).withTimeout(1),

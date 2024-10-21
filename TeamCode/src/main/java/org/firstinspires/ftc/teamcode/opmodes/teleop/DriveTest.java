@@ -14,8 +14,8 @@ public class DriveTest extends BaseOpMode {
     Drivebase drivebase = new Drivebase(this);
     drivebase.setDefaultCommand(
         drivebase.teleopDrive(
-            () -> -this.gamepad1.left_stick_y,
-            () -> -this.gamepad1.left_stick_x,
-            () -> -this.gamepad1.right_stick_x));
+            () -> -primaryController().getLeftY(),
+            () -> -primaryController().getLeftX(),
+            () -> -primaryController().getRightX()));
   }
 }
