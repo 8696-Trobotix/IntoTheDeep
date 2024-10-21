@@ -58,6 +58,6 @@ public class ArmControlThread extends EndableThread {
       targetVel = 0;
     }
     motor.setVoltage(
-        velocityController.calculate(motor.getVelocity(), targetVel, currentPos));
+        velocityController.calculate(motor.getVelocity(), currentPos, targetVel));
   }
 }
