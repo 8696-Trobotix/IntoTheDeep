@@ -25,7 +25,7 @@ public class Motor {
     voltageSensor = opMode.hardwareMap.getAll(PhotonLynxVoltageSensor.class).iterator().next();
     currentSensor =
         new PeriodicSupplier<>(
-            () -> motorInternal.getMotor().getCurrentAsync(CurrentUnit.AMPS), 50);
+            () -> motorInternal.getMotor().getCurrentAsync(CurrentUnit.AMPS), 100);
   }
 
   /**
@@ -94,10 +94,11 @@ public class Motor {
    * @param dutyCycle The duty cycle to set. Clamped between -1 and 1.
    */
   public void set(double dutyCycle) {
-    if (currentLimitAmps > 0 && currentFilter.calculate(currentSensor.get()) > currentLimitAmps) {
+    dutyCycle = MathUtil.clamp(dutyCycle, -1, 1);
+    if (currentLimitAmps > 0 && currentFilter.calculate(getCurrentDraw()) > currentLimitAmps) {
       dutyCycle *= currentLimitAmps / currentFilter.lastValue();
     }
-    motorInternal.setPower(MathUtil.clamp(dutyCycle, -1, 1));
+    motorInternal.setPower(dutyCycle);
   }
 
   /**
@@ -119,7 +120,7 @@ public class Motor {
    * @return Current draw. Amps.
    */
   public double getCurrentDraw() {
-    return motorInternal.getMotor().getCorrectedCurrent(CurrentUnit.AMPS);
+    return currentSensor.get();
   }
 
   private double conversionFactor = 1;
@@ -146,7 +147,7 @@ public class Motor {
    *     Motor#setConversionFactor(double conversionFactor)}.
    */
   public double getPosition() {
-    return motorInternal.getMotor().getCurrentPosition() / conversionFactor;
+    return motorInternal.getMotor().getCurrentPosition() / conversionFactor - offset;
   }
 
   public void setPosition(double position) {
