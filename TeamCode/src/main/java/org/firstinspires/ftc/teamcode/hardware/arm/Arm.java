@@ -3,29 +3,23 @@
 
 package org.firstinspires.ftc.teamcode.hardware.arm;
 
+import static org.firstinspires.ftc.teamcode.hardware.arm.ArmControlThread.maxSpeedRadPerSec;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.lib.trobotix.Motor;
 import org.firstinspires.ftc.lib.wpilib.commands.Command;
 import org.firstinspires.ftc.lib.wpilib.commands.SubsystemBase;
 import org.firstinspires.ftc.lib.wpilib.math.controller.SimpleArmFeedforward;
-import org.firstinspires.ftc.lib.wpilib.math.utils.Units;
 
 public class Arm extends SubsystemBase {
-  private final SimpleArmFeedforward feedforward;
-
-  private final Motor motor;
-  private final double maxSpeedRadPerSec = Units.rotationsPerMinuteToRadiansPerSecond(30);
+  private final ArmControlThread controlThread;
 
   public Arm(OpMode opMode) {
-    motor = new Motor(opMode, "armMotor");
-    motor.setInverted(true);
-    motor.setConversionFactor(5281.1 / (Math.PI * 2));
-
-    feedforward = new SimpleArmFeedforward(0, 0, 12 / maxSpeedRadPerSec);
+    controlThread = new ArmControlThread(opMode);
   }
 
   private void runVel(double velRadPerSec) {
-    motor.setVoltage(feedforward.calculate(motor.getPosition(), velRadPerSec));
+    controlThread.setTargetVel(velRadPerSec);
   }
 
   public Command maintainAngle() {
@@ -33,10 +27,10 @@ public class Arm extends SubsystemBase {
   }
 
   public Command raise() {
-        return run(() -> runVel(maxSpeedRadPerSec));
+    return run(() -> runVel(maxSpeedRadPerSec));
   }
 
   public Command lower() {
-        return run(() -> runVel(-maxSpeedRadPerSec));
+    return run(() -> runVel(-maxSpeedRadPerSec));
   }
 }

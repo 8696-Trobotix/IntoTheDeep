@@ -19,12 +19,8 @@ public class SimplePIDFController {
     feedforward = new SimpleMotorFeedforward(kS, kV, kA);
   }
 
-  public SimplePIDFController(double kP, double kD, double kS, double kV) {
-    this(kP, 0, kD, 0, kV, 0);
-  }
-
   public SimplePIDFController(double kP, double kS, double kV) {
-    this(kP, 0, kS, kV);
+    this(kP, 0, 0, kS, kV, 0);
   }
 
   public SimplePIDFController(double kP, double kV) {
