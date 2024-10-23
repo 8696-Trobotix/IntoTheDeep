@@ -1,13 +1,13 @@
 // Copyright (c) 2024-2025 FTC 8696
 // All rights reserved.
 
-package org.firstinspires.ftc.teamcode.opmodes.teleop;
+package org.firstinspires.ftc.teamcode.opmodes.test;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
 import org.firstinspires.ftc.teamcode.hardware.drive.Drivebase;
 
-@TeleOp
+@TeleOp(group = "Test")
 public class DriveTest extends BaseOpMode {
   @Override
   public void startup() {

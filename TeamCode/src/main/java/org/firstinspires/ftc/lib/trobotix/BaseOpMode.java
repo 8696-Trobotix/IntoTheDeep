@@ -14,7 +14,7 @@ import org.firstinspires.ftc.lib.wpilib.commands.button.Trigger;
  * override {@link BaseOpMode#startup()}.
  */
 @Photon
-public class BaseOpMode extends LinearOpMode {
+public abstract class BaseOpMode extends LinearOpMode {
   private final Trigger enableTrigger = new Trigger(this::opModeIsActive);
 
   @Override
@@ -32,7 +32,7 @@ public class BaseOpMode extends LinearOpMode {
     EndableThread.endThreads();
   }
 
-  public void startup() {}
+  public abstract void startup();
 
   public final Trigger enableTrigger() {
     return enableTrigger;

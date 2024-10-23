@@ -1,7 +1,7 @@
 // Copyright (c) 2024-2025 FTC 8696
 // All rights reserved.
 
-package org.firstinspires.ftc.teamcode.opmodes.teleop;
+package org.firstinspires.ftc.teamcode.opmodes.test;
 
 import static org.firstinspires.ftc.lib.wpilib.commands.Commands.sequence;
 
@@ -10,7 +10,7 @@ import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
 import org.firstinspires.ftc.teamcode.hardware.arm.Arm;
 import org.firstinspires.ftc.teamcode.hardware.arm.Claw;
 
-@TeleOp
+@TeleOp(group = "Test", name = "Arm")
 public class ArmTest extends BaseOpMode {
   @Override
   public void startup() {
