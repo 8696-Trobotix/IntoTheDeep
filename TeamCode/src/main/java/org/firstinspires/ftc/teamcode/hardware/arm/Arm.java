@@ -27,7 +27,7 @@ public class Arm extends SubsystemBase {
 
   public Command voltageSweep(double rate) {
     final var timer = new Timer();
-    return runOnce(timer::reset)
+    return runOnce(timer::restart)
         .andThen(
             run(
                 () -> {
