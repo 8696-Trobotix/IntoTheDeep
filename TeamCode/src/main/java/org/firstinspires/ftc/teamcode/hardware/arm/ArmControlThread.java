@@ -6,6 +6,7 @@ package org.firstinspires.ftc.teamcode.hardware.arm;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.lib.trobotix.EndableThread;
 import org.firstinspires.ftc.lib.trobotix.Motor;
+import org.firstinspires.ftc.lib.trobotix.Telemetry;
 import org.firstinspires.ftc.lib.trobotix.controller.SimpleArmPIDFController;
 import org.firstinspires.ftc.lib.wpilib.math.MathUtil;
 import org.firstinspires.ftc.lib.wpilib.math.controller.PIDController;
@@ -18,7 +19,7 @@ public class ArmControlThread extends EndableThread {
   private final SimpleArmPIDFController velocityController;
   private final Motor motor;
 
-  private final double minAngleRad = Units.degreesToRadians(4);
+  private final double minAngleRad = Units.degreesToRadians(0);
   private final double maxAngleRad = Units.degreesToRadians(80);
 
   public ArmControlThread(OpMode opMode) {
@@ -29,35 +30,50 @@ public class ArmControlThread extends EndableThread {
     motor.setConversionFactor(5281.1 / (Math.PI * 2));
     motor.setPosition(minAngleRad);
 
-    positionController = new PIDController(5, 0, .5);
+    positionController = new PIDController(0, 0, 0);
     velocityController =
-        new SimpleArmPIDFController(24 / maxSpeedRadPerSec, 0, 0, 12 / maxSpeedRadPerSec);
+        new SimpleArmPIDFController(24 / maxSpeedRadPerSec, 0, .5, 12 / maxSpeedRadPerSec);
   }
 
-  private volatile boolean positionControl = false;
+  private enum Mode {
+    POSITION,
+    VELOCITY,
+    VOLTAGE
+  }
+
+  private volatile Mode mode = Mode.VELOCITY;
   private volatile double targetPos = minAngleRad;
   private volatile double targetVel = 0;
+  private volatile double voltage = 0;
 
   public void setTargetPos(double angleRad) {
-    positionControl = true;
+    mode = Mode.POSITION;
     targetPos = MathUtil.clamp(angleRad, minAngleRad, maxAngleRad);
   }
 
   public void setTargetVel(double velRadPerSec) {
-    positionControl = false;
+    mode = Mode.VELOCITY;
     targetVel = velRadPerSec;
+  }
+
+  public void setVoltage(double volts) {
+    mode = Mode.VOLTAGE;
+    voltage = volts;
   }
 
   @Override
   public void loop() {
     double currentPos = motor.getPosition();
-    if (positionControl) {
+    Telemetry.addData("Arm/Position (deg)", Units.radiansToDegrees(currentPos));
+    if (mode == Mode.POSITION) {
       targetVel = positionController.calculate(currentPos, targetPos);
     }
-    if ((targetVel < 0 && currentPos <= minAngleRad) || (targetVel > 0 && currentPos >= maxAngleRad)) {
-      targetVel = 0;
+    if (mode != Mode.VOLTAGE) {
+      voltage = velocityController.calculate(motor.getVelocity(), currentPos, targetVel);
     }
-    motor.setVoltage(
-        velocityController.calculate(motor.getVelocity(), currentPos, targetVel));
+//    if ((voltage < 0 && currentPos <= minAngleRad) || (voltage > 0 && currentPos >= maxAngleRad)) {
+//      voltage = 0;
+//    }
+    motor.setVoltage(voltage);
   }
 }

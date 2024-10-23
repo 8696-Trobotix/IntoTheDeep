@@ -25,6 +25,7 @@ public class SimpleArmPIDFController {
   }
 
   public double calculate(double measuredVel, double measuredAngle, double setpoint) {
-    return pidController.calculate(measuredVel, setpoint) + feedforward.calculate(measuredAngle, setpoint);
+    return pidController.calculate(measuredVel, setpoint)
+        + feedforward.calculate(measuredAngle, setpoint);
   }
 }
