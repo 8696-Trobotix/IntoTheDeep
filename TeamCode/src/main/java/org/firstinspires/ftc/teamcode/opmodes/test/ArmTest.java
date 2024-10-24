@@ -3,8 +3,6 @@
 
 package org.firstinspires.ftc.teamcode.opmodes.test;
 
-import static org.firstinspires.ftc.lib.wpilib.commands.Commands.sequence;
-
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
 import org.firstinspires.ftc.teamcode.hardware.arm.Arm;
@@ -24,6 +22,6 @@ public class ArmTest extends BaseOpMode {
 
     primaryController().x().whileTrue(claw.open()).whileFalse(claw.close());
 
-    primaryController().b().whileTrue(sequence(arm.voltageSweep(1)));
+    primaryController().b().whileTrue(claw.servoSweep(.25));
   }
 }
