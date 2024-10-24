@@ -13,6 +13,7 @@ import org.firstinspires.ftc.lib.trobotix.Utils;
 import org.firstinspires.ftc.lib.wpilib.commands.Command;
 import org.firstinspires.ftc.lib.wpilib.commands.Subsystem;
 import org.firstinspires.ftc.lib.wpilib.math.controller.PIDController;
+import org.firstinspires.ftc.lib.wpilib.math.filter.SlewRateLimiter;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Pose2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation2d;
 import org.firstinspires.ftc.lib.wpilib.math.kinematics.ChassisSpeeds;
@@ -101,15 +102,23 @@ public class Drivebase implements Subsystem {
     return run(() -> alignToPose(pose));
   }
 
+  private final double ZERO_TO_FULL_TIME = .5;
+  private final SlewRateLimiter xLimiter =
+      new SlewRateLimiter(topTranslationalSpeedMetersPerSec / ZERO_TO_FULL_TIME);
+  private final SlewRateLimiter yLimiter =
+      new SlewRateLimiter(topTranslationalSpeedMetersPerSec / ZERO_TO_FULL_TIME);
+  private final SlewRateLimiter steerLimiter =
+      new SlewRateLimiter(topAngularSpeedRadPerSec / ZERO_TO_FULL_TIME);
+
   public Command teleopDrive(
       DoubleSupplier xInput, DoubleSupplier yInput, DoubleSupplier omegaInput) {
     return run(
         () ->
             fieldRelativeDrive(
                 new ChassisSpeeds(
-                    xInput.getAsDouble() * topTranslationalSpeedMetersPerSec,
-                    yInput.getAsDouble() * topTranslationalSpeedMetersPerSec,
-                    omegaInput.getAsDouble() * topAngularSpeedRadPerSec)));
+                    xLimiter.calculate(xInput.getAsDouble() * topTranslationalSpeedMetersPerSec),
+                    yLimiter.calculate(yInput.getAsDouble() * topTranslationalSpeedMetersPerSec),
+                    steerLimiter.calculate(omegaInput.getAsDouble() * topAngularSpeedRadPerSec))));
   }
 
   public Command driveVel(ChassisSpeeds speeds) {
