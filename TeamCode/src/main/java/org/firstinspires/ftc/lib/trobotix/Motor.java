@@ -3,29 +3,22 @@
 
 package org.firstinspires.ftc.lib.trobotix;
 
-import com.outoftheboxrobotics.photoncore.PeriodicSupplier;
-import com.outoftheboxrobotics.photoncore.hardware.PhotonLynxVoltageSensor;
-import com.outoftheboxrobotics.photoncore.hardware.motor.PhotonAdvancedDcMotor;
-import com.outoftheboxrobotics.photoncore.hardware.motor.PhotonDcMotor;
+import com.qualcomm.hardware.lynx.LynxVoltageSensor;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import org.firstinspires.ftc.lib.wpilib.math.MathUtil;
 import org.firstinspires.ftc.lib.wpilib.math.filter.LinearFilter;
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
-/** Wrapper for {@link PhotonAdvancedDcMotor} for extra functionality and cleaner code. */
+/** Wrapper for {@link DcMotorEx} for extra functionality and cleaner code. */
 public class Motor {
-  private final PhotonAdvancedDcMotor motorInternal;
-  private final PhotonLynxVoltageSensor voltageSensor;
-  private final PeriodicSupplier<Double> currentSensor;
+  private final DcMotorEx motorInternal;
+  private final LynxVoltageSensor voltageSensor;
 
   public Motor(OpMode opMode, String name) {
-    motorInternal = new PhotonAdvancedDcMotor((PhotonDcMotor) opMode.hardwareMap.dcMotor.get(name));
-    voltageSensor = opMode.hardwareMap.getAll(PhotonLynxVoltageSensor.class).iterator().next();
-    currentSensor =
-        new PeriodicSupplier<>(
-            () -> motorInternal.getMotor().getCurrentAsync(CurrentUnit.AMPS), 100);
+    motorInternal = (DcMotorEx) opMode.hardwareMap.dcMotor.get(name);
+    voltageSensor = opMode.hardwareMap.getAll(LynxVoltageSensor.class).iterator().next();
   }
 
   /**
@@ -37,9 +30,8 @@ public class Motor {
    * @param inverted If the motor is inverted or not.
    */
   public void setInverted(boolean inverted) {
-    motorInternal
-        .getMotor()
-        .setDirection(inverted ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.FORWARD);
+    motorInternal.setDirection(
+        inverted ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.FORWARD);
   }
 
   /**
@@ -49,24 +41,23 @@ public class Motor {
    * @param brake Whether or not the motor brakes when no power is applied.
    */
   public void setIdleBrake(boolean brake) {
-    motorInternal
-        .getMotor()
-        .setZeroPowerBehavior(
-            brake ? DcMotor.ZeroPowerBehavior.BRAKE : DcMotor.ZeroPowerBehavior.FLOAT);
+    motorInternal.setZeroPowerBehavior(
+        brake ? DcMotor.ZeroPowerBehavior.BRAKE : DcMotor.ZeroPowerBehavior.FLOAT);
   }
 
-  /**
-   * Sets the tolerance for which setting new power values is ignored.
-   *
-   * <p>It's a waste of processor time to tell the motor to move at .9 power and immediately tell it
-   * to move at .901 power, so we use the cache tolerance to ignore the latter command. Default
-   * value is 0.001. (.1% duty cycle)
-   *
-   * @param tolerance The new power tolerance.
-   */
-  public void setTolerance(double tolerance) {
-    motorInternal.setCacheTolerance(tolerance);
-  }
+  //  /**
+  //   * Sets the tolerance for which setting new power values is ignored.
+  //   *
+  //   * <p>It's a waste of processor time to tell the motor to move at .9 power and immediately
+  // tell it
+  //   * to move at .901 power, so we use the cache tolerance to ignore the latter command. Default
+  //   * value is 0.001. (.1% duty cycle)
+  //   *
+  //   * @param tolerance The new power tolerance.
+  //   */
+  //  public void setTolerance(double tolerance) {
+  //    motorInternal.setCacheTolerance(tolerance);
+  //  }
 
   private double currentLimitAmps = -1;
 
@@ -95,9 +86,10 @@ public class Motor {
    */
   public void set(double dutyCycle) {
     dutyCycle = MathUtil.clamp(dutyCycle, -1, 1);
-    if (currentLimitAmps > 0 && currentFilter.calculate(getCurrentDraw()) > currentLimitAmps) {
-      dutyCycle *= currentLimitAmps / currentFilter.lastValue();
-    }
+    //    if (currentLimitAmps > 0 && currentFilter.calculate(getCurrentDraw()) > currentLimitAmps)
+    // {
+    //      dutyCycle *= currentLimitAmps / currentFilter.lastValue();
+    //    }
     motorInternal.setPower(dutyCycle);
   }
 
@@ -110,18 +102,19 @@ public class Motor {
    * @param volts The motor voltage to set. From -12 to 12.
    */
   public void setVoltage(double volts) {
-    var currentVoltage = MathUtil.clamp(-12, 12, voltageSensor.getCachedVoltage());
+    var currentVoltage = MathUtil.clamp(-12, 12, voltageSensor.getVoltage());
     set(volts / currentVoltage);
   }
 
-  /**
-   * Gets the current draw of the motor.
-   *
-   * @return Current draw. Amps.
-   */
-  public double getCurrentDraw() {
-    return currentSensor.get();
-  }
+  //
+  //  /**
+  //   * Gets the current draw of the motor.
+  //   *
+  //   * @return Current draw. Amps.
+  //   */
+  //  public double getCurrentDraw() {
+  //    return currentSensor.get();
+  //  }
 
   private double conversionFactor = 1;
 
@@ -147,7 +140,7 @@ public class Motor {
    *     Motor#setConversionFactor(double conversionFactor)}.
    */
   public double getPosition() {
-    return motorInternal.getMotor().getCurrentPosition() / conversionFactor - offset;
+    return motorInternal.getCurrentPosition() / conversionFactor - offset;
   }
 
   public void setPosition(double position) {

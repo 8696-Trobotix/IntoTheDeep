@@ -45,7 +45,7 @@ public abstract class BaseOpMode extends LinearOpMode {
     return primaryController;
   }
 
-  public final CommandXboxController getSecondaryController() {
+  public final CommandXboxController secondaryController() {
     return secondaryController;
   }
 }

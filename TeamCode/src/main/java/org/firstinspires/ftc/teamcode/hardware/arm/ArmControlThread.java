@@ -71,9 +71,10 @@ public class ArmControlThread extends EndableThread {
     if (mode != Mode.VOLTAGE) {
       voltage = velocityController.calculate(motor.getVelocity(), currentPos, targetVel);
     }
-//    if ((voltage < 0 && currentPos <= minAngleRad) || (voltage > 0 && currentPos >= maxAngleRad)) {
-//      voltage = 0;
-//    }
+    //    if ((voltage < 0 && currentPos <= minAngleRad) || (voltage > 0 && currentPos >=
+    // maxAngleRad)) {
+    //      voltage = 0;
+    //    }
     motor.setVoltage(voltage);
   }
 }

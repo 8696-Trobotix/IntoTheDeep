@@ -20,7 +20,7 @@ public class ArmTest extends BaseOpMode {
     primaryController().y().whileTrue(arm.raise());
     primaryController().a().whileTrue(arm.lower());
 
-    primaryController().x().whileTrue(claw.open()).whileFalse(claw.close());
+    claw.setDefaultCommand(claw.setPos(() -> (secondaryController().getLeftY() + 1) / 2));
 
     primaryController().b().whileTrue(claw.servoSweep(.25));
   }

@@ -4,7 +4,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
 import org.firstinspires.ftc.teamcode.hardware.arm.Arm;
 import org.firstinspires.ftc.teamcode.hardware.arm.Claw;
@@ -19,10 +18,10 @@ public class TeleopDrive extends BaseOpMode {
     var drivebase = new Drivebase(this);
 
     arm.setDefaultCommand(arm.maintainAngle());
-    primaryController().y().whileTrue(arm.raise());
-    primaryController().a().whileTrue(arm.lower());
+    secondaryController().y().whileTrue(arm.raise());
+    secondaryController().a().whileTrue(arm.lower());
 
-    primaryController().x().whileTrue(claw.open()).whileFalse(claw.close());
+    claw.setDefaultCommand(claw.setPos(() -> (secondaryController().getLeftY() + 1) / 2));
 
     drivebase.setDefaultCommand(
         drivebase.teleopDrive(

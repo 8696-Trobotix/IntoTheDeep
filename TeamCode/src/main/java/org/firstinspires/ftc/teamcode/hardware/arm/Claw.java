@@ -3,10 +3,9 @@
 
 package org.firstinspires.ftc.teamcode.hardware.arm;
 
-import com.outoftheboxrobotics.photoncore.hardware.servo.PhotonServo;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Servo;
-
+import java.util.function.DoubleSupplier;
 import org.firstinspires.ftc.lib.trobotix.Telemetry;
 import org.firstinspires.ftc.lib.wpilib.Timer;
 import org.firstinspires.ftc.lib.wpilib.commands.Command;
@@ -26,19 +25,20 @@ public class Claw extends SubsystemBase {
   }
 
   public Command open() {
-    return run(
-        () -> {
-          Telemetry.addData("Claw/Commanded", 1);
-          servo.setPosition(1);
-        });
+    return run(() -> setPos(0));
   }
 
   public Command close() {
-    return run(
-        () -> {
-          Telemetry.addData("Claw/Commanded", 0);
-          servo.setPosition(0);
-        });
+    return run(() -> setPos(1));
+  }
+
+  public Command setPos(DoubleSupplier posSupplier) {
+    return run(() -> setPos(posSupplier.getAsDouble()));
+  }
+
+  private void setPos(double pos) {
+    Telemetry.addData("Claw/Commanded", pos);
+    servo.setPosition(pos);
   }
 
   public Command servoSweep(double rate) {
@@ -47,9 +47,7 @@ public class Claw extends SubsystemBase {
         .andThen(
             run(
                 () -> {
-                  var pos = timer.get() * rate;
-                  Telemetry.addData("Claw/Commanded", pos);
-                  servo.setPosition(pos);
+                  setPos(timer.get() * rate);
                 }))
         .until(() -> timer.hasElapsed(1.0 / rate))
         .finallyDo(timer::stop);
