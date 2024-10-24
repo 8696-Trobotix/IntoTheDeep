@@ -10,7 +10,7 @@ import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
 import org.firstinspires.ftc.teamcode.hardware.arm.Arm;
 import org.firstinspires.ftc.teamcode.hardware.arm.Claw;
 
-@TeleOp(group = "Test", name = "Arm")
+@TeleOp(group = "Test")
 public class ArmTest extends BaseOpMode {
   @Override
   public void startup() {
