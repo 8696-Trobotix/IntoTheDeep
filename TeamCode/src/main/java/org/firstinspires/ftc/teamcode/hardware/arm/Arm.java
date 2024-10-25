@@ -37,10 +37,10 @@ public class Arm extends SubsystemBase {
   }
 
   public Command raise() {
-    return run(() -> runVel(maxSpeedRadPerSec));
+    return run(() -> runVel(maxSpeedRadPerSec / 2));
   }
 
   public Command lower() {
-    return run(() -> runVel(-maxSpeedRadPerSec));
+    return run(() -> runVel(-maxSpeedRadPerSec / 2));
   }
 }

@@ -65,14 +65,15 @@ public class Drivebase implements Subsystem {
     //    odometry.update(new Rotation2d(), new OmniWheelPositions());
   }
 
-  public final double topTranslationalSpeedMetersPerSec =
+  private final double topTranslationalSpeedMetersPerSec =
       Utils.minimum(
               FRONT_LEFT_WHEEL_DIAMETER,
               FRONT_RIGHT_WHEEL_DIAMETER,
               BACK_LEFT_WHEEL_DIAMETER,
               BACK_RIGHT_WHEEL_DIAMETER)
-          * Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM);
-  public final double topAngularSpeedRadPerSec =
+          * Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
+          / 2;
+  private final double topAngularSpeedRadPerSec =
       topTranslationalSpeedMetersPerSec / Math.hypot(TRACK_LENGTH / 2, TRACK_WIDTH / 2);
 
   public void drive(ChassisSpeeds chassisSpeeds) {
@@ -102,7 +103,7 @@ public class Drivebase implements Subsystem {
     return run(() -> alignToPose(pose));
   }
 
-  private final double ZERO_TO_FULL_TIME = .5;
+  private final double ZERO_TO_FULL_TIME = .25;
   private final SlewRateLimiter xLimiter =
       new SlewRateLimiter(topTranslationalSpeedMetersPerSec / ZERO_TO_FULL_TIME);
   private final SlewRateLimiter yLimiter =
