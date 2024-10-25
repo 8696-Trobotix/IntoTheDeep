@@ -72,7 +72,7 @@ public class Drivebase implements Subsystem {
               BACK_LEFT_WHEEL_DIAMETER,
               BACK_RIGHT_WHEEL_DIAMETER)
           * Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
-          / 2;
+          / 4;
   private final double topAngularSpeedRadPerSec =
       topTranslationalSpeedMetersPerSec / Math.hypot(TRACK_LENGTH / 2, TRACK_WIDTH / 2);
 
