@@ -26,7 +26,7 @@ public class ArmControlThread extends EndableThread {
     super("Arm Control Thread");
 
     motor = new Motor(opMode, "armMotor");
-    motor.setInverted(true);
+    motor.setInverted(false);
     motor.setConversionFactor(5281.1 / (Math.PI * 2));
     motor.setPosition(minAngleRad);
 
