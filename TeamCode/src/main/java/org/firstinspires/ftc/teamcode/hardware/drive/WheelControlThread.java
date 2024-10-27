@@ -59,7 +59,7 @@ public class WheelControlThread extends EndableThread {
 
     frontLeftDriveController =
         new SimplePIDFController(
-            24
+            0
                 / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
                     * FRONT_LEFT_WHEEL_DIAMETER / 2),
             12
@@ -67,7 +67,7 @@ public class WheelControlThread extends EndableThread {
                     * FRONT_LEFT_WHEEL_DIAMETER / 2));
     frontRightDriveController =
         new SimplePIDFController(
-            24
+            0
                 / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
                     * FRONT_RIGHT_WHEEL_DIAMETER / 2),
             12
@@ -75,7 +75,7 @@ public class WheelControlThread extends EndableThread {
                     * FRONT_RIGHT_WHEEL_DIAMETER / 2));
     backLeftDriveController =
         new SimplePIDFController(
-            24
+            0
                 / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
                     * BACK_LEFT_WHEEL_DIAMETER / 2),
             12
@@ -83,7 +83,7 @@ public class WheelControlThread extends EndableThread {
                     * BACK_LEFT_WHEEL_DIAMETER / 2));
     backRightDriveController =
         new SimplePIDFController(
-            24
+            0
                 / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
                     * BACK_RIGHT_WHEEL_DIAMETER / 2),
             12
