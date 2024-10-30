@@ -5,7 +5,7 @@ package org.firstinspires.ftc.teamcode.hardware.arm;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.lib.trobotix.EndableThread;
-import org.firstinspires.ftc.lib.trobotix.Motor;
+import org.firstinspires.ftc.lib.trobotix.hardware.Motor;
 import org.firstinspires.ftc.lib.trobotix.Telemetry;
 import org.firstinspires.ftc.lib.trobotix.controller.SimpleArmPIDFController;
 import org.firstinspires.ftc.lib.wpilib.math.MathUtil;

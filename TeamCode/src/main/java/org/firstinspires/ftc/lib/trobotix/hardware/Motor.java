@@ -1,13 +1,15 @@
 // Copyright (c) 2024-2025 FTC 8696
 // All rights reserved.
 
-package org.firstinspires.ftc.lib.trobotix;
+package org.firstinspires.ftc.lib.trobotix.hardware;
 
 import com.qualcomm.hardware.lynx.LynxVoltageSensor;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+
+import org.firstinspires.ftc.lib.trobotix.Utils;
 import org.firstinspires.ftc.lib.wpilib.math.MathUtil;
 import org.firstinspires.ftc.lib.wpilib.math.filter.LinearFilter;
 
@@ -19,6 +21,9 @@ public class Motor {
   public Motor(OpMode opMode, String name) {
     motorInternal = (DcMotorEx) opMode.hardwareMap.dcMotor.get(name);
     voltageSensor = opMode.hardwareMap.getAll(LynxVoltageSensor.class).iterator().next();
+
+    motorInternal.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    motorInternal.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
   }
 
   /**
