@@ -43,7 +43,7 @@ public class OmniWheelKinematics implements Kinematics<OmniWheelSpeeds, OmniWhee
   private final SimpleMatrix inverseKinematics;
   private final SimpleMatrix forwardKinematics;
 
-  public OmniWheelKinematics(Transform2d[] wheelPositions) {
+  public OmniWheelKinematics(Transform2d... wheelPositions) {
     if (wheelPositions.length == 0) {
       throw new IllegalArgumentException("wheelPositions is empty!");
     }

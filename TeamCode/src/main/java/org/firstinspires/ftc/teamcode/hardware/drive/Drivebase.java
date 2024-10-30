@@ -10,21 +10,27 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.IMU;
 import java.util.function.DoubleSupplier;
 import org.firstinspires.ftc.lib.trobotix.Utils;
+import org.firstinspires.ftc.lib.trobotix.estimator.OmniWheelPoseEstimator;
+import org.firstinspires.ftc.lib.trobotix.hardware.RelativeEncoder;
+import org.firstinspires.ftc.lib.trobotix.kinematics.OmniWheelKinematics;
+import org.firstinspires.ftc.lib.trobotix.kinematics.OmniWheelPositions;
 import org.firstinspires.ftc.lib.wpilib.commands.Command;
 import org.firstinspires.ftc.lib.wpilib.commands.Subsystem;
 import org.firstinspires.ftc.lib.wpilib.math.controller.PIDController;
 import org.firstinspires.ftc.lib.wpilib.math.filter.SlewRateLimiter;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Pose2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation2d;
+import org.firstinspires.ftc.lib.wpilib.math.geometry.Transform2d;
 import org.firstinspires.ftc.lib.wpilib.math.kinematics.ChassisSpeeds;
 import org.firstinspires.ftc.lib.wpilib.math.kinematics.MecanumDriveKinematics;
 import org.firstinspires.ftc.lib.wpilib.math.utils.Units;
 
 public class Drivebase implements Subsystem {
   private final MecanumDriveKinematics kinematics;
-  //  private final OmniWheelPoseEstimator odometry;
 
+  private final OmniWheelPoseEstimator odometry;
   private final IMU gyro;
+  private final RelativeEncoder[] encoders = new RelativeEncoder[3];
 
   private final WheelControlThread wheelControlThread;
 
@@ -36,12 +42,18 @@ public class Drivebase implements Subsystem {
     kinematics =
         new MecanumDriveKinematics(
             WHEEL_POSITIONS[0], WHEEL_POSITIONS[1], WHEEL_POSITIONS[2], WHEEL_POSITIONS[3]);
-    //    odometry =
-    //        new OmniWheelPoseEstimator(
-    //            new OmniWheelKinematics(new Transform2d[] {}),
-    //            new Rotation2d(),
-    //            new OmniWheelPositions(),
-    //            new Pose2d());
+    odometry =
+        new OmniWheelPoseEstimator(
+            new OmniWheelKinematics(
+                new Transform2d(0, .1, Rotation2d.kZero),
+                new Transform2d(0, -.1, Rotation2d.kZero),
+                new Transform2d(-.1, 0, Rotation2d.kZero)),
+            Rotation2d.kZero,
+            new OmniWheelPositions(),
+            new Pose2d());
+    for (int i = 0; i < 3; i++) {
+      encoders[i] = new RelativeEncoder(opMode, "OdoWheel" + i, 8192 / Units.inchesToMeters(1));
+    }
 
     gyro = opMode.hardwareMap.get(IMU.class, "imu");
     gyro.initialize(
@@ -61,8 +73,10 @@ public class Drivebase implements Subsystem {
 
   @Override
   public void periodic() {
-    // TODO: Implement sensors
-    //    odometry.update(new Rotation2d(), new OmniWheelPositions());
+    odometry.update(
+        getYaw(),
+        new OmniWheelPositions(
+            encoders[0].getPosition(), encoders[1].getPosition(), encoders[3].getPosition()));
   }
 
   private final double topTranslationalSpeedMetersPerSec =
@@ -173,7 +187,6 @@ public class Drivebase implements Subsystem {
   }
 
   private Rotation2d getYaw() {
-    return new Rotation2d();
-    //    return Rotation2d.fromDegrees(gyro.getRobotYawPitchRollAngles().getYaw());
+    return Rotation2d.fromDegrees(gyro.getRobotYawPitchRollAngles().getYaw());
   }
 }
