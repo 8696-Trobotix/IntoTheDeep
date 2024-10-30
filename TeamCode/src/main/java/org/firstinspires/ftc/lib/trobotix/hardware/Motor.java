@@ -8,7 +8,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-
 import org.firstinspires.ftc.lib.trobotix.Utils;
 import org.firstinspires.ftc.lib.wpilib.math.MathUtil;
 import org.firstinspires.ftc.lib.wpilib.math.filter.LinearFilter;
@@ -64,23 +63,27 @@ public class Motor {
   //    motorInternal.setCacheTolerance(tolerance);
   //  }
 
-  private double currentLimitAmps = -1;
+  //  private double currentLimitAmps = -1;
 
-  /**
-   * Sets the current limit of the motor.
-   *
-   * <p>Motors can draw hell of a lot of current when pushed hard, and if too many motors draw too
-   * much current, the voltage sag can cause things to brown out. To prevent this, the duty cycle of
-   * the motor is reduced when the limit is hit.
-   *
-   * <p>This applies a supply current limit. The better way to do current limiting is stator
-   * limiting where the current is measured from the motor stators, but FTC hardware doesn't have
-   * that. You can approximate it by taking the supply current draw and dividing it by duty cycle,
-   * but it's less accurate and it's more costly on performance.
-   */
-  public void setCurrentLimit(double currentLimitAmps) {
-    this.currentLimitAmps = currentLimitAmps;
-  }
+  //  /**
+  //   * Sets the current limit of the motor.
+  //   *
+  //   * <p>Motors can draw hell of a lot of current when pushed hard, and if too many motors draw
+  // too
+  //   * much current, the voltage sag can cause things to brown out. To prevent this, the duty
+  // cycle of
+  //   * the motor is reduced when the limit is hit.
+  //   *
+  //   * <p>This applies a supply current limit. The better way to do current limiting is stator
+  //   * limiting where the current is measured from the motor stators, but FTC hardware doesn't
+  // have
+  //   * that. You can approximate it by taking the supply current draw and dividing it by duty
+  // cycle,
+  //   * but it's less accurate and it's more costly on performance.
+  //   */
+  //  public void setCurrentLimit(double currentLimitAmps) {
+  //    this.currentLimitAmps = currentLimitAmps;
+  //  }
 
   private final LinearFilter currentFilter = LinearFilter.movingAverage(3);
 

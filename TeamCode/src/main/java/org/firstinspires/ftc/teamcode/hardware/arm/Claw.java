@@ -46,9 +46,7 @@ public class Claw extends SubsystemBase {
     return runOnce(timer::restart)
         .andThen(
             run(
-                () -> {
-                  setPos(timer.get() * rate);
-                }))
+                () -> setPos(timer.get() * rate)))
         .until(() -> timer.hasElapsed(1.0 / rate))
         .finallyDo(timer::stop);
   }
