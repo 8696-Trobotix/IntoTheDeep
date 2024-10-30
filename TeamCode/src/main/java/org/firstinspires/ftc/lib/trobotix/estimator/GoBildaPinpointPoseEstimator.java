@@ -47,6 +47,10 @@ public class GoBildaPinpointPoseEstimator {
 
   private Pose2d poseEstimate = new Pose2d();
 
+  public GoBildaPinpointPoseEstimator(OpMode opMode, String name) {
+    this(opMode, name, VecBuilder.fill(.01, .01, .01), VecBuilder.fill(.1, .1, .1));
+  }
+
   public GoBildaPinpointPoseEstimator(
       OpMode opMode,
       String name,
