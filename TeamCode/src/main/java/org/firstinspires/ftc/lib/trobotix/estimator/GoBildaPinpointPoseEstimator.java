@@ -31,24 +31,33 @@ import org.firstinspires.ftc.lib.wpilib.math.numbers.N3;
  * want; if you never call it then this class will behave exactly like regular encoder odometry.
  */
 public class GoBildaPinpointPoseEstimator {
-  private final Matrix<N3, N1> m_q = new Matrix<>(Nat.N3(), Nat.N1());
-  private final Matrix<N3, N3> m_visionK = new Matrix<>(Nat.N3(), Nat.N3());
+  private final Matrix<N3, N1> odometryMatrix = new Matrix<>(Nat.N3(), Nat.N1());
+  private final Matrix<N3, N3> visionMatrix = new Matrix<>(Nat.N3(), Nat.N3());
 
   private static final double kBufferDuration = 1.5;
   // Maps timestamps to odometry-only pose estimates
-  private final TimeInterpolatableBuffer<Pose2d> m_odometryPoseBuffer =
+  private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
       TimeInterpolatableBuffer.createBuffer(kBufferDuration);
   // Maps timestamps to vision updates
   // Always contains one entry before the oldest entry in m_odometryPoseBuffer, unless there have
   // been no vision measurements after the last reset
-  private final NavigableMap<Double, VisionUpdate> m_visionUpdates = new TreeMap<>();
+  private final NavigableMap<Double, VisionUpdate> visionUpdates = new TreeMap<>();
 
   private final GoBildaPinpointDriver odometry;
 
-  private Pose2d m_poseEstimate = new Pose2d();
+  private Pose2d poseEstimate = new Pose2d();
 
-  public GoBildaPinpointPoseEstimator(OpMode opMode, String name) {
+  public GoBildaPinpointPoseEstimator(
+      OpMode opMode,
+      String name,
+      Matrix<N3, N1> stateStdDevs,
+      Matrix<N3, N1> visionMeasurementStdDevs) {
     odometry = opMode.hardwareMap.get(GoBildaPinpointDriver.class, name);
+
+    for (int i = 0; i < 3; ++i) {
+      odometryMatrix.set(i, 0, stateStdDevs.get(i, 0) * stateStdDevs.get(i, 0));
+    }
+    setVisionMeasurementStdDevs(visionMeasurementStdDevs);
   }
 
   /**
@@ -69,11 +78,14 @@ public class GoBildaPinpointPoseEstimator {
     // Solve for closed form Kalman gain for continuous Kalman filter with A = 0
     // and C = I. See wpimath/algorithms.md.
     for (int row = 0; row < 3; ++row) {
-      if (m_q.get(row, 0) == 0.0) {
-        m_visionK.set(row, row, 0.0);
+      if (odometryMatrix.get(row, 0) == 0.0) {
+        visionMatrix.set(row, row, 0.0);
       } else {
-        m_visionK.set(
-            row, row, m_q.get(row, 0) / (m_q.get(row, 0) + Math.sqrt(m_q.get(row, 0) * r[row])));
+        visionMatrix.set(
+            row,
+            row,
+            odometryMatrix.get(row, 0)
+                / (odometryMatrix.get(row, 0) + Math.sqrt(odometryMatrix.get(row, 0) * r[row])));
       }
     }
   }
@@ -85,7 +97,7 @@ public class GoBildaPinpointPoseEstimator {
    */
   public void resetPose(Pose2d pose) {
     odometry.resetPosition(pose);
-    m_odometryPoseBuffer.clear();
+    poseBuffer.clear();
   }
 
   /**
@@ -95,7 +107,7 @@ public class GoBildaPinpointPoseEstimator {
    */
   public void resetTranslation(Translation2d translation) {
     odometry.resetTranslation(translation);
-    m_odometryPoseBuffer.clear();
+    poseBuffer.clear();
   }
 
   /**
@@ -105,7 +117,7 @@ public class GoBildaPinpointPoseEstimator {
    */
   public void resetRotation(Rotation2d rotation) {
     odometry.resetHeading(rotation);
-    m_odometryPoseBuffer.clear();
+    poseBuffer.clear();
   }
 
   /**
@@ -114,7 +126,7 @@ public class GoBildaPinpointPoseEstimator {
    * @return The estimated robot pose in meters.
    */
   public Pose2d getEstimatedPosition() {
-    return m_poseEstimate;
+    return poseEstimate;
   }
 
   /**
@@ -125,28 +137,28 @@ public class GoBildaPinpointPoseEstimator {
    */
   public Optional<Pose2d> sampleAt(double timestampSeconds) {
     // Step 0: If there are no odometry updates to sample, skip.
-    if (m_odometryPoseBuffer.getInternalBuffer().isEmpty()) {
+    if (poseBuffer.getInternalBuffer().isEmpty()) {
       return Optional.empty();
     }
 
     // Step 1: Make sure timestamp matches the sample from the odometry pose buffer. (When sampling,
     // the buffer will always use a timestamp between the first and last timestamps)
-    double oldestOdometryTimestamp = m_odometryPoseBuffer.getInternalBuffer().firstKey();
-    double newestOdometryTimestamp = m_odometryPoseBuffer.getInternalBuffer().lastKey();
+    double oldestOdometryTimestamp = poseBuffer.getInternalBuffer().firstKey();
+    double newestOdometryTimestamp = poseBuffer.getInternalBuffer().lastKey();
     timestampSeconds =
         MathUtil.clamp(timestampSeconds, oldestOdometryTimestamp, newestOdometryTimestamp);
 
     // Step 2: If there are no applicable vision updates, use the odometry-only information.
-    if (m_visionUpdates.isEmpty() || timestampSeconds < m_visionUpdates.firstKey()) {
-      return m_odometryPoseBuffer.getSample(timestampSeconds);
+    if (visionUpdates.isEmpty() || timestampSeconds < visionUpdates.firstKey()) {
+      return poseBuffer.getSample(timestampSeconds);
     }
 
     // Step 3: Get the latest vision update from before or at the timestamp to sample at.
-    double floorTimestamp = m_visionUpdates.floorKey(timestampSeconds);
-    var visionUpdate = m_visionUpdates.get(floorTimestamp);
+    double floorTimestamp = visionUpdates.floorKey(timestampSeconds);
+    var visionUpdate = visionUpdates.get(floorTimestamp);
 
     // Step 4: Get the pose measured by odometry at the time of the sample.
-    var odometryEstimate = m_odometryPoseBuffer.getSample(timestampSeconds);
+    var odometryEstimate = poseBuffer.getSample(timestampSeconds);
 
     // Step 5: Apply the vision compensation to the odometry pose.
     return odometryEstimate.map(odometryPose -> visionUpdate.compensate(odometryPose));
@@ -155,23 +167,23 @@ public class GoBildaPinpointPoseEstimator {
   /** Removes stale vision updates that won't affect sampling. */
   private void cleanUpVisionUpdates() {
     // Step 0: If there are no odometry samples, skip.
-    if (m_odometryPoseBuffer.getInternalBuffer().isEmpty()) {
+    if (poseBuffer.getInternalBuffer().isEmpty()) {
       return;
     }
 
     // Step 1: Find the oldest timestamp that needs a vision update.
-    double oldestOdometryTimestamp = m_odometryPoseBuffer.getInternalBuffer().firstKey();
+    double oldestOdometryTimestamp = poseBuffer.getInternalBuffer().firstKey();
 
     // Step 2: If there are no vision updates before that timestamp, skip.
-    if (m_visionUpdates.isEmpty() || oldestOdometryTimestamp < m_visionUpdates.firstKey()) {
+    if (visionUpdates.isEmpty() || oldestOdometryTimestamp < visionUpdates.firstKey()) {
       return;
     }
 
     // Step 3: Find the newest vision update timestamp before or at the oldest timestamp.
-    double newestNeededVisionUpdateTimestamp = m_visionUpdates.floorKey(oldestOdometryTimestamp);
+    double newestNeededVisionUpdateTimestamp = visionUpdates.floorKey(oldestOdometryTimestamp);
 
     // Step 4: Remove all entries strictly before the newest timestamp we need.
-    m_visionUpdates.headMap(newestNeededVisionUpdateTimestamp, false).clear();
+    visionUpdates.headMap(newestNeededVisionUpdateTimestamp, false).clear();
   }
 
   /**
@@ -190,9 +202,8 @@ public class GoBildaPinpointPoseEstimator {
    */
   public void addVisionMeasurement(Pose2d visionRobotPoseMeters, double timestampSeconds) {
     // Step 0: If this measurement is old enough to be outside the pose buffer's timespan, skip.
-    if (m_odometryPoseBuffer.getInternalBuffer().isEmpty()
-        || m_odometryPoseBuffer.getInternalBuffer().lastKey() - kBufferDuration
-            > timestampSeconds) {
+    if (poseBuffer.getInternalBuffer().isEmpty()
+        || poseBuffer.getInternalBuffer().lastKey() - kBufferDuration > timestampSeconds) {
       return;
     }
 
@@ -200,7 +211,7 @@ public class GoBildaPinpointPoseEstimator {
     cleanUpVisionUpdates();
 
     // Step 2: Get the pose measured by odometry at the moment the vision measurement was made.
-    var odometrySample = m_odometryPoseBuffer.getSample(timestampSeconds);
+    var odometrySample = poseBuffer.getSample(timestampSeconds);
 
     if (odometrySample.isEmpty()) {
       return;
@@ -219,7 +230,7 @@ public class GoBildaPinpointPoseEstimator {
 
     // Step 5: We should not trust the twist entirely, so instead we scale this twist by a Kalman
     // gain matrix representing how much we trust vision measurements compared to our current pose.
-    var k_times_twist = m_visionK.times(VecBuilder.fill(twist.dx, twist.dy, twist.dtheta));
+    var k_times_twist = visionMatrix.times(VecBuilder.fill(twist.dx, twist.dy, twist.dtheta));
 
     // Step 6: Convert back to Twist2d.
     var scaledTwist =
@@ -227,14 +238,14 @@ public class GoBildaPinpointPoseEstimator {
 
     // Step 7: Calculate and record the vision update.
     var visionUpdate = new VisionUpdate(visionSample.get().exp(scaledTwist), odometrySample.get());
-    m_visionUpdates.put(timestampSeconds, visionUpdate);
+    visionUpdates.put(timestampSeconds, visionUpdate);
 
     // Step 8: Remove later vision measurements. (Matches previous behavior)
-    m_visionUpdates.tailMap(timestampSeconds, false).entrySet().clear();
+    visionUpdates.tailMap(timestampSeconds, false).entrySet().clear();
 
     // Step 9: Update latest pose estimate. Since we cleared all updates after this vision update,
     // it's guaranteed to be the latest vision update.
-    m_poseEstimate = visionUpdate.compensate(odometry.getPose());
+    poseEstimate = visionUpdate.compensate(odometry.getPose());
   }
 
   /**
@@ -285,13 +296,13 @@ public class GoBildaPinpointPoseEstimator {
     odometry.update();
     var odometryEstimate = odometry.getPose();
 
-    m_odometryPoseBuffer.addSample(currentTimeSeconds, odometryEstimate);
+    poseBuffer.addSample(currentTimeSeconds, odometryEstimate);
 
-    if (m_visionUpdates.isEmpty()) {
-      m_poseEstimate = odometryEstimate;
+    if (visionUpdates.isEmpty()) {
+      poseEstimate = odometryEstimate;
     } else {
-      var visionUpdate = m_visionUpdates.get(m_visionUpdates.lastKey());
-      m_poseEstimate = visionUpdate.compensate(odometryEstimate);
+      var visionUpdate = visionUpdates.get(visionUpdates.lastKey());
+      poseEstimate = visionUpdate.compensate(odometryEstimate);
     }
 
     return getEstimatedPosition();
