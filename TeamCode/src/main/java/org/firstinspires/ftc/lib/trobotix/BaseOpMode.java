@@ -32,20 +32,20 @@ public abstract class BaseOpMode extends LinearOpMode {
     EndableThread.endThreads();
   }
 
-  abstract void startup();
+  protected abstract void startup();
 
-  final Trigger enableTrigger() {
+  protected final Trigger enableTrigger() {
     return enableTrigger;
   }
 
   private final CommandXboxController primaryController = new CommandXboxController(this, true);
   private final CommandXboxController secondaryController = new CommandXboxController(this, false);
 
-  final CommandXboxController primaryController() {
+  protected final CommandXboxController primaryController() {
     return primaryController;
   }
 
-  final CommandXboxController secondaryController() {
+  protected final CommandXboxController secondaryController() {
     return secondaryController;
   }
 }
