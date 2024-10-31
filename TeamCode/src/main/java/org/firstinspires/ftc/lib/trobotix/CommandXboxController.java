@@ -22,7 +22,7 @@ public class CommandXboxController {
    * @param primary Whether or not this should use the primary driver or secondary driver's
    *     controller
    */
-  public CommandXboxController(OpMode opMode, boolean primary) {
+  CommandXboxController(OpMode opMode, boolean primary) {
     this.opMode = opMode;
     this.primary = primary;
   }
