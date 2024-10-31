@@ -8,10 +8,10 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-
 import org.firstinspires.ftc.lib.trobotix.Utils;
 import org.firstinspires.ftc.lib.wpilib.math.MathUtil;
 import org.firstinspires.ftc.lib.wpilib.math.filter.LinearFilter;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 /** Wrapper for {@link DcMotorEx} for extra functionality and cleaner code. */
 public class Motor {
@@ -91,10 +91,9 @@ public class Motor {
    */
   public void set(double dutyCycle) {
     dutyCycle = MathUtil.clamp(dutyCycle, -1, 1);
-    //    if (currentLimitAmps > 0 && currentFilter.calculate(getCurrentDraw()) > currentLimitAmps)
-    // {
-    //      dutyCycle *= currentLimitAmps / currentFilter.lastValue();
-    //    }
+    if (currentLimitAmps > 0 && currentFilter.calculate(getCurrentDraw()) > currentLimitAmps) {
+      dutyCycle *= currentLimitAmps / currentFilter.lastValue();
+    }
     motorInternal.setPower(dutyCycle);
   }
 
@@ -111,15 +110,14 @@ public class Motor {
     set(volts / currentVoltage);
   }
 
-  //
-  //  /**
-  //   * Gets the current draw of the motor.
-  //   *
-  //   * @return Current draw. Amps.
-  //   */
-  //  public double getCurrentDraw() {
-  //    return currentSensor.get();
-  //  }
+  /**
+   * Gets the current draw of the motor.
+   *
+   * @return Current draw. Amps.
+   */
+  public double getCurrentDraw() {
+    return motorInternal.getCurrent(CurrentUnit.AMPS);
+  }
 
   private double conversionFactor = 1;
 
