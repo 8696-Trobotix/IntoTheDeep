@@ -11,6 +11,13 @@ import org.firstinspires.ftc.lib.wpilib.math.interpolation.Interpolatable;
 
 /** Represents a 2D pose containing translational and rotational elements. */
 public class Pose2d implements Interpolatable<Pose2d> {
+  /**
+   * A preallocated Pose2d representing the origin.
+   *
+   * <p>This exists to avoid allocations for common poses.
+   */
+  public static final Pose2d kZero = new Pose2d();
+
   private final Translation2d m_translation;
   private final Rotation2d m_rotation;
 

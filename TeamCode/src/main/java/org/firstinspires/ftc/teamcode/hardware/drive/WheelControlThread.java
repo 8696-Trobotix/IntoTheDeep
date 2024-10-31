@@ -12,8 +12,8 @@ import static org.firstinspires.ftc.teamcode.Constants.Drivebase.FRONT_RIGHT_WHE
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.lib.trobotix.EndableThread;
-import org.firstinspires.ftc.lib.trobotix.hardware.Motor;
 import org.firstinspires.ftc.lib.trobotix.controller.SimplePIDFController;
+import org.firstinspires.ftc.lib.trobotix.hardware.Motor;
 import org.firstinspires.ftc.lib.wpilib.math.kinematics.MecanumDriveWheelSpeeds;
 import org.firstinspires.ftc.lib.wpilib.math.utils.Units;
 
@@ -61,34 +61,42 @@ public class WheelControlThread extends EndableThread {
         new SimplePIDFController(
             0
                 / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
-                    * FRONT_LEFT_WHEEL_DIAMETER / 2),
+                    * FRONT_LEFT_WHEEL_DIAMETER
+                    / 2),
             12
                 / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
-                    * FRONT_LEFT_WHEEL_DIAMETER / 2));
+                    * FRONT_LEFT_WHEEL_DIAMETER
+                    / 2));
     frontRightDriveController =
         new SimplePIDFController(
             0
                 / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
-                    * FRONT_RIGHT_WHEEL_DIAMETER / 2),
+                    * FRONT_RIGHT_WHEEL_DIAMETER
+                    / 2),
             12
                 / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
-                    * FRONT_RIGHT_WHEEL_DIAMETER / 2));
+                    * FRONT_RIGHT_WHEEL_DIAMETER
+                    / 2));
     backLeftDriveController =
         new SimplePIDFController(
             0
                 / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
-                    * BACK_LEFT_WHEEL_DIAMETER / 2),
+                    * BACK_LEFT_WHEEL_DIAMETER
+                    / 2),
             12
                 / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
-                    * BACK_LEFT_WHEEL_DIAMETER / 2));
+                    * BACK_LEFT_WHEEL_DIAMETER
+                    / 2));
     backRightDriveController =
         new SimplePIDFController(
             0
                 / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
-                    * BACK_RIGHT_WHEEL_DIAMETER / 2),
+                    * BACK_RIGHT_WHEEL_DIAMETER
+                    / 2),
             12
                 / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
-                    * BACK_RIGHT_WHEEL_DIAMETER / 2));
+                    * BACK_RIGHT_WHEEL_DIAMETER
+                    / 2));
   }
 
   private final double[] wheelSpeeds = new double[4];

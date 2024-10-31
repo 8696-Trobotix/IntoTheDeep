@@ -22,6 +22,13 @@ import org.firstinspires.ftc.lib.wpilib.math.numbers.N2;
  * origin facing in the positive X direction, forward is positive X and left is positive Y.
  */
 public class Translation2d implements Interpolatable<Translation2d> {
+  /**
+   * A preallocated Translation2d representing the origin.
+   *
+   * <p>This exists to avoid allocations for common translations.
+   */
+  public static final Translation2d kZero = new Translation2d();
+
   private final double m_x;
   private final double m_y;
 

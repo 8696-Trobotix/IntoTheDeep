@@ -44,9 +44,7 @@ public class Claw extends SubsystemBase {
   public Command servoSweep(double rate) {
     final Timer timer = new Timer();
     return runOnce(timer::restart)
-        .andThen(
-            run(
-                () -> setPos(timer.get() * rate)))
+        .andThen(run(() -> setPos(timer.get() * rate)))
         .until(() -> timer.hasElapsed(1.0 / rate))
         .finallyDo(timer::stop);
   }
