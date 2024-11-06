@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.TreeMap;
 import org.firstinspires.ftc.lib.trobotix.Utils;
 import org.firstinspires.ftc.lib.trobotix.hardware.GoBildaPinpointDriver;
+import org.firstinspires.ftc.lib.wpilib.Timer;
 import org.firstinspires.ftc.lib.wpilib.math.MathUtil;
 import org.firstinspires.ftc.lib.wpilib.math.Matrix;
 import org.firstinspires.ftc.lib.wpilib.math.Nat;
@@ -45,18 +46,45 @@ public class GoBildaPinpointPoseEstimator {
 
   private final GoBildaPinpointDriver odometry;
 
-  private Pose2d poseEstimate = new Pose2d();
+  private Pose2d poseEstimate = Pose2d.kZero;
 
-  public GoBildaPinpointPoseEstimator(OpMode opMode, String name) {
-    this(opMode, name, VecBuilder.fill(.01, .01, .01), VecBuilder.fill(.1, .1, .1));
+  public GoBildaPinpointPoseEstimator(
+      OpMode opMode,
+      String name,
+      GoBildaPinpointDriver.GoBildaOdometryPods pods,
+      double[] offsets,
+      boolean[] inversions) {
+    this(
+        opMode,
+        name,
+        pods,
+        offsets,
+        inversions,
+        VecBuilder.fill(.01, .01, .01),
+        VecBuilder.fill(.1, .1, .1));
   }
 
   public GoBildaPinpointPoseEstimator(
       OpMode opMode,
       String name,
+      GoBildaPinpointDriver.GoBildaOdometryPods pods,
+      double[] offsets,
+      boolean[] inversions,
       Matrix<N3, N1> stateStdDevs,
       Matrix<N3, N1> visionMeasurementStdDevs) {
     odometry = opMode.hardwareMap.get(GoBildaPinpointDriver.class, name);
+    odometry.setOffsets(offsets[0], offsets[1]);
+    odometry.setEncoderResolution(pods);
+    odometry.setEncoderDirections(
+        inversions[0]
+            ? GoBildaPinpointDriver.EncoderDirection.REVERSED
+            : GoBildaPinpointDriver.EncoderDirection.FORWARD,
+        inversions[1]
+            ? GoBildaPinpointDriver.EncoderDirection.REVERSED
+            : GoBildaPinpointDriver.EncoderDirection.FORWARD);
+
+    odometry.resetPosAndIMU();
+    Timer.delay(.25);
 
     for (int i = 0; i < 3; ++i) {
       odometryMatrix.set(i, 0, stateStdDevs.get(i, 0) * stateStdDevs.get(i, 0));
@@ -298,6 +326,9 @@ public class GoBildaPinpointPoseEstimator {
    */
   public Pose2d updateWithTime(double currentTimeSeconds) {
     odometry.update();
+    if (odometry.getDeviceStatus() != GoBildaPinpointDriver.DeviceStatus.READY) {
+      return getEstimatedPosition();
+    }
     var odometryEstimate = odometry.getPose();
 
     poseBuffer.addSample(currentTimeSeconds, odometryEstimate);
