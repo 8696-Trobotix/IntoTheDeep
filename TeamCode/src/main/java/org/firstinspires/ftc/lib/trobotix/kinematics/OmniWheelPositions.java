@@ -11,6 +11,9 @@ public class OmniWheelPositions implements WheelPositions<OmniWheelPositions> {
   public double[] positions;
 
   public OmniWheelPositions(double... wheelPositions) {
+    if (wheelPositions.length < 3) {
+      throw new IllegalArgumentException("wheelPositions is too short!");
+    }
     this.positions = wheelPositions;
   }
 
