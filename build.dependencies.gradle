@@ -16,7 +16,7 @@ dependencies {
     implementation 'org.firstinspires.ftc:Vision:10.1.0'
     //noinspection GradleDependency
     implementation 'androidx.appcompat:appcompat:1.2.0'
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.2'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.3'
     implementation 'com.github.Eeshwar-Krishnan:PhotonFTC:v3.0.1-ALPHA'
     implementation 'com.acmerobotics.dashboard:dashboard:0.4.16'
     implementation 'org.ejml:ejml-simple:0.43.1'
