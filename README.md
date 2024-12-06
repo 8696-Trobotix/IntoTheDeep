@@ -2,6 +2,10 @@
 
 The repository for Trobotix's code for the 2024 FTC Season, Into The Deep.
 
+Programmer:
+Tada Goto
+Jennifer Zeng
+
 ## Structure
 
 ### [`org.firstinspires.ftc.lib`](https://github.com/8696-Trobotix/IntoTheDeep/tree/main/TeamCode/src/main/java/org/firstinspires/ftc/lib)
