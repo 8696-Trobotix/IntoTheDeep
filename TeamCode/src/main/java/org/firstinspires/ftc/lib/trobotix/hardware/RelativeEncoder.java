@@ -19,7 +19,20 @@ public class RelativeEncoder {
     motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
   }
 
+  private double offset = 0;
+
+  public void setPosition(double position) {
+    offset += getPosition() - position;
+  }
+
+  private boolean inverted = false;
+
+  public void setInverted(boolean inverted) {
+    this.inverted = inverted;
+  }
+
   public double getPosition() {
-    return motor.getCurrentPosition() / conversionFactor;
+    return (inverted ? -motor.getCurrentPosition() : motor.getCurrentPosition()) / conversionFactor
+        - offset;
   }
 }

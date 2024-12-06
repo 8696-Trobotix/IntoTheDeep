@@ -24,7 +24,10 @@ public class Motor {
 
     motorInternal.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     motorInternal.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    motorInternal.setDirection(DcMotorSimple.Direction.FORWARD);
   }
+
+  private boolean inverted = false;
 
   /**
    * By default, a motor will typically move counterclockwise when positive voltage is sent. (The
@@ -32,11 +35,13 @@ public class Motor {
    *
    * <p>However, that isn't always desired. Sometimes we may want to have the opposite behaviour.
    *
+   * <p>Note: Setting this after the motor has already moved causes undefined behavior for {@link
+   * Motor#getPosition()}. Make sure to call {@link Motor#setPosition(double)} if that is done.
+   *
    * @param inverted If the motor is inverted or not.
    */
   public void setInverted(boolean inverted) {
-    motorInternal.setDirection(
-        inverted ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.FORWARD);
+    this.inverted = inverted;
   }
 
   /**
@@ -94,6 +99,9 @@ public class Motor {
     if (currentLimitAmps > 0 && currentFilter.calculate(getCurrentDraw()) > currentLimitAmps) {
       dutyCycle *= currentLimitAmps / currentFilter.lastValue();
     }
+    if (inverted) {
+      dutyCycle *= -1;
+    }
     motorInternal.setPower(dutyCycle);
   }
 
@@ -128,6 +136,9 @@ public class Motor {
    *
    * <p>A common use case is to convert from encoder ticks to rotations.
    *
+   * <p>Note: Setting this after the motor has already moved causes undefined behavior for {@link
+   * Motor#getPosition()}. Make sure to call {@link Motor#setPosition(double)} if that is done.
+   *
    * @param conversionFactor The new conversion factor.
    */
   public void setConversionFactor(double conversionFactor) {
@@ -143,7 +154,9 @@ public class Motor {
    *     Motor#setConversionFactor(double conversionFactor)}.
    */
   public double getPosition() {
-    return motorInternal.getCurrentPosition() / conversionFactor - offset;
+    return (inverted ? -motorInternal.getCurrentPosition() : motorInternal.getCurrentPosition())
+            / conversionFactor
+        - offset;
   }
 
   public void setPosition(double position) {
