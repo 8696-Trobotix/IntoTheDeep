@@ -33,9 +33,6 @@ import org.firstinspires.ftc.lib.wpilib.math.kinematics.Kinematics;
  *
  * <p>Note that in the special case of 4 wheels, angled 45 degrees, and positioned in a rectangle,
  * also known as X-drive, it is identical to mecanum kinematics.
- *
- * <p>Primarily used for deadwheel odometry setups with 3 deadwheels. For setups with 2 deadwheels
- * and a gyro, use {@link DeadwheelsWithGyroKinematics}
  */
 public class OmniWheelKinematics implements Kinematics<OmniWheelSpeeds, OmniWheelPositions> {
   private final Transform2d[] wheelPositions;
