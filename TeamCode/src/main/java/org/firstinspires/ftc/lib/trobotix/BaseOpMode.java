@@ -23,7 +23,6 @@ public abstract class BaseOpMode extends LinearOpMode {
   public final void runOpMode() {
     startup();
     waitForStart();
-    EndableThread.startThreads();
     double lastTime = Utils.getTimeSeconds();
     while (opModeIsActive()) {
       CommandScheduler.getInstance().run();
@@ -31,7 +30,6 @@ public abstract class BaseOpMode extends LinearOpMode {
       Telemetry.addTiming("Main", currentTime - lastTime);
       lastTime = currentTime;
     }
-    EndableThread.endThreads();
   }
 
   /**
