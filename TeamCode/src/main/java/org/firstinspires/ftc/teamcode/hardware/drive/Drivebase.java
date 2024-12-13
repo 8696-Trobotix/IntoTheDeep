@@ -20,11 +20,6 @@ import org.firstinspires.ftc.lib.wpilib.math.utils.Units;
 
 public class Drivebase implements Subsystem {
   private final MecanumDriveKinematics kinematics;
-
-  //  private final OmniWheelPoseEstimator odometry;
-  //  private final IMU gyro;
-  //  private final RelativeEncoder[] encoders = new RelativeEncoder[3];
-
   private final WheelControlThread wheelControlThread;
 
   private final PIDController xController;
@@ -35,27 +30,6 @@ public class Drivebase implements Subsystem {
     kinematics =
         new MecanumDriveKinematics(
             WHEEL_POSITIONS[0], WHEEL_POSITIONS[1], WHEEL_POSITIONS[2], WHEEL_POSITIONS[3]);
-    //    odometry =
-    //        new OmniWheelPoseEstimator(
-    //            new OmniWheelKinematics(
-    //                new Transform2d(0, .1, Rotation2d.kZero),
-    //                new Transform2d(0, -.1, Rotation2d.kZero),
-    //                new Transform2d(-.1, 0, Rotation2d.kZero)),
-    //            Rotation2d.kZero,
-    //            new OmniWheelPositions(new double[4]),
-    //    //            new Pose2d());
-    //    for (int i = 0; i < 3; i++) {
-    //      encoders[i] = new RelativeEncoder(opMode, "OdoWheel" + i, 8192 /
-    // Units.inchesToMeters(1));
-    //    }
-
-    //    gyro = opMode.hardwareMap.get(IMU.class, "imu");
-    //    gyro.initialize(
-    //        new IMU.Parameters(
-    //            new RevHubOrientationOnRobot(
-    //                RevHubOrientationOnRobot.LogoFacingDirection.FORWARD,
-    //                RevHubOrientationOnRobot.UsbFacingDirection.UP)));
-    //    gyro.resetYaw();
 
     wheelControlThread = new WheelControlThread(opMode);
 
@@ -63,14 +37,6 @@ public class Drivebase implements Subsystem {
     yController = new PIDController(5, 0, 0);
     yawController = new PIDController(5, 0, 0);
     yawController.enableContinuousInput(-Math.PI, Math.PI);
-  }
-
-  @Override
-  public void periodic() {
-    //    odometry.update(
-    //        getYaw(),
-    //        new OmniWheelPositions(
-    //            encoders[0].getPosition(), encoders[1].getPosition(), encoders[3].getPosition()));
   }
 
   private final double topTranslationalSpeedMetersPerSec =

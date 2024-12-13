@@ -14,6 +14,12 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.lib.trobotix.EndableThread;
 import org.firstinspires.ftc.lib.trobotix.controller.SimplePIDFController;
 import org.firstinspires.ftc.lib.trobotix.hardware.Motor;
+import org.firstinspires.ftc.lib.trobotix.hardware.RelativeEncoder;
+import org.firstinspires.ftc.lib.trobotix.kinematics.OmniWheelOdometryNoGyro;
+import org.firstinspires.ftc.lib.trobotix.kinematics.OmniWheelPositions;
+import org.firstinspires.ftc.lib.wpilib.math.geometry.Pose2d;
+import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation2d;
+import org.firstinspires.ftc.lib.wpilib.math.geometry.Transform2d;
 import org.firstinspires.ftc.lib.wpilib.math.kinematics.MecanumDriveWheelSpeeds;
 import org.firstinspires.ftc.lib.wpilib.math.utils.Units;
 
@@ -27,6 +33,13 @@ public class WheelControlThread extends EndableThread {
   private final SimplePIDFController frontRightDriveController;
   private final SimplePIDFController backLeftDriveController;
   private final SimplePIDFController backRightDriveController;
+
+  private final OmniWheelOdometryNoGyro odometry =
+      new OmniWheelOdometryNoGyro(
+          new Transform2d(.1, 0, Rotation2d.kZero),
+          new Transform2d(-.1, 0, Rotation2d.kZero),
+          new Transform2d(0, -.1, Rotation2d.kCCW_90deg));
+  private final RelativeEncoder[] encoders = new RelativeEncoder[3];
 
   public WheelControlThread(OpMode opMode) {
     super("Wheel Control Thread");
@@ -97,6 +110,10 @@ public class WheelControlThread extends EndableThread {
                 / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
                     * BACK_RIGHT_WHEEL_DIAMETER
                     / 2));
+
+    encoders[0] = new RelativeEncoder(opMode, "leftEncoder", 8192 / Units.inchesToMeters(1));
+    encoders[1] = new RelativeEncoder(opMode, "rightEncoder", 8192 / Units.inchesToMeters(1));
+    encoders[2] = new RelativeEncoder(opMode, "backEncoder", 8192 / Units.inchesToMeters(1));
   }
 
   private final double[] wheelSpeeds = new double[4];
@@ -112,14 +129,27 @@ public class WheelControlThread extends EndableThread {
     frontRight.setVoltage(frontRightDriveController.calculate(frontRight.getVelocity(), speeds[1]));
     backLeft.setVoltage(backLeftDriveController.calculate(backLeft.getVelocity(), speeds[2]));
     backRight.setVoltage(backRightDriveController.calculate(backRight.getVelocity(), speeds[3]));
+
+    var wheelPositions =
+        new OmniWheelPositions(
+            encoders[0].getPosition(), encoders[1].getPosition(), encoders[2].getPosition());
+    synchronized (odometry) {
+      odometry.update(wheelPositions);
+    }
   }
 
-  public void setWheelSpeeds(MecanumDriveWheelSpeeds wheelSpeeds) {
+  void setWheelSpeeds(MecanumDriveWheelSpeeds wheelSpeeds) {
     synchronized (this.wheelSpeeds) {
       this.wheelSpeeds[0] = wheelSpeeds.frontLeftMetersPerSecond;
       this.wheelSpeeds[1] = wheelSpeeds.frontRightMetersPerSecond;
       this.wheelSpeeds[2] = wheelSpeeds.rearLeftMetersPerSecond;
       this.wheelSpeeds[3] = wheelSpeeds.rearRightMetersPerSecond;
+    }
+  }
+
+  Pose2d getPose() {
+    synchronized (odometry) {
+      return odometry.getPoseMeters();
     }
   }
 }
