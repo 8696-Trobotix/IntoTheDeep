@@ -4,11 +4,14 @@
 package org.firstinspires.ftc.lib.trobotix;
 
 import com.outoftheboxrobotics.photoncore.Photon;
+import com.qualcomm.hardware.lynx.LynxVoltageSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.lib.wpilib.commands.Command;
 import org.firstinspires.ftc.lib.wpilib.commands.CommandScheduler;
 import org.firstinspires.ftc.lib.wpilib.commands.Subsystem;
 import org.firstinspires.ftc.lib.wpilib.commands.button.Trigger;
+
+import java.util.function.DoubleSupplier;
 
 /**
  * A base op mode that contains shared code. As all code defined in an op mode is in the init stage,
@@ -19,15 +22,24 @@ import org.firstinspires.ftc.lib.wpilib.commands.button.Trigger;
 public abstract class BaseOpMode extends LinearOpMode {
   private final Trigger enableTrigger = new Trigger(this::opModeIsActive);
 
+  private double dt = .01;
+
+  private double busVoltage;
+
   @Override
   public final void runOpMode() {
+    final var busVoltageSensor = hardwareMap.getAll(LynxVoltageSensor.class).iterator().next();
+    busVoltage = busVoltageSensor.getVoltage();
     startup();
     waitForStart();
     double lastTime = Utils.getTimeSeconds();
     while (opModeIsActive()) {
-      CommandScheduler.getInstance().run();
       double currentTime = Utils.getTimeSeconds();
-      Telemetry.addTiming("Main", currentTime - lastTime);
+      dt = currentTime - lastTime;
+      busVoltage = busVoltageSensor.getVoltage();
+      CommandScheduler.getInstance().run();
+      Telemetry.addTiming("Main", dt);
+      telemetry.update();
       lastTime = currentTime;
     }
   }
@@ -43,13 +55,21 @@ public abstract class BaseOpMode extends LinearOpMode {
    */
   protected abstract void startup();
 
-  /**
-   * A {@link Trigger} that flips true when "Start" is pressed on the driver station.
-   *
-   * <p>This is recommended for starting autos, with {@link Trigger#onTrue(Command)}
-   */
+  /** A {@link Trigger} that flips true when the Start button is pressed. */
   protected final Trigger enableTrigger() {
     return enableTrigger;
+  }
+
+  /**
+   * A {@link DoubleSupplier} that returns the delta time between the current tick and the last
+   * tick.
+   */
+  protected DoubleSupplier dtSupplier() {
+    return () -> dt;
+  }
+
+  public DoubleSupplier busVoltageSupplier() {
+    return () -> busVoltage;
   }
 
   private final CommandXboxController primaryController = new CommandXboxController(this, true);
