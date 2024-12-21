@@ -4,6 +4,7 @@
 package org.firstinspires.ftc.lib.wpilib.math.kinematics;
 
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Twist2d;
+import org.firstinspires.ftc.lib.wpilib.math.interpolation.Interpolator;
 
 /**
  * Helper class that converts a chassis velocity (dx and dtheta components) into wheel speeds. Robot
@@ -12,7 +13,7 @@ import org.firstinspires.ftc.lib.wpilib.math.geometry.Twist2d;
  * @param <S> The type of the wheel speeds.
  * @param <P> The type of the wheel positions.
  */
-public interface Kinematics<S, P> {
+public interface Kinematics<S, P> extends Interpolator<P> {
   /**
    * Performs forward kinematics to return the resulting chassis speed from the wheel speeds. This
    * method is often used for odometry -- determining the robot's position on the field using data

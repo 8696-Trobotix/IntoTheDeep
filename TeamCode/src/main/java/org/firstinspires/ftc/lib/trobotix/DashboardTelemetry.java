@@ -8,7 +8,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import java.util.HashMap;
 import org.firstinspires.ftc.lib.wpilib.Timer;
 
-public class Telemetry {
+public class DashboardTelemetry {
   private static final boolean ENABLED = true;
 
   private static TelemetryThread instance;

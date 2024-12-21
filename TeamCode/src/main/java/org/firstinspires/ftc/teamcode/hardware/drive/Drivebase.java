@@ -11,8 +11,8 @@ import org.firstinspires.ftc.lib.trobotix.Utils;
 import org.firstinspires.ftc.lib.trobotix.controller.SimplePIDFController;
 import org.firstinspires.ftc.lib.trobotix.hardware.Motor;
 import org.firstinspires.ftc.lib.trobotix.hardware.RelativeEncoder;
-import org.firstinspires.ftc.lib.trobotix.kinematics.OmniWheelOdometryNoGyro;
-import org.firstinspires.ftc.lib.trobotix.kinematics.OmniWheelPositions;
+import org.firstinspires.ftc.lib.trobotix.kinematics.OdometryPodWheelPositions;
+import org.firstinspires.ftc.lib.trobotix.kinematics.OdometryPods;
 import org.firstinspires.ftc.lib.wpilib.commands.Command;
 import org.firstinspires.ftc.lib.wpilib.commands.Subsystem;
 import org.firstinspires.ftc.lib.wpilib.math.controller.PIDController;
@@ -23,14 +23,11 @@ import org.firstinspires.ftc.lib.wpilib.math.geometry.Transform2d;
 import org.firstinspires.ftc.lib.wpilib.math.kinematics.ChassisSpeeds;
 import org.firstinspires.ftc.lib.wpilib.math.kinematics.MecanumDriveKinematics;
 import org.firstinspires.ftc.lib.wpilib.math.utils.Units;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Drivebase implements Subsystem {
   private final MecanumDriveKinematics kinematics;
-  private final OmniWheelOdometryNoGyro odometry =
-      new OmniWheelOdometryNoGyro(
-          new Transform2d(.1, 0, Rotation2d.kZero),
-          new Transform2d(-.1, 0, Rotation2d.kZero),
-          new Transform2d(0, -.1, Rotation2d.kCCW_90deg));
+  private final OdometryPods odometry;
 
   private final Motor frontLeft;
   private final Motor frontRight;
@@ -48,6 +45,8 @@ public class Drivebase implements Subsystem {
   private final PIDController yController;
   private final PIDController yawController;
 
+  private final Telemetry telemetry;
+
   public Drivebase(OpMode opMode) {
     kinematics =
         new MecanumDriveKinematics(
@@ -58,10 +57,10 @@ public class Drivebase implements Subsystem {
     backLeft = new Motor(opMode, "backLeft"); // 0
     backRight = new Motor(opMode, "backRight"); // 2
 
-    frontLeft.setInverted(true);
-    backLeft.setInverted(false);
-    frontRight.setInverted(false);
-    backRight.setInverted(true);
+    frontLeft.setInverted(false);
+    backLeft.setInverted(true);
+    frontRight.setInverted(true);
+    backRight.setInverted(false);
 
     frontLeft.setIdleBrake(true);
     frontRight.setIdleBrake(true);
@@ -121,14 +120,25 @@ public class Drivebase implements Subsystem {
                     * BACK_RIGHT_WHEEL_DIAMETER
                     / 2));
 
-    encoders[0] = new RelativeEncoder(opMode, "leftEncoder", 8192 / Units.inchesToMeters(1));
-    encoders[1] = new RelativeEncoder(opMode, "rightEncoder", 8192 / Units.inchesToMeters(1));
-    encoders[2] = new RelativeEncoder(opMode, "backEncoder", 8192 / Units.inchesToMeters(1));
+    encoders[0] = new RelativeEncoder(opMode, "leftPod", 8192 / Units.inchesToMeters(Math.PI));
+    encoders[1] = new RelativeEncoder(opMode, "rightPod", 8192 / Units.inchesToMeters(Math.PI));
+    encoders[2] = new RelativeEncoder(opMode, "backPod", 8192 / Units.inchesToMeters(Math.PI));
+
+    // +X = forwards
+    // +Y = left
+    // CCW+
+    odometry =
+        new OdometryPods(
+            new Transform2d(.0275, 0.0775 / 2, Rotation2d.kZero),
+            new Transform2d(.0275, -0.0725, Rotation2d.kZero),
+            new Transform2d(-.07, 0.025, Rotation2d.kCCW_90deg));
 
     xController = new PIDController(5, 0, 0);
     yController = new PIDController(5, 0, 0);
     yawController = new PIDController(5, 0, 0);
     yawController.enableContinuousInput(-Math.PI, Math.PI);
+
+    this.telemetry = opMode.telemetry;
   }
 
   private final double topTranslationalSpeedMetersPerSec =
@@ -142,18 +152,24 @@ public class Drivebase implements Subsystem {
   private final double topAngularSpeedRadPerSec =
       topTranslationalSpeedMetersPerSec / Math.hypot(TRACK_LENGTH / 2, TRACK_WIDTH / 2);
 
-  public double getMaxTranslationalSpeed() {
-    return topTranslationalSpeedMetersPerSec;
-  }
-
   @Override
   public void periodic() {
-    odometry.update(
-        new OmniWheelPositions(
-            encoders[0].getPosition(), encoders[1].getPosition(), encoders[2].getPosition()));
+    var leftPodPos = encoders[0].getPosition();
+    var rightPodPos = encoders[1].getPosition();
+    var backPodPos = encoders[2].getPosition();
+
+    telemetry.addData("Drivebase/leftPodPos", leftPodPos);
+    telemetry.addData("Drivebase/rightPodPos", rightPodPos);
+    telemetry.addData("Drivebase/backPodPos", backPodPos);
+
+    var pose = odometry.update(new OdometryPodWheelPositions(leftPodPos, rightPodPos, backPodPos));
+
+    telemetry.addData("Drivebase/Odo X", pose.getX());
+    telemetry.addData("Drivebase/Odo Y", pose.getY());
+    telemetry.addData("Drivebase/Odo Yaw", pose.getRotation().getDegrees());
   }
 
-  public void drive(ChassisSpeeds chassisSpeeds) {
+  private void drive(ChassisSpeeds chassisSpeeds) {
     var speeds = kinematics.toWheelSpeeds(chassisSpeeds);
     speeds.desaturate(topTranslationalSpeedMetersPerSec);
 
@@ -170,24 +186,16 @@ public class Drivebase implements Subsystem {
             backRight.getVelocity(), speeds.rearRightMetersPerSecond));
   }
 
-  public void fieldRelativeDrive(ChassisSpeeds chassisSpeeds) {
-    drive(ChassisSpeeds.fromFieldRelativeSpeeds(chassisSpeeds, getYaw()));
-  }
-
-  private void alignToPose(Pose2d pose) {
-    //    pose = Utils.flipAllianceOnRed(pose);
-
-    //    fieldRelativeDrive(
-    //        new ChassisSpeeds(
-    //            xController.calculate(odometry.getEstimatedPosition().getX(), pose.getX()),
-    //            yController.calculate(odometry.getEstimatedPosition().getY(), pose.getY()),
-    //            yawController.calculate(
-    //                odometry.getEstimatedPosition().getRotation().getRadians(),
-    //                pose.getRotation().getRadians())));
-  }
-
-  public Command goToPoint(Pose2d pose) {
-    return run(() -> alignToPose(pose));
+  public Command alignToPose(Pose2d pose) {
+    return run(
+        () ->
+            drive(
+                new ChassisSpeeds(
+                    xController.calculate(odometry.getPoseMeters().getX(), pose.getX()),
+                    yController.calculate(odometry.getPoseMeters().getY(), pose.getY()),
+                    yawController.calculate(
+                        odometry.getPoseMeters().getRotation().getRadians(),
+                        pose.getRotation().getRadians()))));
   }
 
   private final double ZERO_TO_FULL_TIME = .125;
@@ -202,7 +210,7 @@ public class Drivebase implements Subsystem {
       DoubleSupplier xInput, DoubleSupplier yInput, DoubleSupplier omegaInput) {
     return run(
         () ->
-            fieldRelativeDrive(
+            drive(
                 new ChassisSpeeds(
                     xLimiter.calculate(xInput.getAsDouble() * topTranslationalSpeedMetersPerSec),
                     yLimiter.calculate(yInput.getAsDouble() * topTranslationalSpeedMetersPerSec),
@@ -213,54 +221,7 @@ public class Drivebase implements Subsystem {
     return run(() -> drive(speeds)).finallyDo(() -> drive(new ChassisSpeeds()));
   }
 
-  public Command submersibleAlignIntake(
-      DoubleSupplier strafeSupplier, DoubleSupplier intakeSupplier) {
-    return run(
-        () -> {
-          //          double submersibleWidth = Units.inchesToMeters(30);
-          //          double minY = Units.inchesToMeters(Utils.FIELD_SIZE - submersibleWidth) / 2;
-          //          double maxY = Utils.FIELD_SIZE - minY;
-          //
-          ////          Pose2d currentPose =
-          // Utils.flipAllianceOnRed(odometry.getEstimatedPosition());
-          //
-          //          double targetX;
-          //          if (minY < currentPose.getY() && currentPose.getY() < maxY) {
-          //            targetX = 34;
-          //          } else {
-          //            targetX = 24;
-          //          }
-          //          double targetY = MathUtil.interpolate(minY, maxY,
-          // (strafeSupplier.getAsDouble() + 1) / 2);
-          //
-          //          alignToPose(new Pose2d(targetX, targetY, new Rotation2d()));
-        });
-  }
-
-  public Command basketAlign() {
-    return run(
-        () ->
-            alignToPose(
-                new Pose2d(
-                    Units.inchesToMeters(24),
-                    Units.inchesToMeters(24),
-                    Rotation2d.fromDegrees(-135))));
-  }
-
-  private void addVisionMeasurement(
-      Pose2d estimatedPose, double timestamp, double translationalStDev, double angularStDev) {
-    //    odometry.addVisionMeasurement(
-    //        estimatedPose,
-    //        timestamp,
-    //        VecBuilder.fill(translationalStDev, translationalStDev, angularStDev));
-  }
-
   public Pose2d getPose() {
     return new Pose2d();
-  }
-
-  private Rotation2d getYaw() {
-    //    return Rotation2d.fromDegrees(gyro.getRobotYawPitchRollAngles().getYaw());
-    return Rotation2d.kZero;
   }
 }

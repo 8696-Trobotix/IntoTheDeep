@@ -5,28 +5,23 @@ package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
-import org.firstinspires.ftc.teamcode.hardware.arm.Arm;
-import org.firstinspires.ftc.teamcode.hardware.arm.Claw;
 import org.firstinspires.ftc.teamcode.hardware.drive.Drivebase;
+import org.firstinspires.ftc.teamcode.hardware.slide.Slide;
 
 @TeleOp
 public class TeleopDrive extends BaseOpMode {
   @Override
   public void startup() {
-    var arm = new Arm(this);
-    var claw = new Claw(this);
     var drivebase = new Drivebase(this);
-
-    arm.setDefaultCommand(arm.maintainAngle());
-    secondaryController().y().whileTrue(arm.raise());
-    secondaryController().a().whileTrue(arm.lower());
-
-    claw.setDefaultCommand(claw.setPos(() -> (secondaryController().getLeftY() + 1) / 2));
+    var slide = new Slide(this);
 
     drivebase.setDefaultCommand(
         drivebase.teleopDrive(
             () -> -primaryController().getLeftY(),
             () -> -primaryController().getLeftX(),
             () -> -primaryController().getRightX()));
+    slide.setDefaultCommand(
+        slide.teleopControl(
+            () -> -secondaryController().getLeftY()));
   }
 }

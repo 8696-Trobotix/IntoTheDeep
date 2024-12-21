@@ -38,10 +38,12 @@ public abstract class BaseOpMode extends LinearOpMode {
       dt = currentTime - lastTime;
       busVoltage = busVoltageSensor.getVoltage();
       CommandScheduler.getInstance().run();
-      Telemetry.addTiming("Main", dt);
+      DashboardTelemetry.addTiming("Main", dt);
       telemetry.update();
       lastTime = currentTime;
     }
+    CommandScheduler.getInstance().cancelAll();
+    CommandScheduler.getInstance().unregisterAllSubsystems();
   }
 
   /**

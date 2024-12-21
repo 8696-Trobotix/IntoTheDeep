@@ -238,4 +238,10 @@ public class MecanumDriveKinematics
   public Translation2d getRearRight() {
     return m_rearRightWheelMeters;
   }
+
+  @Override
+  public MecanumDriveWheelPositions interpolate(
+      MecanumDriveWheelPositions startValue, MecanumDriveWheelPositions endValue, double t) {
+    return startValue.interpolate(endValue, t);
+  }
 }
