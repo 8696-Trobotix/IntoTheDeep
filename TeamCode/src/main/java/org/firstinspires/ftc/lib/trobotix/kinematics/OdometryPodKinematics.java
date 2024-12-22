@@ -4,6 +4,7 @@
 package org.firstinspires.ftc.lib.trobotix.kinematics;
 
 import org.ejml.simple.SimpleMatrix;
+import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Transform2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Twist2d;
 import org.firstinspires.ftc.lib.wpilib.math.kinematics.ChassisSpeeds;
@@ -34,6 +35,42 @@ public class OdometryPodKinematics
               * podTransforms[i].getTranslation().getNorm());
     }
     forwardKinematics = inverseKinematics.pseudoInverse();
+
+    // A module can't detect movement that's sideways relative to itself due to the nature of
+    // omni-wheels, so a different module needs to detect that movement. If none of the modules can
+    // detect that movement, we found an ambiguous case, and can throw an error. The following loops
+    // over every module to find an ambiguous case.
+    double ambiguityTolerance = .1;
+    for (var podTransform : podTransforms) {
+      // Find the angle that's sideways relative to the module
+      var angle = podTransform.getRotation().plus(Rotation2d.kCCW_90deg);
+      // Calculate wheel speeds in the case we're moving in that direction
+      var speeds = toWheelSpeeds(new ChassisSpeeds(angle.getCos(), angle.getSin(), 0)).podSpeeds;
+      // If all modules are near 0 within some tolerance, then we cannot detect movement in that
+      // direction reliably.
+      for (var speed : speeds) {
+        if (Math.abs(speed) < ambiguityTolerance) {
+          break;
+        }
+      }
+      throw new IllegalArgumentException(
+          "Found an ambiguous case! Translational movement in the direction: "
+              + angle.getDegrees()
+              + " degrees cannot be detected!");
+    }
+    // Check if there's an ambiguous case when rotating.
+    var speeds = toWheelSpeeds(new ChassisSpeeds(0, 0, 1)).podSpeeds;
+    boolean allNear0 = true;
+    for (var speed : speeds) {
+      if (Math.abs(speed) < ambiguityTolerance) {
+        allNear0 = false;
+        break;
+      }
+    }
+    if (allNear0) {
+      throw new IllegalArgumentException(
+          "Found an ambiguous case! Angular movement cannot be detected!");
+    }
   }
 
   @Override
