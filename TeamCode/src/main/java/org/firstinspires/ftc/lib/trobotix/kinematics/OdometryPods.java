@@ -9,11 +9,12 @@ import org.firstinspires.ftc.lib.wpilib.math.geometry.Transform2d;
 public class OdometryPods {
   private final OdometryPodKinematics kinematics;
   private Pose2d poseMeters;
-  private OdometryPodWheelPositions previousWheelPositions = new OdometryPodWheelPositions();
+  private OdometryPodWheelPositions previousWheelPositions;
 
   public OdometryPods(OdometryPodKinematics kinematics, Pose2d initialPose) {
     this.kinematics = kinematics;
     poseMeters = initialPose;
+    previousWheelPositions = new OdometryPodWheelPositions(new double[kinematics.podCount]);
   }
 
   public OdometryPods(OdometryPodKinematics kinematics) {

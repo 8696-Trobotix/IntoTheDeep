@@ -5,8 +5,8 @@ package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
-import org.firstinspires.ftc.teamcode.hardware.drive.Drivebase;
-import org.firstinspires.ftc.teamcode.hardware.slide.Slide;
+import org.firstinspires.ftc.teamcode.hardware.Drivebase;
+import org.firstinspires.ftc.teamcode.hardware.Slide;
 
 @TeleOp
 public class TeleopDrive extends BaseOpMode {
@@ -23,5 +23,7 @@ public class TeleopDrive extends BaseOpMode {
     slide.setDefaultCommand(
         slide.teleopControl(
             () -> -secondaryController().getLeftY()));
+    secondaryController().y().whileTrue(slide.goToPosition(slide.maxPosMm));
+    secondaryController().a().whileTrue(slide.goToPosition(slide.minPosMm));
   }
 }
