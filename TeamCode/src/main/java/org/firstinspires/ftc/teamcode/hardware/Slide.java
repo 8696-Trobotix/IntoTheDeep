@@ -5,18 +5,18 @@ package org.firstinspires.ftc.teamcode.hardware;
 
 import java.util.function.DoubleSupplier;
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
+import org.firstinspires.ftc.lib.trobotix.controller.ViperSlideFeedforward;
 import org.firstinspires.ftc.lib.trobotix.hardware.Motor;
 import org.firstinspires.ftc.lib.wpilib.commands.Command;
 import org.firstinspires.ftc.lib.wpilib.commands.SubsystemBase;
 import org.firstinspires.ftc.lib.wpilib.math.MathUtil;
-import org.firstinspires.ftc.lib.wpilib.math.controller.ElevatorFeedforward;
 import org.firstinspires.ftc.lib.wpilib.math.controller.PIDController;
 import org.firstinspires.ftc.lib.wpilib.math.utils.Units;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Slide extends SubsystemBase {
   private final Motor motor;
-  private final ElevatorFeedforward velocityFF;
+  private final ViperSlideFeedforward velocityFF;
   private final double velocityP;
   private final PIDController positionPID;
 
@@ -24,21 +24,23 @@ public class Slide extends SubsystemBase {
 
   private final Telemetry telemetry;
 
-  public final double minPosMm = 235;
-  public final double maxPosMm = 700;
+  public final double minPosMm = 145;
+  public final double maxPosMm = 950;
 
   public Slide(BaseOpMode opMode) {
     motor = new Motor(opMode, "linearSlide");
     telemetry = opMode.telemetry;
 
-    double pulleyDiameterMm = 32.25;
+    double pulleyDiameterMm = Units.inchesToMeters(1.5) * 1000;
     motor.setConversionFactor(537.689839572 / (pulleyDiameterMm * Math.PI));
-    motor.setInverted(true);
+    motor.setInverted(false);
     motor.setPosition(minPosMm);
 
     maxVelMmPerSec = Units.rotationsPerMinuteToRadiansPerSecond(312) * (pulleyDiameterMm / 2);
-    velocityFF = new ElevatorFeedforward(0.77, 0.31, 12 / maxVelMmPerSec);
-    velocityP = .5;
+    velocityFF =
+        new ViperSlideFeedforward(
+            minPosMm, maxPosMm, 0.78, 0.27, 0.635, 0.785, 12 / maxVelMmPerSec);
+    velocityP = 0;
     positionPID = new PIDController(5, 0, 0);
   }
 
@@ -52,7 +54,7 @@ public class Slide extends SubsystemBase {
         () -> {
           telemetry.addData("Gamepad2/control", control.getAsDouble());
           telemetry.addData("Slide/maxVel", maxVelMmPerSec);
-          runVel(motor.getPosition(), control.getAsDouble() * maxVelMmPerSec / 4);
+          runVel(motor.getPosition(), control.getAsDouble() * maxVelMmPerSec);
         });
   }
 
@@ -61,16 +63,13 @@ public class Slide extends SubsystemBase {
   }
 
   private void runVel(double currentPos, double targetVel) {
-    var currentVel = motor.getVelocity();
-
     if ((currentPos < minPosMm && targetVel < 0) || (currentPos > maxPosMm && targetVel > 0)) {
       targetVel = 0;
     }
-    targetVel = MathUtil.clamp(targetVel, -maxVelMmPerSec / 4, maxVelMmPerSec / 4);
+    targetVel = MathUtil.clamp(targetVel, -maxVelMmPerSec, maxVelMmPerSec);
     telemetry.addData("Slide/Target vel", targetVel);
-    telemetry.addData("Slide/Actual vel", currentVel);
 
-    var voltage = velocityFF.calculate(targetVel) + velocityP * (targetVel - currentVel);
+    var voltage = velocityFF.calculate(currentPos, targetVel);
     telemetry.addData("Slide/Voltage", voltage);
     motor.setVoltage(voltage);
   }

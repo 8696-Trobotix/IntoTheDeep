@@ -12,14 +12,14 @@ import org.firstinspires.ftc.teamcode.hardware.Slide;
 public class TeleopDrive extends BaseOpMode {
   @Override
   public void startup() {
-    var drivebase = new Drivebase(this);
+//    var drivebase = new Drivebase(this);
     var slide = new Slide(this);
 
-    drivebase.setDefaultCommand(
-        drivebase.teleopDrive(
-            () -> -primaryController().getLeftY(),
-            () -> -primaryController().getLeftX(),
-            () -> -primaryController().getRightX()));
+//    drivebase.setDefaultCommand(
+//        drivebase.teleopDrive(
+//            () -> -primaryController().getLeftY(),
+//            () -> -primaryController().getLeftX(),
+//            () -> -primaryController().getRightX()));
     slide.setDefaultCommand(
         slide.teleopControl(
             () -> -secondaryController().getLeftY()));
