@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import org.firstinspires.ftc.lib.trobotix.Utils;
+import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
 import org.firstinspires.ftc.lib.wpilib.math.MathUtil;
 import org.firstinspires.ftc.lib.wpilib.math.filter.LinearFilter;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
@@ -18,6 +18,8 @@ public class Motor {
   private final DcMotorEx motorInternal;
   private final LynxVoltageSensor voltageSensor;
 
+  private final BaseOpMode.CachedValue.CachedPosition cachedPosition;
+
   public Motor(OpMode opMode, String name) {
     motorInternal = (DcMotorEx) opMode.hardwareMap.dcMotor.get(name);
     voltageSensor = opMode.hardwareMap.getAll(LynxVoltageSensor.class).iterator().next();
@@ -25,6 +27,15 @@ public class Motor {
     motorInternal.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     motorInternal.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     motorInternal.setDirection(DcMotorSimple.Direction.FORWARD);
+
+    cachedPosition =
+        new BaseOpMode.CachedValue.CachedPosition(
+            () ->
+                (inverted
+                            ? -motorInternal.getCurrentPosition()
+                            : motorInternal.getCurrentPosition())
+                        / conversionFactor
+                    - offset);
   }
 
   private boolean inverted = false;
@@ -137,7 +148,7 @@ public class Motor {
    * <p>A common use case is to convert from encoder ticks to rotations.
    *
    * <p>Note: Setting this after the motor has already moved causes undefined behavior for {@link
-   * Motor#getPosition()}. Make sure to call {@link Motor#setPosition(double)} if that is done.
+   * Motor#getPosition()}.
    *
    * @param conversionFactor The new conversion factor.
    */
@@ -150,21 +161,16 @@ public class Motor {
   /**
    * Gets the motor's current position.
    *
-   * @return The position. Units are in encoder ticks by default, but can be changed with {@link
-   *     Motor#setConversionFactor(double conversionFactor)}.
+   * @return The position.
    */
   public double getPosition() {
-    return (inverted ? -motorInternal.getCurrentPosition() : motorInternal.getCurrentPosition())
-            / conversionFactor
-        - offset;
+    return cachedPosition.latestPosition;
   }
 
   public void setPosition(double position) {
-    offset += getPosition() - position;
+    offset += cachedPosition.latestPosition - position;
+    cachedPosition.latestPosition = position;
   }
-
-  private double lastPos = 0;
-  private double lastTime = -1;
 
   /**
    * Gets the motor's current velocity.
@@ -176,16 +182,6 @@ public class Motor {
    *     seconds.
    */
   public double getVelocity() {
-    if (lastTime == -1) {
-      lastPos = getPosition();
-      lastTime = Utils.getTimeSeconds();
-      return 0;
-    }
-    var currentPos = getPosition();
-    var currentTime = Utils.getTimeSeconds();
-    var velocity = (currentPos - lastPos) / (currentTime - lastTime);
-    lastPos = currentPos;
-    lastTime = currentTime;
-    return velocity;
+    return cachedPosition.latestVelocity;
   }
 }

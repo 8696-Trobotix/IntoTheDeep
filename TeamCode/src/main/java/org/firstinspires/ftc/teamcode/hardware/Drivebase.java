@@ -120,9 +120,12 @@ public class Drivebase implements Subsystem {
                     * BACK_RIGHT_WHEEL_DIAMETER
                     / 2));
 
-    encoders[0] = new RelativeEncoder(opMode, "leftPod", 8192 / Units.inchesToMeters(Math.PI));
-    encoders[1] = new RelativeEncoder(opMode, "rightPod", 8192 / Units.inchesToMeters(Math.PI));
-    encoders[2] = new RelativeEncoder(opMode, "backPod", 8192 / Units.inchesToMeters(Math.PI));
+    encoders[0] =
+        new RelativeEncoder(opMode, "leftPod", false, 8192 / Units.inchesToMeters(Math.PI));
+    encoders[1] =
+        new RelativeEncoder(opMode, "rightPod", false, 8192 / Units.inchesToMeters(Math.PI));
+    encoders[2] =
+        new RelativeEncoder(opMode, "backPod", false, 8192 / Units.inchesToMeters(Math.PI));
 
     // +X = forwards
     // +Y = left

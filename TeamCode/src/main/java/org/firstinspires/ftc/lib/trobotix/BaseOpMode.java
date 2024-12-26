@@ -6,12 +6,12 @@ package org.firstinspires.ftc.lib.trobotix;
 import com.outoftheboxrobotics.photoncore.Photon;
 import com.qualcomm.hardware.lynx.LynxVoltageSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import java.util.ArrayList;
+import java.util.function.DoubleSupplier;
 import org.firstinspires.ftc.lib.wpilib.commands.Command;
 import org.firstinspires.ftc.lib.wpilib.commands.CommandScheduler;
 import org.firstinspires.ftc.lib.wpilib.commands.Subsystem;
 import org.firstinspires.ftc.lib.wpilib.commands.button.Trigger;
-
-import java.util.function.DoubleSupplier;
 
 /**
  * A base op mode that contains shared code. As all code defined in an op mode is in the init stage,
@@ -21,10 +21,10 @@ import java.util.function.DoubleSupplier;
 @Photon
 public abstract class BaseOpMode extends LinearOpMode {
   private final Trigger enableTrigger = new Trigger(this::opModeIsActive);
-
   private double dt = .01;
-
   private double busVoltage;
+
+  private static final ArrayList<CachedValue> cachedValues = new ArrayList<>();
 
   @Override
   public final void runOpMode() {
@@ -35,6 +35,10 @@ public abstract class BaseOpMode extends LinearOpMode {
     double lastTime = Utils.getTimeSeconds();
     while (opModeIsActive()) {
       double currentTime = Utils.getTimeSeconds();
+      for (var cachedValue : cachedValues) {
+        cachedValue.timestamp = currentTime;
+        cachedValue.update();
+      }
       dt = currentTime - lastTime;
       busVoltage = busVoltageSensor.getVoltage();
       CommandScheduler.getInstance().run();
@@ -44,6 +48,7 @@ public abstract class BaseOpMode extends LinearOpMode {
     }
     CommandScheduler.getInstance().cancelAll();
     CommandScheduler.getInstance().unregisterAllSubsystems();
+    cachedValues.clear();
   }
 
   /**
@@ -93,5 +98,56 @@ public abstract class BaseOpMode extends LinearOpMode {
    */
   protected final CommandXboxController secondaryController() {
     return secondaryController;
+  }
+
+  public abstract static class CachedValue {
+    double timestamp;
+
+    CachedValue() {
+      cachedValues.add(this);
+    }
+
+    protected abstract void update();
+
+    public static class CachedDouble extends CachedValue {
+      public double latestValue;
+
+      private final DoubleSupplier valueSupplier;
+
+      public CachedDouble(DoubleSupplier valueSupplier) {
+        this.valueSupplier = valueSupplier;
+      }
+
+      @Override
+      protected void update() {
+        latestValue = valueSupplier.getAsDouble();
+      }
+    }
+
+    public static class CachedPosition extends CachedValue {
+      private final DoubleSupplier positionSupplier;
+
+      public CachedPosition(DoubleSupplier positionSupplier) {
+        this.positionSupplier = positionSupplier;
+      }
+
+      public double latestPosition;
+      public double latestVelocity;
+      private double lastTimestamp = -1;
+
+      @Override
+      protected void update() {
+        double lastPos = latestPosition;
+        latestPosition = positionSupplier.getAsDouble();
+
+        if (lastTimestamp == -1) {
+          latestVelocity = 0;
+        } else {
+          latestVelocity = (latestPosition - lastPos) / (timestamp - lastTimestamp);
+        }
+
+        lastTimestamp = timestamp;
+      }
+    }
   }
 }
