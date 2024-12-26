@@ -17,7 +17,6 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class Slide extends SubsystemBase {
   private final Motor motor;
   private final ViperSlideFeedforward velocityFF;
-  private final double velocityP;
   private final PIDController positionPID;
 
   private final double maxVelMmPerSec;
@@ -40,7 +39,6 @@ public class Slide extends SubsystemBase {
     velocityFF =
         new ViperSlideFeedforward(
             minPosMm, maxPosMm, 0.78, 0.27, 0.635, 0.785, 12 / maxVelMmPerSec);
-    velocityP = 0;
     positionPID = new PIDController(5, 0, 0);
   }
 
