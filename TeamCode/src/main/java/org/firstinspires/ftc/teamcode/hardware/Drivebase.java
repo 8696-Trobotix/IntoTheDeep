@@ -141,6 +141,10 @@ public class Drivebase implements Subsystem {
     yawController = new PIDController(5, 0, 0);
     yawController.enableContinuousInput(-Math.PI, Math.PI);
 
+    xController.setTolerance(.01, .01);
+    yController.setTolerance(.01, .01);
+    yawController.setTolerance(Units.degreesToRadians(10), Units.degreesToRadians(10));
+
     this.telemetry = opMode.telemetry;
   }
 
@@ -190,15 +194,17 @@ public class Drivebase implements Subsystem {
   }
 
   public Command alignToPose(Pose2d pose) {
-    return run(
-        () ->
+    return run(() ->
             drive(
                 new ChassisSpeeds(
                     xController.calculate(odometry.getPoseMeters().getX(), pose.getX()),
                     yController.calculate(odometry.getPoseMeters().getY(), pose.getY()),
                     yawController.calculate(
                         odometry.getPoseMeters().getRotation().getRadians(),
-                        pose.getRotation().getRadians()))));
+                        pose.getRotation().getRadians()))))
+        .until(
+            () ->
+                xController.atSetpoint() && yController.atSetpoint() && yawController.atSetpoint());
   }
 
   private final double ZERO_TO_FULL_TIME = .125;

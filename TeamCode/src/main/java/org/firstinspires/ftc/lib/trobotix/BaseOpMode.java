@@ -63,7 +63,7 @@ public abstract class BaseOpMode extends LinearOpMode {
   protected abstract void startup();
 
   /** A {@link Trigger} that flips true when the Start button is pressed. */
-  protected final Trigger enableTrigger() {
+  protected final Trigger enabled() {
     return enableTrigger;
   }
 

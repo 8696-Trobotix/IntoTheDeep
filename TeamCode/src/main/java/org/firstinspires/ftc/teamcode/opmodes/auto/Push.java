@@ -14,6 +14,6 @@ public class Push extends BaseOpMode {
   protected void startup() {
     var drivebase = new Drivebase(this);
 
-    enableTrigger().onTrue(drivebase.driveVel(new ChassisSpeeds(.5, 0, 0)).withTimeout(1));
+    enabled().onTrue(drivebase.driveVel(new ChassisSpeeds(.5, 0, 0)).withTimeout(1));
   }
 }
