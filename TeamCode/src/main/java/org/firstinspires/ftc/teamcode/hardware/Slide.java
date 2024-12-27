@@ -17,6 +17,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class Slide extends SubsystemBase {
   private final Motor motor;
   private final ViperSlideFeedforward velocityFF;
+  private final double velocityP;
   private final PIDController positionPID;
 
   private final double maxVelMmPerSec;
@@ -35,10 +36,15 @@ public class Slide extends SubsystemBase {
     motor.setInverted(false);
     motor.setPosition(minPosMm);
 
-    maxVelMmPerSec = Units.rotationsPerMinuteToRadiansPerSecond(312) * (pulleyDiameterMm / 2);
-    velocityFF =
-        new ViperSlideFeedforward(
-            minPosMm, maxPosMm, 0.78, 0.27, 0.635, 0.785, 12 / maxVelMmPerSec);
+    var kV = 12 / Units.rotationsPerMinuteToRadiansPerSecond(312) * (pulleyDiameterMm / 2);
+    velocityFF = new ViperSlideFeedforward(minPosMm, maxPosMm, 0.78, 0.27, 0.635, 0.785, kV);
+    maxVelMmPerSec =
+        (12
+                - Math.max(
+                    velocityFF.kS_bottom + velocityFF.kG_bottom,
+                    velocityFF.kS_top + velocityFF.kG_top))
+            / kV;
+    velocityP = 2 * kV;
     positionPID = new PIDController(5, 0, 0);
   }
 
@@ -52,7 +58,7 @@ public class Slide extends SubsystemBase {
         () -> {
           telemetry.addData("Gamepad2/control", control.getAsDouble());
           telemetry.addData("Slide/maxVel", maxVelMmPerSec);
-          runVel(motor.getPosition(), control.getAsDouble() * maxVelMmPerSec);
+          runVel(control.getAsDouble() * maxVelMmPerSec);
         });
   }
 
@@ -60,22 +66,32 @@ public class Slide extends SubsystemBase {
     return run(() -> runPosition(positionMm));
   }
 
-  private void runVel(double currentPos, double targetVel) {
-    if ((currentPos < minPosMm && targetVel < 0) || (currentPos > maxPosMm && targetVel > 0)) {
-      targetVel = 0;
+  private void runVel(double targetVel) {
+    if (motor.getPosition() < minPosMm && targetVel < 0) {
+      runPosition(minPosMm);
+      return;
     }
-    targetVel = MathUtil.clamp(targetVel, -maxVelMmPerSec, maxVelMmPerSec);
+    if (motor.getPosition() > maxPosMm && targetVel > 0) {
+      runPosition(maxPosMm);
+      return;
+    }
+    targetVel =
+        MathUtil.clamp(
+            targetVel,
+            velocityFF.getMinAchievableVel(motor.getPosition()),
+            velocityFF.getMaxAchievableVel(motor.getPosition()));
     telemetry.addData("Slide/Target vel", targetVel);
+    telemetry.addData("Slide/Actual vel", motor.getVelocity());
 
-    var voltage = velocityFF.calculate(currentPos, targetVel);
+    var voltage =
+        velocityFF.calculate(motor.getPosition(), targetVel)
+            + velocityP * (targetVel - motor.getVelocity());
     telemetry.addData("Slide/Voltage", voltage);
     motor.setVoltage(voltage);
   }
 
   private void runPosition(double targetPosition) {
-    double currentPos = motor.getPosition();
-
-    runVel(currentPos, positionPID.calculate(currentPos, targetPosition));
+    runVel(positionPID.calculate(motor.getPosition(), targetPosition));
   }
 
   public Command runVoltage(DoubleSupplier voltageSupplier) {

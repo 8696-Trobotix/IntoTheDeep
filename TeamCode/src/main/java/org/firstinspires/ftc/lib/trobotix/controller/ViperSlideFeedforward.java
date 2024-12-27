@@ -6,7 +6,7 @@ package org.firstinspires.ftc.lib.trobotix.controller;
 import org.firstinspires.ftc.lib.wpilib.math.MathUtil;
 
 public class ViperSlideFeedforward {
-  private final double bottomPos, topPos, kS_bottom, kG_bottom, kS_top, kG_top, kV;
+  public final double bottomPos, topPos, kS_bottom, kG_bottom, kS_top, kG_top, kV;
 
   public ViperSlideFeedforward(
       double bottomPos,
@@ -26,11 +26,26 @@ public class ViperSlideFeedforward {
   }
 
   public double calculate(double currentPos, double velocity) {
-    double positionPercentage = MathUtil.inverseInterpolate(bottomPos, topPos, currentPos);
+    var constants = getConstants(currentPos);
+    return constants[0] * Math.signum(velocity) + constants[1] + kV * velocity;
+  }
+
+  public double getMaxAchievableVel(double position) {
+    var constants = getConstants(position);
+    return (12 - constants[0] - constants[1]) / kV;
+  }
+
+  public double getMinAchievableVel(double position) {
+    var constants = getConstants(position);
+    return (-12 + constants[0] - constants[1]) / kV;
+  }
+
+  private double[] getConstants(double position) {
+    double positionPercentage = MathUtil.inverseInterpolate(bottomPos, topPos, position);
 
     double kS = MathUtil.interpolate(kS_bottom, kS_top, positionPercentage);
     double kG = MathUtil.interpolate(kG_bottom, kG_top, positionPercentage);
 
-    return kS * Math.signum(velocity) + kG + kV * velocity;
+    return new double[] {kS, kG};
   }
 }
