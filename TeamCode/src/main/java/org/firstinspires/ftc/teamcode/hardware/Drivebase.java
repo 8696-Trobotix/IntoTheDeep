@@ -134,7 +134,7 @@ public class Drivebase implements Subsystem {
         new OdometryPods(
             new Transform2d(.0275, 0.0775 / 2, Rotation2d.kZero),
             new Transform2d(.0275, -0.0725, Rotation2d.kZero),
-            new Transform2d(-.07, 0.025, Rotation2d.kCCW_90deg));
+            new Transform2d(-.07, 0.05, Rotation2d.kCCW_90deg));
 
     xController = new PIDController(5, 0, 0);
     yController = new PIDController(5, 0, 0);

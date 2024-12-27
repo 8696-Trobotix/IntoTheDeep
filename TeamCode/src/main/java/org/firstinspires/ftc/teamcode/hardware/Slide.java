@@ -24,8 +24,8 @@ public class Slide extends SubsystemBase {
 
   private final Telemetry telemetry;
 
-  public final double minPosMm = 145;
-  public final double maxPosMm = 950;
+  public final double minPosMm = 378;
+  public final double maxPosMm = 1000;
 
   public Slide(BaseOpMode opMode) {
     motor = new Motor(opMode, "linearSlide");
@@ -36,16 +36,16 @@ public class Slide extends SubsystemBase {
     motor.setInverted(false);
     motor.setPosition(minPosMm);
 
-    var kV = 12 / Units.rotationsPerMinuteToRadiansPerSecond(312) * (pulleyDiameterMm / 2);
-    velocityFF = new ViperSlideFeedforward(minPosMm, maxPosMm, 0.78, 0.27, 0.635, 0.785, kV);
+    var kV = 12 / (Units.rotationsPerMinuteToRadiansPerSecond(312) * (pulleyDiameterMm / 2));
+    velocityFF = new ViperSlideFeedforward(minPosMm, maxPosMm, .3, .7, .95, .55, kV);
     maxVelMmPerSec =
         (12
                 - Math.max(
                     velocityFF.kS_bottom + velocityFF.kG_bottom,
                     velocityFF.kS_top + velocityFF.kG_top))
             / kV;
-    velocityP = 2 * kV;
-    positionPID = new PIDController(5, 0, 0);
+    velocityP = .5 * kV;
+    positionPID = new PIDController(10, 0, 0);
   }
 
   @Override
@@ -67,13 +67,9 @@ public class Slide extends SubsystemBase {
   }
 
   private void runVel(double targetVel) {
-    if (motor.getPosition() < minPosMm && targetVel < 0) {
-      runPosition(minPosMm);
-      return;
-    }
-    if (motor.getPosition() > maxPosMm && targetVel > 0) {
-      runPosition(maxPosMm);
-      return;
+    if ((motor.getPosition() < minPosMm && targetVel < 0)
+        || (motor.getPosition() > maxPosMm && targetVel > 0)) {
+      targetVel = 0;
     }
     targetVel =
         MathUtil.clamp(
