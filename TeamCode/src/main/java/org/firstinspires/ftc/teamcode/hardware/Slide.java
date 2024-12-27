@@ -17,15 +17,14 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class Slide extends SubsystemBase {
   private final Motor motor;
   private final ViperSlideFeedforward velocityFF;
-  private final double velocityP;
   private final PIDController positionPID;
 
   private final double maxVelMmPerSec;
 
   private final Telemetry telemetry;
 
-  public final double minPosMm = 378;
-  public final double maxPosMm = 1000;
+  private final double minPosMm = 378;
+  private final double maxPosMm = 1000;
 
   public Slide(BaseOpMode opMode) {
     motor = new Motor(opMode, "linearSlide");
@@ -37,15 +36,15 @@ public class Slide extends SubsystemBase {
     motor.setPosition(minPosMm);
 
     var kV = 12 / (Units.rotationsPerMinuteToRadiansPerSecond(312) * (pulleyDiameterMm / 2));
-    velocityFF = new ViperSlideFeedforward(minPosMm, maxPosMm, .3, .7, .95, .55, kV);
+    velocityFF = new ViperSlideFeedforward(minPosMm, maxPosMm, .765, .335, .625, 1.175, kV);
     maxVelMmPerSec =
         (12
                 - Math.max(
                     velocityFF.kS_bottom + velocityFF.kG_bottom,
                     velocityFF.kS_top + velocityFF.kG_top))
             / kV;
-    velocityP = .5 * kV;
-    positionPID = new PIDController(10, 0, 0);
+    positionPID = new PIDController(5, 0, 0);
+    positionPID.setTolerance(5, 10);
   }
 
   @Override
@@ -63,7 +62,15 @@ public class Slide extends SubsystemBase {
   }
 
   public Command goToPosition(double positionMm) {
-    return run(() -> runPosition(positionMm));
+    return run(() -> runPosition(positionMm)).until(positionPID::atSetpoint);
+  }
+
+  public Command scoreHighSpecimen() {
+    return goToPosition(750);
+  }
+
+  public Command retract() {
+    return goToPosition(minPosMm);
   }
 
   private void runVel(double targetVel) {
@@ -79,9 +86,7 @@ public class Slide extends SubsystemBase {
     telemetry.addData("Slide/Target vel", targetVel);
     telemetry.addData("Slide/Actual vel", motor.getVelocity());
 
-    var voltage =
-        velocityFF.calculate(motor.getPosition(), targetVel)
-            + velocityP * (targetVel - motor.getVelocity());
+    var voltage = velocityFF.calculate(motor.getPosition(), targetVel);
     telemetry.addData("Slide/Voltage", voltage);
     motor.setVoltage(voltage);
   }

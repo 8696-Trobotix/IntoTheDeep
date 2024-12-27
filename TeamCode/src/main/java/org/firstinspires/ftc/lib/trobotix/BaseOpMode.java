@@ -4,6 +4,7 @@
 package org.firstinspires.ftc.lib.trobotix;
 
 import com.outoftheboxrobotics.photoncore.Photon;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.lynx.LynxVoltageSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import java.util.ArrayList;
@@ -28,6 +29,10 @@ public abstract class BaseOpMode extends LinearOpMode {
 
   @Override
   public final void runOpMode() {
+    final var lynxModules = hardwareMap.getAll(LynxModule.class);
+    for (var module : lynxModules) {
+      module.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+    }
     final var busVoltageSensor = hardwareMap.getAll(LynxVoltageSensor.class).iterator().next();
     busVoltage = busVoltageSensor.getVoltage();
     startup();
@@ -35,6 +40,9 @@ public abstract class BaseOpMode extends LinearOpMode {
     double lastTime = Utils.getTimeSeconds();
     while (opModeIsActive()) {
       double currentTime = Utils.getTimeSeconds();
+      for (var module : lynxModules) {
+        module.clearBulkCache();
+      }
       for (var cachedValue : cachedValues) {
         cachedValue.timestamp = currentTime;
         cachedValue.update();
@@ -43,6 +51,7 @@ public abstract class BaseOpMode extends LinearOpMode {
       busVoltage = busVoltageSensor.getVoltage();
       CommandScheduler.getInstance().run();
       DashboardTelemetry.addTiming("Main", dt);
+      telemetry.addData("Main loop freq", 1.0 / dt);
       telemetry.update();
       lastTime = currentTime;
     }
@@ -103,7 +112,7 @@ public abstract class BaseOpMode extends LinearOpMode {
   public abstract static class CachedValue {
     double timestamp;
 
-    CachedValue() {
+    protected CachedValue() {
       cachedValues.add(this);
     }
 

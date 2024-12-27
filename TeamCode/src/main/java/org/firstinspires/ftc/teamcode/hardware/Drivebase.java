@@ -5,10 +5,13 @@ package org.firstinspires.ftc.teamcode.hardware;
 
 import static org.firstinspires.ftc.teamcode.Constants.Drivebase.*;
 
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.IMU;
 import java.util.function.DoubleSupplier;
 import org.firstinspires.ftc.lib.trobotix.Utils;
 import org.firstinspires.ftc.lib.trobotix.controller.SimplePIDFController;
+import org.firstinspires.ftc.lib.trobotix.hardware.Gyro;
 import org.firstinspires.ftc.lib.trobotix.hardware.Motor;
 import org.firstinspires.ftc.lib.trobotix.hardware.RelativeEncoder;
 import org.firstinspires.ftc.lib.trobotix.kinematics.OdometryPodWheelPositions;
@@ -28,6 +31,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class Drivebase implements Subsystem {
   private final MecanumDriveKinematics kinematics;
   private final OdometryPods odometry;
+  private final Gyro gyro;
 
   private final Motor frontLeft;
   private final Motor frontRight;
@@ -135,6 +139,14 @@ public class Drivebase implements Subsystem {
             new Transform2d(.0275, 0.0775 / 2, Rotation2d.kZero),
             new Transform2d(.0275, -0.0725, Rotation2d.kZero),
             new Transform2d(-.07, 0.05, Rotation2d.kCCW_90deg));
+    gyro =
+        new Gyro(
+            opMode,
+            "IMU",
+            new IMU.Parameters(
+                new RevHubOrientationOnRobot(
+                    RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
+                    RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD)));
 
     xController = new PIDController(5, 0, 0);
     yController = new PIDController(5, 0, 0);
@@ -169,7 +181,9 @@ public class Drivebase implements Subsystem {
     telemetry.addData("Drivebase/rightPodPos", rightPodPos);
     telemetry.addData("Drivebase/backPodPos", backPodPos);
 
-    var pose = odometry.update(new OdometryPodWheelPositions(leftPodPos, rightPodPos, backPodPos));
+    var pose =
+        odometry.update(
+            gyro.getYaw(), new OdometryPodWheelPositions(leftPodPos, rightPodPos, backPodPos));
 
     telemetry.addData("Drivebase/Odo X", pose.getX());
     telemetry.addData("Drivebase/Odo Y", pose.getY());
@@ -230,7 +244,15 @@ public class Drivebase implements Subsystem {
     return run(() -> drive(speeds)).finallyDo(() -> drive(new ChassisSpeeds()));
   }
 
-  public Pose2d getPose() {
-    return new Pose2d();
+  public Command setPosition(Pose2d pose) {
+    return runOnce(
+        () ->
+            odometry.resetPosition(
+                gyro.getYaw(),
+                new OdometryPodWheelPositions(
+                    encoders[0].getPosition(),
+                    encoders[1].getPosition(),
+                    encoders[2].getPosition()),
+                pose));
   }
 }

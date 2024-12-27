@@ -20,7 +20,8 @@ public class PositionTest extends BaseOpMode {
     enabled()
         .onTrue(
             sequence(
-                drivebase.alignToPose(new Pose2d(.2, 0, Rotation2d.k180deg)),
-                drivebase.alignToPose(new Pose2d(0, 0, Rotation2d.kZero))));
+                drivebase.setPosition(new Pose2d(.205, 0, Rotation2d.kZero)),
+                drivebase.alignToPose(new Pose2d(.8, 0, Rotation2d.k180deg)),
+                drivebase.alignToPose(new Pose2d(.205, 0, Rotation2d.kZero))));
   }
 }
