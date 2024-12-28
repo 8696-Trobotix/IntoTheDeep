@@ -9,7 +9,7 @@ import java.util.HashMap;
 import org.firstinspires.ftc.lib.wpilib.Timer;
 
 public class DashboardTelemetry {
-  private static final boolean ENABLED = true;
+  private static final boolean ENABLED = false;
 
   private static TelemetryThread instance;
 
