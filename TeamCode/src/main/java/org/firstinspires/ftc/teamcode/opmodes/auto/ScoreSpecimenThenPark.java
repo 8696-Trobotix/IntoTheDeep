@@ -29,6 +29,7 @@ public class ScoreSpecimenThenPark extends BaseOpMode {
     enabled()
         .onTrue(
             sequence(
+                drivebase.setSpeedMult(.25),
                 claw.close(),
                 slide.alignHighSpecimen(),
                 slide.scoreHighSpecimen(),

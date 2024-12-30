@@ -191,7 +191,7 @@ public class Drivebase extends SubsystemBase {
 
   private void robotRelativeDrive(ChassisSpeeds chassisSpeeds) {
     var speeds = kinematics.toWheelSpeeds(chassisSpeeds);
-    speeds.desaturate(topTranslationalSpeedMetersPerSec * (turbo ? 1 : slowMult));
+    speeds.desaturate(topTranslationalSpeedMetersPerSec * speedMult);
 
     frontLeft.setVoltage(
         frontLeftDriveController.calculate(
@@ -240,18 +240,13 @@ public class Drivebase extends SubsystemBase {
                         xInput.getAsDouble() * topTranslationalSpeedMetersPerSec,
                         yInput.getAsDouble() * topTranslationalSpeedMetersPerSec,
                         omegaInput.getAsDouble() * topAngularSpeedRadPerSec)
-                    .times(turbo ? 1 : slowMult)));
+                    .times(speedMult)));
   }
 
-  private boolean turbo = false;
-  private final double slowMult = .25;
+  private double speedMult = .5;
 
-  public Command enableTurbo() {
-    return Commands.runOnce(() -> turbo = true);
-  }
-
-  public Command disableTurbo() {
-    return Commands.runOnce(() -> turbo = false);
+  public Command setSpeedMult(double speedMult) {
+    return Commands.runOnce(() -> this.speedMult = speedMult);
   }
 
   public Command driveVel(ChassisSpeeds speeds) {
