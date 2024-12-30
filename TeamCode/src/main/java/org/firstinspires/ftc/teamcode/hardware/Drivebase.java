@@ -18,6 +18,7 @@ import org.firstinspires.ftc.lib.trobotix.kinematics.OdometryPodWheelPositions;
 import org.firstinspires.ftc.lib.trobotix.kinematics.OdometryPods;
 import org.firstinspires.ftc.lib.wpilib.commands.Command;
 import org.firstinspires.ftc.lib.wpilib.commands.Subsystem;
+import org.firstinspires.ftc.lib.wpilib.commands.Commands;
 import org.firstinspires.ftc.lib.wpilib.math.controller.PIDController;
 import org.firstinspires.ftc.lib.wpilib.math.filter.SlewRateLimiter;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Pose2d;
@@ -166,8 +167,7 @@ public class Drivebase implements Subsystem {
               FRONT_RIGHT_WHEEL_DIAMETER,
               BACK_LEFT_WHEEL_DIAMETER,
               BACK_RIGHT_WHEEL_DIAMETER)
-          * Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
-          / 2;
+          * Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM);
   private final double topAngularSpeedRadPerSec =
       topTranslationalSpeedMetersPerSec / Math.hypot(TRACK_LENGTH / 2, TRACK_WIDTH / 2);
 
@@ -190,9 +190,9 @@ public class Drivebase implements Subsystem {
     telemetry.addData("Drivebase/Odo Yaw", pose.getRotation().getDegrees());
   }
 
-  private void drive(ChassisSpeeds chassisSpeeds) {
+  private void robotRelativeDrive(ChassisSpeeds chassisSpeeds) {
     var speeds = kinematics.toWheelSpeeds(chassisSpeeds);
-    speeds.desaturate(topTranslationalSpeedMetersPerSec);
+    speeds.desaturate(topTranslationalSpeedMetersPerSec * (turbo ? 1 : slowMult));
 
     frontLeft.setVoltage(
         frontLeftDriveController.calculate(
@@ -207,41 +207,57 @@ public class Drivebase implements Subsystem {
             backRight.getVelocity(), speeds.rearRightMetersPerSecond));
   }
 
-  public Command alignToPose(Pose2d pose) {
-    return run(() ->
-            drive(
-                new ChassisSpeeds(
-                    xController.calculate(odometry.getPoseMeters().getX(), pose.getX()),
-                    yController.calculate(odometry.getPoseMeters().getY(), pose.getY()),
-                    yawController.calculate(
-                        odometry.getPoseMeters().getRotation().getRadians(),
-                        pose.getRotation().getRadians()))))
-        .until(
-            () ->
-                xController.atSetpoint() && yController.atSetpoint() && yawController.atSetpoint());
+  private void fieldRelativeDrive(ChassisSpeeds speeds) {
+    robotRelativeDrive(ChassisSpeeds.fromFieldRelativeSpeeds(speeds, gyro.getYaw()));
   }
 
-  private final double ZERO_TO_FULL_TIME = .125;
-  private final SlewRateLimiter xLimiter =
-      new SlewRateLimiter(topTranslationalSpeedMetersPerSec / ZERO_TO_FULL_TIME);
-  private final SlewRateLimiter yLimiter =
-      new SlewRateLimiter(topTranslationalSpeedMetersPerSec / ZERO_TO_FULL_TIME);
-  private final SlewRateLimiter steerLimiter =
-      new SlewRateLimiter(topAngularSpeedRadPerSec / ZERO_TO_FULL_TIME);
+  public Command alignToPose(Pose2d pose) {
+    return run(() -> {
+          fieldRelativeDrive(
+              new ChassisSpeeds(
+                  xController.calculate(odometry.getPoseMeters().getX(), pose.getX()),
+                  yController.calculate(odometry.getPoseMeters().getY(), pose.getY()),
+                  yawController.calculate(
+                      odometry.getPoseMeters().getRotation().getRadians(),
+                      pose.getRotation().getRadians())));
+          telemetry.addData("PID/X Error", pose.getX() - odometry.getPoseMeters().getX());
+          telemetry.addData("PID/Y Error", pose.getY() - odometry.getPoseMeters().getY());
+          telemetry.addData(
+              "PID/Yaw Error",
+              pose.getRotation().minus(odometry.getPoseMeters().getRotation()).getDegrees());
+        })
+        .until(
+            () ->
+                xController.atSetpoint() && yController.atSetpoint() && yawController.atSetpoint())
+        .finallyDo(() -> robotRelativeDrive(new ChassisSpeeds()));
+  }
 
   public Command teleopDrive(
       DoubleSupplier xInput, DoubleSupplier yInput, DoubleSupplier omegaInput) {
     return run(
         () ->
-            drive(
+            fieldRelativeDrive(
                 new ChassisSpeeds(
-                    xLimiter.calculate(xInput.getAsDouble() * topTranslationalSpeedMetersPerSec),
-                    yLimiter.calculate(yInput.getAsDouble() * topTranslationalSpeedMetersPerSec),
-                    steerLimiter.calculate(omegaInput.getAsDouble() * topAngularSpeedRadPerSec))));
+                        xInput.getAsDouble() * topTranslationalSpeedMetersPerSec,
+                        yInput.getAsDouble() * topTranslationalSpeedMetersPerSec,
+                        omegaInput.getAsDouble() * topAngularSpeedRadPerSec)
+                    .times(turbo ? 1 : slowMult)));
+  }
+
+  private boolean turbo = false;
+  private final double slowMult = .25;
+
+  public Command enableTurbo() {
+    return Commands.runOnce(() -> turbo = true);
+  }
+
+  public Command disableTurbo() {
+    return Commands.runOnce(() -> turbo = false);
   }
 
   public Command driveVel(ChassisSpeeds speeds) {
-    return run(() -> drive(speeds)).finallyDo(() -> drive(new ChassisSpeeds()));
+    return run(() -> robotRelativeDrive(speeds))
+        .finallyDo(() -> robotRelativeDrive(new ChassisSpeeds()));
   }
 
   public Command setPosition(Pose2d pose) {
