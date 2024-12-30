@@ -13,6 +13,7 @@ import org.firstinspires.ftc.lib.wpilib.commands.Command;
 import org.firstinspires.ftc.lib.wpilib.commands.CommandScheduler;
 import org.firstinspires.ftc.lib.wpilib.commands.Subsystem;
 import org.firstinspires.ftc.lib.wpilib.commands.button.Trigger;
+import org.firstinspires.ftc.lib.wpilib.math.filter.LinearFilter;
 
 /**
  * A base op mode that contains shared code. As all code defined in an op mode is in the init stage,
@@ -144,6 +145,8 @@ public abstract class BaseOpMode extends LinearOpMode {
       public double latestVelocity;
       private double lastTimestamp = -1;
 
+      private final LinearFilter velocityFilter = LinearFilter.movingAverage(3);
+
       @Override
       protected void update() {
         double lastPos = latestPosition;
@@ -152,7 +155,8 @@ public abstract class BaseOpMode extends LinearOpMode {
         if (lastTimestamp == -1) {
           latestVelocity = 0;
         } else {
-          latestVelocity = (latestPosition - lastPos) / (timestamp - lastTimestamp);
+          latestVelocity =
+              velocityFilter.calculate((latestPosition - lastPos) / (timestamp - lastTimestamp));
         }
 
         lastTimestamp = timestamp;
