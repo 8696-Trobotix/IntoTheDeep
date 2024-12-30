@@ -2,6 +2,7 @@ package org.firstinspires.ftc.lib.trobotix.hardware;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.hardware.ImuOrientationOnRobot;
 
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation2d;
@@ -13,9 +14,9 @@ import java.util.function.Supplier;
 public class Gyro {
   private final CachedAngles cache;
 
-  public Gyro(OpMode opMode, String name, IMU.Parameters parameters) {
+  public Gyro(OpMode opMode, String name, ImuOrientationOnRobot orientation) {
     var gyroInternal = opMode.hardwareMap.get(IMU.class, name);
-    gyroInternal.initialize(parameters);
+    gyroInternal.initialize(new IMU.Parameters(orientation));
 
     cache = new CachedAngles(gyroInternal::getRobotYawPitchRollAngles);
   }

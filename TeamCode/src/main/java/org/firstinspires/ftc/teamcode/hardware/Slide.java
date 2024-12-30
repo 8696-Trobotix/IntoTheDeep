@@ -23,8 +23,8 @@ public class Slide extends SubsystemBase {
 
   private final Telemetry telemetry;
 
-  private final double minPosMm = 378;
-  private final double maxPosMm = 1000;
+  private final double minPosMm = 240;
+  private final double maxPosMm = 862;
 
   public Slide(BaseOpMode opMode) {
     motor = new Motor(opMode, "linearSlide");
@@ -43,8 +43,8 @@ public class Slide extends SubsystemBase {
                     velocityFF.kS_bottom + velocityFF.kG_bottom,
                     velocityFF.kS_top + velocityFF.kG_top))
             / kV;
-    positionPID = new PIDController(5, 0, 0);
-    positionPID.setTolerance(5, 10);
+    positionPID = new PIDController(4, 0, 0);
+    positionPID.setTolerance(5, 1);
   }
 
   @Override
@@ -62,11 +62,17 @@ public class Slide extends SubsystemBase {
   }
 
   public Command goToPosition(double positionMm) {
-    return run(() -> runPosition(positionMm)).until(positionPID::atSetpoint);
+    return run(() -> runPosition(positionMm))
+        .until(positionPID::atSetpoint)
+        .finallyDo(() -> runVel(0));
+  }
+
+  public Command alignHighSpecimen() {
+    return goToPosition(750);
   }
 
   public Command scoreHighSpecimen() {
-    return goToPosition(750);
+    return goToPosition(600);
   }
 
   public Command retract() {

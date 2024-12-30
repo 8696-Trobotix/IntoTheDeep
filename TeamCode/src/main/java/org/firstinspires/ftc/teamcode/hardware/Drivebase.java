@@ -7,7 +7,6 @@ import static org.firstinspires.ftc.teamcode.Constants.Drivebase.*;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.IMU;
 import java.util.function.DoubleSupplier;
 import org.firstinspires.ftc.lib.trobotix.Utils;
 import org.firstinspires.ftc.lib.trobotix.controller.SimplePIDFController;
@@ -17,10 +16,9 @@ import org.firstinspires.ftc.lib.trobotix.hardware.RelativeEncoder;
 import org.firstinspires.ftc.lib.trobotix.kinematics.OdometryPodWheelPositions;
 import org.firstinspires.ftc.lib.trobotix.kinematics.OdometryPods;
 import org.firstinspires.ftc.lib.wpilib.commands.Command;
-import org.firstinspires.ftc.lib.wpilib.commands.Subsystem;
 import org.firstinspires.ftc.lib.wpilib.commands.Commands;
+import org.firstinspires.ftc.lib.wpilib.commands.SubsystemBase;
 import org.firstinspires.ftc.lib.wpilib.math.controller.PIDController;
-import org.firstinspires.ftc.lib.wpilib.math.filter.SlewRateLimiter;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Pose2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Transform2d;
@@ -29,7 +27,7 @@ import org.firstinspires.ftc.lib.wpilib.math.kinematics.MecanumDriveKinematics;
 import org.firstinspires.ftc.lib.wpilib.math.utils.Units;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-public class Drivebase implements Subsystem {
+public class Drivebase extends SubsystemBase {
   private final MecanumDriveKinematics kinematics;
   private final OdometryPods odometry;
   private final Gyro gyro;
@@ -125,12 +123,14 @@ public class Drivebase implements Subsystem {
                     * BACK_RIGHT_WHEEL_DIAMETER
                     / 2));
 
+    double ticksPerRotation = 8192;
+    double wheelCircumference = (35.0 / 1000) * Math.PI;
     encoders[0] =
-        new RelativeEncoder(opMode, "leftPod", false, 8192 / Units.inchesToMeters(Math.PI));
+        new RelativeEncoder(opMode, "leftPod", false, ticksPerRotation / wheelCircumference);
     encoders[1] =
-        new RelativeEncoder(opMode, "rightPod", false, 8192 / Units.inchesToMeters(Math.PI));
+        new RelativeEncoder(opMode, "rightPod", false, ticksPerRotation / wheelCircumference);
     encoders[2] =
-        new RelativeEncoder(opMode, "backPod", false, 8192 / Units.inchesToMeters(Math.PI));
+        new RelativeEncoder(opMode, "backPod", false, ticksPerRotation / wheelCircumference);
 
     // +X = forwards
     // +Y = left
@@ -144,18 +144,17 @@ public class Drivebase implements Subsystem {
         new Gyro(
             opMode,
             "IMU",
-            new IMU.Parameters(
-                new RevHubOrientationOnRobot(
-                    RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
-                    RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD)));
+            new RevHubOrientationOnRobot(
+                RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
+                RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
 
-    xController = new PIDController(5, 0, 0);
-    yController = new PIDController(5, 0, 0);
+    xController = new PIDController(10, 0, 0);
+    yController = new PIDController(10, 0, 0);
     yawController = new PIDController(5, 0, 0);
     yawController.enableContinuousInput(-Math.PI, Math.PI);
 
-    xController.setTolerance(.01, .01);
-    yController.setTolerance(.01, .01);
+    xController.setTolerance(.05, .05);
+    yController.setTolerance(.05, .05);
     yawController.setTolerance(Units.degreesToRadians(10), Units.degreesToRadians(10));
 
     this.telemetry = opMode.telemetry;
