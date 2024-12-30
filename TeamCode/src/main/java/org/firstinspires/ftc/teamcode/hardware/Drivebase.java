@@ -145,8 +145,8 @@ public class Drivebase extends SubsystemBase {
             opMode,
             "IMU",
             new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
-                RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
+                RevHubOrientationOnRobot.LogoFacingDirection.FORWARD,
+                RevHubOrientationOnRobot.UsbFacingDirection.UP));
 
     xController = new PIDController(10, 0, 0);
     yController = new PIDController(10, 0, 0);
