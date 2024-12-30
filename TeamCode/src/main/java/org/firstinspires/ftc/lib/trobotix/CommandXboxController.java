@@ -342,37 +342,45 @@ public class CommandXboxController {
   /**
    * Get the X axis value of left side of the controller.
    *
+   * <p>Unlike the SDK gamepad classes, left is positive.
+   *
    * @return The axis value.
    */
   public double getLeftX() {
-    return getGamepad().left_stick_x;
+    return -getGamepad().left_stick_x;
   }
 
   /**
    * Get the X axis value of right side of the controller.
    *
+   * <p>Unlike the SDK gamepad classes, left is positive.
+   *
    * @return The axis value.
    */
   public double getRightX() {
-    return getGamepad().right_stick_x;
+    return -getGamepad().right_stick_x;
   }
 
   /**
    * Get the Y axis value of left side of the controller.
    *
+   * <p>Unlike the SDK gamepad classes, up is positive.
+   *
    * @return The axis value.
    */
   public double getLeftY() {
-    return getGamepad().left_stick_y;
+    return -getGamepad().left_stick_y;
   }
 
   /**
    * Get the Y axis value of right side of the controller.
    *
+   * <p>Unlike the SDK gamepad classes, up is positive.
+   *
    * @return The axis value.
    */
   public double getRightY() {
-    return getGamepad().right_stick_y;
+    return -getGamepad().right_stick_y;
   }
 
   /**
