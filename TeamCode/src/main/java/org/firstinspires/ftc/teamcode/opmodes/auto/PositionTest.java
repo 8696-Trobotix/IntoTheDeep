@@ -6,11 +6,13 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 import static org.firstinspires.ftc.lib.wpilib.commands.Commands.sequence;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Pose2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation2d;
 import org.firstinspires.ftc.teamcode.hardware.Drivebase;
 
+@Disabled
 @Autonomous
 public class PositionTest extends BaseOpMode {
   @Override

@@ -22,7 +22,7 @@ public class TeleopDrive extends BaseOpMode {
             () -> primaryController().getLeftY(),
             () -> primaryController().getLeftX(),
             () -> primaryController().getRightX()));
-    primaryController().b().onTrue(drivebase.setSpeedMult(1)).onFalse(drivebase.setSpeedMult(.5));
+    primaryController().b().onTrue(drivebase.setSpeedMult(1)).onFalse(drivebase.setSpeedMult(.4));
 
     slide.setDefaultCommand(slide.teleopControl(() -> secondaryController().getLeftY()));
     secondaryController().y().onTrue(slide.alignHighSpecimen());

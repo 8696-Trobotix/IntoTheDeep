@@ -18,6 +18,7 @@ import org.firstinspires.ftc.lib.trobotix.kinematics.OdometryPods;
 import org.firstinspires.ftc.lib.wpilib.commands.Command;
 import org.firstinspires.ftc.lib.wpilib.commands.Commands;
 import org.firstinspires.ftc.lib.wpilib.commands.SubsystemBase;
+import org.firstinspires.ftc.lib.wpilib.math.MathUtil;
 import org.firstinspires.ftc.lib.wpilib.math.controller.PIDController;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Pose2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation2d;
@@ -145,7 +146,7 @@ public class Drivebase extends SubsystemBase {
             opMode,
             "IMU",
             new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.FORWARD,
+                RevHubOrientationOnRobot.LogoFacingDirection.BACKWARD,
                 RevHubOrientationOnRobot.UsbFacingDirection.UP));
 
     xController = new PIDController(10, 0, 0);
@@ -191,7 +192,7 @@ public class Drivebase extends SubsystemBase {
 
   private void robotRelativeDrive(ChassisSpeeds chassisSpeeds) {
     var speeds = kinematics.toWheelSpeeds(chassisSpeeds);
-    speeds.desaturate(topTranslationalSpeedMetersPerSec * speedMult);
+    speeds.desaturate(topTranslationalSpeedMetersPerSec);
 
     frontLeft.setVoltage(
         frontLeftDriveController.calculate(
@@ -214,11 +215,20 @@ public class Drivebase extends SubsystemBase {
     return run(() -> {
           fieldRelativeDrive(
               new ChassisSpeeds(
-                  xController.calculate(odometry.getPoseMeters().getX(), pose.getX()),
-                  yController.calculate(odometry.getPoseMeters().getY(), pose.getY()),
-                  yawController.calculate(
-                      odometry.getPoseMeters().getRotation().getRadians(),
-                      pose.getRotation().getRadians())));
+                  MathUtil.clamp(
+                      xController.calculate(odometry.getPoseMeters().getX(), pose.getX()),
+                      -topTranslationalSpeedMetersPerSec * speedMult,
+                      topTranslationalSpeedMetersPerSec * speedMult),
+                  MathUtil.clamp(
+                      yController.calculate(odometry.getPoseMeters().getY(), pose.getY()),
+                      -topTranslationalSpeedMetersPerSec * speedMult,
+                      topTranslationalSpeedMetersPerSec * speedMult),
+                  MathUtil.clamp(
+                      yawController.calculate(
+                          odometry.getPoseMeters().getRotation().getRadians(),
+                          pose.getRotation().getRadians()),
+                      -topTranslationalSpeedMetersPerSec * speedMult,
+                      topTranslationalSpeedMetersPerSec * speedMult)));
           telemetry.addData("PID/X Error", pose.getX() - odometry.getPoseMeters().getX());
           telemetry.addData("PID/Y Error", pose.getY() - odometry.getPoseMeters().getY());
           telemetry.addData(
@@ -237,13 +247,12 @@ public class Drivebase extends SubsystemBase {
         () ->
             fieldRelativeDrive(
                 new ChassisSpeeds(
-                        xInput.getAsDouble() * topTranslationalSpeedMetersPerSec,
-                        yInput.getAsDouble() * topTranslationalSpeedMetersPerSec,
-                        omegaInput.getAsDouble() * topAngularSpeedRadPerSec)
-                    .times(speedMult)));
+                    xInput.getAsDouble() * topTranslationalSpeedMetersPerSec * speedMult,
+                    yInput.getAsDouble() * topTranslationalSpeedMetersPerSec * speedMult,
+                    omegaInput.getAsDouble() * topAngularSpeedRadPerSec * speedMult)));
   }
 
-  private double speedMult = .5;
+  private double speedMult = .4;
 
   public Command setSpeedMult(double speedMult) {
     return Commands.runOnce(() -> this.speedMult = speedMult);

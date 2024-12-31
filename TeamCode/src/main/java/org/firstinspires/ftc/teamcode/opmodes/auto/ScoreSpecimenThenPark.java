@@ -23,13 +23,13 @@ public class ScoreSpecimenThenPark extends BaseOpMode {
     //    enabled()
     //        .onTrue(
     //            sequence(
+    //                drivebase.setSpeedMult(.25),
     //                drivebase.alignToPose(new Pose2d(.72, 0, Rotation2d.kZero)),
     //                drivebase.alignToPose(new Pose2d(.675, 0, Rotation2d.kZero)),
     //                drivebase.alignToPose(new Pose2d(.1, -1.2, Rotation2d.kZero))));
     enabled()
         .onTrue(
             sequence(
-                drivebase.setSpeedMult(.25),
                 claw.close(),
                 slide.alignHighSpecimen(),
                 slide.scoreHighSpecimen(),
