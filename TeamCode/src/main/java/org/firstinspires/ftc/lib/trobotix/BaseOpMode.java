@@ -22,7 +22,7 @@ import org.firstinspires.ftc.lib.wpilib.math.filter.LinearFilter;
  */
 @Photon
 public abstract class BaseOpMode extends LinearOpMode {
-  private final Trigger enableTrigger = new Trigger(this::opModeIsActive);
+  private Trigger enableTrigger;
   private double dt = .01;
   private double busVoltage;
 
@@ -30,15 +30,22 @@ public abstract class BaseOpMode extends LinearOpMode {
 
   @Override
   public final void runOpMode() {
+    // Pre-user code initialization
     final var lynxModules = hardwareMap.getAll(LynxModule.class);
     for (var module : lynxModules) {
       module.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
     }
     final var busVoltageSensor = hardwareMap.getAll(LynxVoltageSensor.class).iterator().next();
     busVoltage = busVoltageSensor.getVoltage();
+    CommandScheduler.initScheduler();
+    enableTrigger = new Trigger(this::opModeIsActive);
+    primaryController = new CommandXboxController(this, true);
+    secondaryController = new CommandXboxController(this, false);
+    // User code init
     startup();
     waitForStart();
     double lastTime = Utils.getTimeSeconds();
+    // Main loop
     while (opModeIsActive()) {
       double currentTime = Utils.getTimeSeconds();
       for (var module : lynxModules) {
@@ -56,8 +63,15 @@ public abstract class BaseOpMode extends LinearOpMode {
       telemetry.update();
       lastTime = currentTime;
     }
-    CommandScheduler.getInstance().cancelAll();
+    // Exit loop, cleanup
     CommandScheduler.getInstance().unregisterAllSubsystems();
+    CommandScheduler.getInstance().clearComposedCommands();
+    CommandScheduler.getInstance().cancelAll();
+    CommandScheduler.getInstance().run();
+    CommandScheduler.clearScheduler();
+    enableTrigger = null;
+    primaryController = null;
+    secondaryController = null;
     cachedValues.clear();
   }
 
@@ -89,8 +103,8 @@ public abstract class BaseOpMode extends LinearOpMode {
     return () -> busVoltage;
   }
 
-  private final CommandXboxController primaryController = new CommandXboxController(this, true);
-  private final CommandXboxController secondaryController = new CommandXboxController(this, false);
+  private CommandXboxController primaryController;
+  private CommandXboxController secondaryController;
 
   /**
    * A {@link CommandXboxController} that wraps gamepad1 to add extra functionality.

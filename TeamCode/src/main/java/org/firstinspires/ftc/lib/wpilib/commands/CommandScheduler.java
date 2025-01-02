@@ -36,15 +36,20 @@ public final class CommandScheduler {
   /** The Singleton Instance. */
   private static CommandScheduler instance;
 
+  public static void initScheduler() {
+    instance = new CommandScheduler();
+  }
+
+  public static void clearScheduler() {
+    instance = null;
+  }
+
   /**
    * Returns the Scheduler instance.
    *
    * @return the instance
    */
-  public static synchronized CommandScheduler getInstance() {
-    if (instance == null) {
-      instance = new CommandScheduler();
-    }
+  public static CommandScheduler getInstance() {
     return instance;
   }
 
