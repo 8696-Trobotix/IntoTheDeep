@@ -40,31 +40,4 @@ public class Utils {
     }
     return max;
   }
-
-  public static final double FIELD_SIZE = Units.feetToMeters(12);
-
-  public static Pose2d flipAllianceOnRed(Pose2d pose) {
-    if (IS_ON_RED) {
-      return new Pose2d(
-          flipAllianceOnRed(pose.getTranslation()), flipAllianceOnRed(pose.getRotation()));
-    } else {
-      return pose;
-    }
-  }
-
-  public static Translation2d flipAllianceOnRed(Translation2d translation) {
-    if (IS_ON_RED) {
-      return new Translation2d(FIELD_SIZE - translation.getX(), FIELD_SIZE - translation.getY());
-    } else {
-      return translation;
-    }
-  }
-
-  public static Rotation2d flipAllianceOnRed(Rotation2d rotation) {
-    if (IS_ON_RED) {
-      return rotation.plus(Rotation2d.fromDegrees(180));
-    } else {
-      return rotation;
-    }
-  }
 }
