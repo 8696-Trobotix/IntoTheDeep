@@ -3,11 +3,13 @@
 
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
+import static org.firstinspires.ftc.lib.wpilib.commands.Commands.parallel;
 import static org.firstinspires.ftc.lib.wpilib.commands.Commands.sequence;
-import static org.firstinspires.ftc.lib.wpilib.commands.Commands.waitSeconds;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
+import org.firstinspires.ftc.lib.wpilib.math.geometry.Pose2d;
+import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation2d;
 import org.firstinspires.ftc.teamcode.hardware.Claw;
 import org.firstinspires.ftc.teamcode.hardware.Drivebase;
 import org.firstinspires.ftc.teamcode.hardware.Slide;
@@ -20,21 +22,26 @@ public class ScoreSpecimenThenPark extends BaseOpMode {
     var slide = new Slide(this);
     var claw = new Claw(this);
 
-    //    enabled()
-    //        .onTrue(
-    //            sequence(
-    //                drivebase.setSpeedMult(.25),
-    //                drivebase.alignToPose(new Pose2d(.72, 0, Rotation2d.kZero)),
-    //                drivebase.alignToPose(new Pose2d(.675, 0, Rotation2d.kZero)),
-    //                drivebase.alignToPose(new Pose2d(.1, -1.2, Rotation2d.kZero))));
     enabled()
         .onTrue(
             sequence(
+                drivebase.setSpeedMult(.2),
                 claw.close(),
-                slide.alignHighSpecimen(),
+                parallel(
+                    drivebase.alignToPose(new Pose2d(.775, 0.2, Rotation2d.kZero)),
+                    slide.alignHighSpecimen()),
                 slide.scoreHighSpecimen(),
-                waitSeconds(.5),
                 claw.open(),
+                drivebase.alignToPose(new Pose2d(.6, 0.2, Rotation2d.kZero)),
                 slide.retract()));
+    //    enabled()
+    //        .onTrue(
+    //            sequence(
+    //                claw.close(),
+    //                slide.alignHighSpecimen(),
+    //                slide.scoreHighSpecimen(),
+    //                waitSeconds(.5),
+    //                claw.open(),
+    //                slide.retract()));
   }
 }

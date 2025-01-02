@@ -43,7 +43,7 @@ public class Slide extends SubsystemBase {
                     velocityFF.kS_bottom + velocityFF.kG_bottom,
                     velocityFF.kS_top + velocityFF.kG_top))
             / kV;
-    positionPID = new PIDController(4, 0, 0);
+    positionPID = new PIDController(3, 0, 0);
     positionPID.setTolerance(5, 1);
   }
 
@@ -62,9 +62,11 @@ public class Slide extends SubsystemBase {
   }
 
   public Command goToPosition(double positionMm) {
-    return run(() -> runPosition(positionMm))
-        .until(positionPID::atSetpoint)
-        .finallyDo(() -> runVel(0));
+    return runOnce(positionPID::reset)
+        .andThen(
+            run(() -> runPosition(positionMm))
+                .until(positionPID::atSetpoint)
+                .finallyDo(() -> runVel(0)));
   }
 
   public Command alignHighSpecimen() {
@@ -72,7 +74,7 @@ public class Slide extends SubsystemBase {
   }
 
   public Command scoreHighSpecimen() {
-    return goToPosition(600);
+    return goToPosition(540);
   }
 
   public Command retract() {
@@ -98,6 +100,7 @@ public class Slide extends SubsystemBase {
   }
 
   private void runPosition(double targetPosition) {
+    telemetry.addData("Slide/Target pos", targetPosition);
     runVel(positionPID.calculate(motor.getPosition(), targetPosition));
   }
 

@@ -9,7 +9,6 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import java.util.function.DoubleSupplier;
 import org.firstinspires.ftc.lib.trobotix.Utils;
-import org.firstinspires.ftc.lib.trobotix.controller.SimplePIDFController;
 import org.firstinspires.ftc.lib.trobotix.hardware.Gyro;
 import org.firstinspires.ftc.lib.trobotix.hardware.Motor;
 import org.firstinspires.ftc.lib.trobotix.hardware.RelativeEncoder;
@@ -20,6 +19,7 @@ import org.firstinspires.ftc.lib.wpilib.commands.Commands;
 import org.firstinspires.ftc.lib.wpilib.commands.SubsystemBase;
 import org.firstinspires.ftc.lib.wpilib.math.MathUtil;
 import org.firstinspires.ftc.lib.wpilib.math.controller.PIDController;
+import org.firstinspires.ftc.lib.wpilib.math.controller.SimpleMotorFeedforward;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Pose2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Transform2d;
@@ -38,10 +38,10 @@ public class Drivebase extends SubsystemBase {
   private final Motor backLeft;
   private final Motor backRight;
 
-  private final SimplePIDFController frontLeftDriveController;
-  private final SimplePIDFController frontRightDriveController;
-  private final SimplePIDFController backLeftDriveController;
-  private final SimplePIDFController backRightDriveController;
+  private final SimpleMotorFeedforward frontLeftDriveController;
+  private final SimpleMotorFeedforward frontRightDriveController;
+  private final SimpleMotorFeedforward backLeftDriveController;
+  private final SimpleMotorFeedforward backRightDriveController;
 
   private final RelativeEncoder[] encoders = new RelativeEncoder[3];
 
@@ -84,41 +84,29 @@ public class Drivebase extends SubsystemBase {
         DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION / (BACK_RIGHT_WHEEL_DIAMETER * Math.PI));
 
     frontLeftDriveController =
-        new SimplePIDFController(
-            0
-                / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
-                    * FRONT_LEFT_WHEEL_DIAMETER
-                    / 2),
+        new SimpleMotorFeedforward(
+            .85,
             12
                 / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
                     * FRONT_LEFT_WHEEL_DIAMETER
                     / 2));
     frontRightDriveController =
-        new SimplePIDFController(
-            0
-                / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
-                    * FRONT_RIGHT_WHEEL_DIAMETER
-                    / 2),
+        new SimpleMotorFeedforward(
+            .85,
             12
                 / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
                     * FRONT_RIGHT_WHEEL_DIAMETER
                     / 2));
     backLeftDriveController =
-        new SimplePIDFController(
-            0
-                / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
-                    * BACK_LEFT_WHEEL_DIAMETER
-                    / 2),
+        new SimpleMotorFeedforward(
+            .85,
             12
                 / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
                     * BACK_LEFT_WHEEL_DIAMETER
                     / 2));
     backRightDriveController =
-        new SimplePIDFController(
-            0
-                / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
-                    * BACK_RIGHT_WHEEL_DIAMETER
-                    / 2),
+        new SimpleMotorFeedforward(
+            .85,
             12
                 / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
                     * BACK_RIGHT_WHEEL_DIAMETER
@@ -149,9 +137,9 @@ public class Drivebase extends SubsystemBase {
                 RevHubOrientationOnRobot.LogoFacingDirection.BACKWARD,
                 RevHubOrientationOnRobot.UsbFacingDirection.UP));
 
-    xController = new PIDController(10, 0, 0);
-    yController = new PIDController(10, 0, 0);
-    yawController = new PIDController(5, 0, 0);
+    xController = new PIDController(3, 0, 0);
+    yController = new PIDController(3, 0, 0);
+    yawController = new PIDController(1, 0, 0);
     yawController.enableContinuousInput(-Math.PI, Math.PI);
 
     xController.setTolerance(.05, .05);
@@ -167,7 +155,8 @@ public class Drivebase extends SubsystemBase {
               FRONT_RIGHT_WHEEL_DIAMETER,
               BACK_LEFT_WHEEL_DIAMETER,
               BACK_RIGHT_WHEEL_DIAMETER)
-          * Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM);
+          * Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
+          * ((12.0 - .85) / 12.0);
   private final double topAngularSpeedRadPerSec =
       topTranslationalSpeedMetersPerSec / Math.hypot(TRACK_LENGTH / 2, TRACK_WIDTH / 2);
 
@@ -194,17 +183,10 @@ public class Drivebase extends SubsystemBase {
     var speeds = kinematics.toWheelSpeeds(chassisSpeeds);
     speeds.desaturate(topTranslationalSpeedMetersPerSec);
 
-    frontLeft.setVoltage(
-        frontLeftDriveController.calculate(
-            frontLeft.getVelocity(), speeds.frontLeftMetersPerSecond));
-    frontRight.setVoltage(
-        frontRightDriveController.calculate(
-            frontRight.getVelocity(), speeds.frontRightMetersPerSecond));
-    backLeft.setVoltage(
-        backLeftDriveController.calculate(backLeft.getVelocity(), speeds.rearLeftMetersPerSecond));
-    backRight.setVoltage(
-        backRightDriveController.calculate(
-            backRight.getVelocity(), speeds.rearRightMetersPerSecond));
+    frontLeft.setVoltage(frontLeftDriveController.calculate(speeds.frontLeftMetersPerSecond));
+    frontRight.setVoltage(frontRightDriveController.calculate(speeds.frontRightMetersPerSecond));
+    backLeft.setVoltage(backLeftDriveController.calculate(speeds.rearLeftMetersPerSecond));
+    backRight.setVoltage(backRightDriveController.calculate(speeds.rearRightMetersPerSecond));
   }
 
   private void fieldRelativeDrive(ChassisSpeeds speeds) {
@@ -252,6 +234,16 @@ public class Drivebase extends SubsystemBase {
                     omegaInput.getAsDouble() * topAngularSpeedRadPerSec * speedMult)));
   }
 
+  public Command alignHumanPlayer(DoubleSupplier xInput, DoubleSupplier yInput) {
+    return teleopDrive(
+        xInput, yInput, () -> yawController.calculate(gyro.getYaw().getRadians(), Math.PI));
+  }
+
+  public Command alignSpecimen(DoubleSupplier xInput, DoubleSupplier yInput) {
+    return teleopDrive(
+        xInput, yInput, () -> yawController.calculate(gyro.getYaw().getRadians(), 0));
+  }
+
   private double speedMult = .4;
 
   public Command setSpeedMult(double speedMult) {
@@ -273,5 +265,16 @@ public class Drivebase extends SubsystemBase {
                     encoders[1].getPosition(),
                     encoders[2].getPosition()),
                 pose));
+  }
+
+  public Command runVoltage(DoubleSupplier voltageSupplier) {
+    return run(
+        () -> {
+          var voltage = voltageSupplier.getAsDouble();
+          frontLeft.setVoltage(voltage);
+          frontRight.setVoltage(voltage);
+          backLeft.setVoltage(voltage);
+          backRight.setVoltage(voltage);
+        });
   }
 }

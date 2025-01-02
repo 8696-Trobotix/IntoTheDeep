@@ -98,7 +98,7 @@ public class Motor {
     this.currentLimitAmps = currentLimitAmps;
   }
 
-  private final LinearFilter currentFilter = LinearFilter.movingAverage(3);
+  private final LinearFilter currentFilter = LinearFilter.movingAverage(5);
 
   /**
    * Sets the duty cycle of the motor.
@@ -107,8 +107,11 @@ public class Motor {
    */
   public void set(double dutyCycle) {
     dutyCycle = MathUtil.clamp(dutyCycle, -1, 1);
-    if (currentLimitAmps > 0 && currentFilter.calculate(getCurrentDraw()) > currentLimitAmps) {
-      dutyCycle *= currentLimitAmps / currentFilter.lastValue();
+    if (currentLimitAmps > 0) {
+      var currentDraw = currentFilter.calculate(getCurrentDraw());
+      if (currentDraw > currentLimitAmps) {
+        dutyCycle *= currentLimitAmps / currentDraw;
+      }
     }
     if (inverted) {
       dutyCycle *= -1;
