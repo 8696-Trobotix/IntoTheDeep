@@ -35,7 +35,6 @@ public class ScoreSpecimenThenPark extends BaseOpMode {
                 slide.scoreHighSpecimen(),
                 waitSeconds(.5),
                 claw.open(),
-                waitSeconds(.5),
                 slide.retract()));
   }
 }

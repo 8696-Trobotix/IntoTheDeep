@@ -3,6 +3,8 @@
 
 package org.firstinspires.ftc.teamcode.hardware;
 
+import static org.firstinspires.ftc.lib.wpilib.commands.Commands.waitSeconds;
+
 import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
 import org.firstinspires.ftc.lib.wpilib.commands.Command;
@@ -19,17 +21,19 @@ public class Claw extends SubsystemBase {
 
   public Command open() {
     return runOnce(
-        () -> {
-          left.setPosition(.2);
-          right.setPosition(0.8);
-        });
+            () -> {
+              left.setPosition(.2);
+              right.setPosition(0.8);
+            })
+        .andThen(waitSeconds(.5));
   }
 
   public Command close() {
     return runOnce(
-        () -> {
-          left.setPosition(0);
-          right.setPosition(1);
-        });
+            () -> {
+              left.setPosition(0);
+              right.setPosition(1);
+            })
+        .andThen(waitSeconds(.5));
   }
 }
