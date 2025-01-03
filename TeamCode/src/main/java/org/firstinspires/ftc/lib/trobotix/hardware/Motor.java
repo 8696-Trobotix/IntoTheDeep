@@ -65,19 +65,20 @@ public class Motor {
         brake ? DcMotor.ZeroPowerBehavior.BRAKE : DcMotor.ZeroPowerBehavior.FLOAT);
   }
 
-  //  /**
-  //   * Sets the tolerance for which setting new power values is ignored.
-  //   *
-  //   * <p>It's a waste of processor time to tell the motor to move at .9 power and immediately
-  // tell it
-  //   * to move at .901 power, so we use the cache tolerance to ignore the latter command. Default
-  //   * value is 0.001. (.1% duty cycle)
-  //   *
-  //   * @param tolerance The new power tolerance.
-  //   */
-  //  public void setTolerance(double tolerance) {
-  //    motorInternal.setCacheTolerance(tolerance);
-  //  }
+  private double dutyCycleTolerance = .001;
+
+  /**
+   * Sets the tolerance for which setting new power values is ignored.
+   *
+   * <p>It's a waste of time to tell the motor to move at .9 power and immediately tell it to move
+   * at .901 power, so we use the cache tolerance to ignore the latter command. Default value is
+   * 0.001. (.1% duty cycle)
+   *
+   * @param dutyCycleTolerance The new power tolerance.
+   */
+  public void setTolerance(double dutyCycleTolerance) {
+    this.dutyCycleTolerance = dutyCycleTolerance;
+  }
 
   private double currentLimitAmps = -1;
   private double ticksPerRad;
@@ -101,6 +102,8 @@ public class Motor {
     this.ticksPerRad = ticksPerRad;
     this.motorModel = motorModel;
   }
+
+  private double lastDutyCycle = 0;
 
   /**
    * Set the voltage of the motor.
@@ -141,7 +144,11 @@ public class Motor {
     if (inverted) {
       dutyCycle *= -1;
     }
+    if (MathUtil.isNear(lastDutyCycle, dutyCycle, dutyCycleTolerance)) {
+      return;
+    }
     motorInternal.setPower(dutyCycle);
+    lastDutyCycle = dutyCycle;
   }
 
   /**
