@@ -11,6 +11,7 @@ import org.firstinspires.ftc.lib.wpilib.commands.Command;
 import org.firstinspires.ftc.lib.wpilib.commands.SubsystemBase;
 import org.firstinspires.ftc.lib.wpilib.math.MathUtil;
 import org.firstinspires.ftc.lib.wpilib.math.controller.PIDController;
+import org.firstinspires.ftc.lib.wpilib.math.system.plant.DCMotor;
 import org.firstinspires.ftc.lib.wpilib.math.utils.Units;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -30,10 +31,13 @@ public class Slide extends SubsystemBase {
     motor = new Motor(opMode, "linearSlide");
     telemetry = opMode.telemetry;
 
+    double ticksPerRad = 537.689839572 / (2 * Math.PI);
     double pulleyDiameterMm = Units.inchesToMeters(1.5) * 1000;
-    motor.setConversionFactor(537.689839572 / (pulleyDiameterMm * Math.PI));
+    motor.setConversionFactor(ticksPerRad / (pulleyDiameterMm / 2));
     motor.setInverted(false);
     motor.setPosition(minPosMm);
+
+    motor.setCurrentLimit(2, ticksPerRad, DCMotor.getGoBILDA5203_0019(1));
 
     var kV = 12 / (Units.rotationsPerMinuteToRadiansPerSecond(312) * (pulleyDiameterMm / 2));
     velocityFF = new ViperSlideFeedforward(minPosMm, maxPosMm, .765, .335, .625, 1.175, kV);
@@ -96,7 +100,7 @@ public class Slide extends SubsystemBase {
 
     var voltage = velocityFF.calculate(motor.getPosition(), targetVel);
     telemetry.addData("Slide/Voltage", voltage);
-    motor.setVoltage(voltage);
+    motor.set(voltage);
   }
 
   private void runPosition(double targetPosition) {
@@ -105,6 +109,6 @@ public class Slide extends SubsystemBase {
   }
 
   public Command runVoltage(DoubleSupplier voltageSupplier) {
-    return run(() -> motor.setVoltage(voltageSupplier.getAsDouble()));
+    return run(() -> motor.set(voltageSupplier.getAsDouble()));
   }
 }

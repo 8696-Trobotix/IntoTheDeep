@@ -3,12 +3,9 @@
 
 package org.firstinspires.ftc.teamcode.hardware;
 
-import static org.firstinspires.ftc.teamcode.Constants.Drivebase.*;
-
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import java.util.function.DoubleSupplier;
-import org.firstinspires.ftc.lib.trobotix.Utils;
+import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
 import org.firstinspires.ftc.lib.trobotix.hardware.Gyro;
 import org.firstinspires.ftc.lib.trobotix.hardware.Motor;
 import org.firstinspires.ftc.lib.trobotix.hardware.RelativeEncoder;
@@ -23,8 +20,10 @@ import org.firstinspires.ftc.lib.wpilib.math.controller.SimpleMotorFeedforward;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Pose2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Transform2d;
+import org.firstinspires.ftc.lib.wpilib.math.geometry.Translation2d;
 import org.firstinspires.ftc.lib.wpilib.math.kinematics.ChassisSpeeds;
 import org.firstinspires.ftc.lib.wpilib.math.kinematics.MecanumDriveKinematics;
+import org.firstinspires.ftc.lib.wpilib.math.system.plant.DCMotor;
 import org.firstinspires.ftc.lib.wpilib.math.utils.Units;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -38,10 +37,7 @@ public class Drivebase extends SubsystemBase {
   private final Motor backLeft;
   private final Motor backRight;
 
-  private final SimpleMotorFeedforward frontLeftDriveController;
-  private final SimpleMotorFeedforward frontRightDriveController;
-  private final SimpleMotorFeedforward backLeftDriveController;
-  private final SimpleMotorFeedforward backRightDriveController;
+  private final SimpleMotorFeedforward driveController;
 
   private final RelativeEncoder[] encoders = new RelativeEncoder[3];
 
@@ -51,10 +47,15 @@ public class Drivebase extends SubsystemBase {
 
   private final Telemetry telemetry;
 
-  public Drivebase(OpMode opMode) {
+  public Drivebase(BaseOpMode opMode) {
+    double trackLength = Units.inchesToMeters(18);
+    double trackWidth = Units.inchesToMeters(18);
     kinematics =
         new MecanumDriveKinematics(
-            WHEEL_POSITIONS[0], WHEEL_POSITIONS[1], WHEEL_POSITIONS[2], WHEEL_POSITIONS[3]);
+            new Translation2d(trackLength / 2, trackWidth / 2),
+            new Translation2d(trackLength / 2, -trackWidth / 2),
+            new Translation2d(-trackLength / 2, trackWidth / 2),
+            new Translation2d(-trackLength / 2, -trackWidth / 2));
 
     frontLeft = new Motor(opMode, "frontLeft"); // 1
     frontRight = new Motor(opMode, "frontRight"); // 3
@@ -71,55 +72,38 @@ public class Drivebase extends SubsystemBase {
     backLeft.setIdleBrake(true);
     backRight.setIdleBrake(true);
 
+    double driveWheelDiameter = 104.0 / 1000.0;
+    double driveMotorTicksPerRad = 537.689839572 / (2 * Math.PI);
+
     // Convert from encoder ticks to meters
-    // Distance per rotation (meters) / encoder ticks per rotation
-    // The above has to be flipped over since it's a divide not a multiply for conversion factor
-    frontLeft.setConversionFactor(
-        DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION / (FRONT_LEFT_WHEEL_DIAMETER * Math.PI));
-    frontRight.setConversionFactor(
-        DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION / (FRONT_RIGHT_WHEEL_DIAMETER * Math.PI));
-    backLeft.setConversionFactor(
-        DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION / (BACK_LEFT_WHEEL_DIAMETER * Math.PI));
-    backRight.setConversionFactor(
-        DRIVE_MOTOR_ENCODER_TICKS_PER_ROTATION / (BACK_RIGHT_WHEEL_DIAMETER * Math.PI));
+    frontLeft.setConversionFactor(driveMotorTicksPerRad / (driveWheelDiameter / 2));
+    frontRight.setConversionFactor(driveMotorTicksPerRad / (driveWheelDiameter / 2));
+    backLeft.setConversionFactor(driveMotorTicksPerRad / (driveWheelDiameter / 2));
+    backRight.setConversionFactor(driveMotorTicksPerRad / (driveWheelDiameter / 2));
 
-    frontLeftDriveController =
-        new SimpleMotorFeedforward(
-            .85,
-            12
-                / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
-                    * FRONT_LEFT_WHEEL_DIAMETER
-                    / 2));
-    frontRightDriveController =
-        new SimpleMotorFeedforward(
-            .85,
-            12
-                / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
-                    * FRONT_RIGHT_WHEEL_DIAMETER
-                    / 2));
-    backLeftDriveController =
-        new SimpleMotorFeedforward(
-            .85,
-            12
-                / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
-                    * BACK_LEFT_WHEEL_DIAMETER
-                    / 2));
-    backRightDriveController =
-        new SimpleMotorFeedforward(
-            .85,
-            12
-                / (Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
-                    * BACK_RIGHT_WHEEL_DIAMETER
-                    / 2));
+    var driveMotor = DCMotor.getGoBILDA5203_0019(1);
 
-    double ticksPerRotation = 8192;
-    double wheelCircumference = (35.0 / 1000) * Math.PI;
+    frontLeft.setCurrentLimit(2, driveMotorTicksPerRad, driveMotor);
+    frontRight.setCurrentLimit(2, driveMotorTicksPerRad, driveMotor);
+    backLeft.setCurrentLimit(2, driveMotorTicksPerRad, driveMotor);
+    backRight.setCurrentLimit(2, driveMotorTicksPerRad, driveMotor);
+
+    double kV_VoltsPerMeterPerSec =
+        1.0 / (driveMotor.KvRadPerSecPerVolt * (driveWheelDiameter / 2));
+    driveController = new SimpleMotorFeedforward(.85, kV_VoltsPerMeterPerSec);
+    topTranslationalSpeedMetersPerSec =
+        (driveWheelDiameter / 2) * driveMotor.getSpeed(0, (12.0 - driveController.ks) / 12.0);
+    topAngularSpeedRadPerSec =
+        topTranslationalSpeedMetersPerSec / Math.hypot(trackWidth / 2, trackLength / 2);
+
+    double podTicksPerRotation = 8192;
+    double podWheelCircumference = (35.0 / 1000) * Math.PI;
     encoders[0] =
-        new RelativeEncoder(opMode, "leftPod", false, ticksPerRotation / wheelCircumference);
+        new RelativeEncoder(opMode, "leftPod", false, podTicksPerRotation / podWheelCircumference);
     encoders[1] =
-        new RelativeEncoder(opMode, "rightPod", false, ticksPerRotation / wheelCircumference);
+        new RelativeEncoder(opMode, "rightPod", false, podTicksPerRotation / podWheelCircumference);
     encoders[2] =
-        new RelativeEncoder(opMode, "backPod", false, ticksPerRotation / wheelCircumference);
+        new RelativeEncoder(opMode, "backPod", false, podTicksPerRotation / podWheelCircumference);
 
     // +X = forwards
     // +Y = left
@@ -149,16 +133,8 @@ public class Drivebase extends SubsystemBase {
     this.telemetry = opMode.telemetry;
   }
 
-  private final double topTranslationalSpeedMetersPerSec =
-      Utils.minimum(
-              FRONT_LEFT_WHEEL_DIAMETER,
-              FRONT_RIGHT_WHEEL_DIAMETER,
-              BACK_LEFT_WHEEL_DIAMETER,
-              BACK_RIGHT_WHEEL_DIAMETER)
-          * Units.rotationsPerMinuteToRadiansPerSecond(DRIVE_MOTOR_MAX_RPM)
-          * ((12.0 - .85) / 12.0);
-  private final double topAngularSpeedRadPerSec =
-      topTranslationalSpeedMetersPerSec / Math.hypot(TRACK_LENGTH / 2, TRACK_WIDTH / 2);
+  private final double topTranslationalSpeedMetersPerSec;
+  private final double topAngularSpeedRadPerSec;
 
   @Override
   public void periodic() {
@@ -183,10 +159,10 @@ public class Drivebase extends SubsystemBase {
     var speeds = kinematics.toWheelSpeeds(chassisSpeeds);
     speeds.desaturate(topTranslationalSpeedMetersPerSec);
 
-    frontLeft.setVoltage(frontLeftDriveController.calculate(speeds.frontLeftMetersPerSecond));
-    frontRight.setVoltage(frontRightDriveController.calculate(speeds.frontRightMetersPerSecond));
-    backLeft.setVoltage(backLeftDriveController.calculate(speeds.rearLeftMetersPerSecond));
-    backRight.setVoltage(backRightDriveController.calculate(speeds.rearRightMetersPerSecond));
+    frontLeft.set(driveController.calculate(speeds.frontLeftMetersPerSecond));
+    frontRight.set(driveController.calculate(speeds.frontRightMetersPerSecond));
+    backLeft.set(driveController.calculate(speeds.rearLeftMetersPerSecond));
+    backRight.set(driveController.calculate(speeds.rearRightMetersPerSecond));
   }
 
   private void fieldRelativeDrive(ChassisSpeeds speeds) {
@@ -271,10 +247,10 @@ public class Drivebase extends SubsystemBase {
     return run(
         () -> {
           var voltage = voltageSupplier.getAsDouble();
-          frontLeft.setVoltage(voltage);
-          frontRight.setVoltage(voltage);
-          backLeft.setVoltage(voltage);
-          backRight.setVoltage(voltage);
+          frontLeft.set(voltage);
+          frontRight.set(voltage);
+          backLeft.set(voltage);
+          backRight.set(voltage);
         });
   }
 }

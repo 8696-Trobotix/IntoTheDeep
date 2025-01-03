@@ -58,12 +58,12 @@ public abstract class BaseOpMode extends LinearOpMode {
       dt = currentTime - lastTime;
       busVoltage = busVoltageSensor.getVoltage();
       CommandScheduler.getInstance().run();
-      DashboardTelemetry.addTiming("Main", dt);
       telemetry.addData("Main loop freq", 1.0 / dt);
       telemetry.update();
       lastTime = currentTime;
     }
-    // Exit loop, cleanup
+    // Exit loop, manual cleanup because I can't trust the SDK/Java to handle object cleanup
+    // correctly
     CommandScheduler.getInstance().unregisterAllSubsystems();
     CommandScheduler.getInstance().clearComposedCommands();
     CommandScheduler.getInstance().cancelAll();

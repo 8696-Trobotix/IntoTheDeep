@@ -1,15 +1,16 @@
+// Copyright (c) 2024-2025 FTC 8696
+// All rights reserved.
+
 package org.firstinspires.ftc.lib.trobotix.hardware;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.ImuOrientationOnRobot;
-
+import java.util.function.Supplier;
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation2d;
 import org.firstinspires.ftc.lib.wpilib.math.utils.Units;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
-
-import java.util.function.Supplier;
 
 public class Gyro {
   private final CachedAngles cache;
@@ -39,6 +40,7 @@ public class Gyro {
     double rollRad;
 
     final Supplier<YawPitchRollAngles> supplier;
+
     CachedAngles(Supplier<YawPitchRollAngles> supplier) {
       this.supplier = supplier;
     }

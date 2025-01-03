@@ -4,7 +4,6 @@
 package org.firstinspires.ftc.lib.trobotix.kinematics;
 
 import org.ejml.simple.SimpleMatrix;
-import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Transform2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Twist2d;
 import org.firstinspires.ftc.lib.wpilib.math.kinematics.ChassisSpeeds;

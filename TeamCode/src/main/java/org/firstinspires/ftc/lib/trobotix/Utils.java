@@ -3,15 +3,8 @@
 
 package org.firstinspires.ftc.lib.trobotix;
 
-import org.firstinspires.ftc.lib.wpilib.math.geometry.Pose2d;
-import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation2d;
-import org.firstinspires.ftc.lib.wpilib.math.geometry.Translation2d;
-import org.firstinspires.ftc.lib.wpilib.math.utils.Units;
-
 public class Utils {
   private Utils() {}
-
-  public static boolean IS_ON_RED = false;
 
   public static double getTimeSeconds() {
     return System.nanoTime() / 1e9;

@@ -1,3 +1,6 @@
+// Copyright (c) 2024-2025 FTC 8696
+// All rights reserved.
+
 package org.firstinspires.ftc.lib.wpilib.math.trajectory;
 
 import java.util.Objects;
@@ -313,8 +316,8 @@ public class ExponentialProfile {
       inflectionT_forward =
           t_to_solvable_v
               + Math.signum(input)
-              * (inflectionPoint.position - x_at_solvable_v)
-              / m_constraints.maxVelocity();
+                  * (inflectionPoint.position - x_at_solvable_v)
+                  / m_constraints.maxVelocity();
     } else {
       inflectionT_forward = computeTimeFromVelocity(inflectionPoint.velocity, u, current.velocity);
     }
