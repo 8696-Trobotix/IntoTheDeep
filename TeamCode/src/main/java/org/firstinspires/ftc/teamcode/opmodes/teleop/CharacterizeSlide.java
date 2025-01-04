@@ -3,10 +3,12 @@
 
 package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
 import org.firstinspires.ftc.teamcode.hardware.Slide;
 
+@Disabled
 @TeleOp
 public class CharacterizeSlide extends BaseOpMode {
   @Override
