@@ -67,13 +67,11 @@ public class Rotation2d implements Interpolatable<Rotation2d> {
    */
   public static final Rotation2d k180deg = kPi;
 
-  private final double m_value;
   private final double m_cos;
   private final double m_sin;
 
   /** Constructs a Rotation2d with a default angle of 0 degrees. */
   public Rotation2d() {
-    m_value = 0.0;
     m_cos = 1.0;
     m_sin = 0.0;
   }
@@ -84,7 +82,6 @@ public class Rotation2d implements Interpolatable<Rotation2d> {
    * @param value The value of the angle in radians.
    */
   public Rotation2d(double value) {
-    m_value = value;
     m_cos = Math.cos(value);
     m_sin = Math.sin(value);
   }
@@ -104,7 +101,6 @@ public class Rotation2d implements Interpolatable<Rotation2d> {
       m_sin = 0.0;
       m_cos = 1.0;
     }
-    m_value = Math.atan2(m_sin, m_cos);
   }
 
   /**
@@ -170,7 +166,7 @@ public class Rotation2d implements Interpolatable<Rotation2d> {
    * @return The inverse of the current rotation.
    */
   public Rotation2d unaryMinus() {
-    return new Rotation2d(-m_value);
+    return new Rotation2d(-getRadians());
   }
 
   /**
@@ -180,7 +176,7 @@ public class Rotation2d implements Interpolatable<Rotation2d> {
    * @return The new scaled Rotation2d.
    */
   public Rotation2d times(double scalar) {
-    return new Rotation2d(m_value * scalar);
+    return new Rotation2d(getRadians() * scalar);
   }
 
   /**
@@ -219,7 +215,7 @@ public class Rotation2d implements Interpolatable<Rotation2d> {
    * @see MathUtil#angleModulus(double) to constrain the angle within (-pi, pi]
    */
   public double getRadians() {
-    return m_value;
+    return Math.atan2(m_sin, m_cos);
   }
 
   /**
@@ -229,7 +225,7 @@ public class Rotation2d implements Interpolatable<Rotation2d> {
    * @see MathUtil#inputModulus(double, double, double) to constrain the angle within (-180, 180]
    */
   public double getDegrees() {
-    return Math.toDegrees(m_value);
+    return Math.toDegrees(getRadians());
   }
 
   /**
@@ -238,7 +234,7 @@ public class Rotation2d implements Interpolatable<Rotation2d> {
    * @return The number of rotations of the Rotation2d.
    */
   public double getRotations() {
-    return Units.radiansToRotations(m_value);
+    return Units.radiansToRotations(getRadians());
   }
 
   /**
@@ -272,7 +268,7 @@ public class Rotation2d implements Interpolatable<Rotation2d> {
   @NonNull
   @Override
   public String toString() {
-    return String.format("Rotation2d(Rads: %.2f, Deg: %.2f)", m_value, Math.toDegrees(m_value));
+    return String.format("Rotation2d(Rads: %.2f, Deg: %.2f)", getRadians(), getDegrees());
   }
 
   /**
@@ -292,7 +288,7 @@ public class Rotation2d implements Interpolatable<Rotation2d> {
 
   @Override
   public int hashCode() {
-    return Objects.hash(m_value);
+    return Objects.hash(getRadians());
   }
 
   @Override
