@@ -15,9 +15,12 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 public class Gyro {
   private final CachedAngles cache;
 
-  public Gyro(OpMode opMode, String name, ImuOrientationOnRobot orientation) {
+  public Gyro(OpMode opMode, String name, ImuOrientationOnRobot orientation, boolean resetYaw) {
     var gyroInternal = opMode.hardwareMap.get(IMU.class, name);
     gyroInternal.initialize(new IMU.Parameters(orientation));
+    if (resetYaw) {
+      gyroInternal.resetYaw();
+    }
 
     cache = new CachedAngles(gyroInternal::getRobotYawPitchRollAngles);
   }

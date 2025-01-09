@@ -46,7 +46,7 @@ public class Slide extends SubsystemBase {
                     velocityFF.kS_top + velocityFF.kG_top))
             / kV;
     positionPID = new PIDController(3, 0, 0);
-    positionPID.setTolerance(5, 1);
+    positionPID.setTolerance(5, 5);
   }
 
   @Override
@@ -76,7 +76,7 @@ public class Slide extends SubsystemBase {
   }
 
   public Command scoreHighSpecimen() {
-    return goToPosition(540);
+    return goToPosition(530);
   }
 
   public Command retract() {

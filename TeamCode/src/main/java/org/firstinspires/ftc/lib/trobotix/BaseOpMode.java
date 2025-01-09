@@ -44,6 +44,9 @@ public abstract class BaseOpMode extends LinearOpMode {
     // User code init
     startup();
     waitForStart();
+    if (autoCommand != null) {
+      autoCommand.schedule();
+    }
     double lastTime = Utils.getTimeSeconds();
     // Main loop
     while (opModeIsActive()) {
@@ -72,6 +75,7 @@ public abstract class BaseOpMode extends LinearOpMode {
     enableTrigger = null;
     primaryController = null;
     secondaryController = null;
+    autoCommand = null;
     cachedValues.clear();
   }
 
@@ -97,6 +101,11 @@ public abstract class BaseOpMode extends LinearOpMode {
    */
   protected DoubleSupplier dtSupplier() {
     return () -> dt;
+  }
+
+  private Command autoCommand;
+  protected void registerAutoCommand(Command command) {
+    autoCommand = command;
   }
 
   public DoubleSupplier busVoltageSupplier() {

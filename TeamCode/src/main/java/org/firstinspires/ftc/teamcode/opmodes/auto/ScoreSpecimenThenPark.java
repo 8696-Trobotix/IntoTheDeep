@@ -22,16 +22,15 @@ public class ScoreSpecimenThenPark extends BaseOpMode {
     var slide = new Slide(this);
     var claw = new Claw(this);
 
-    enabled()
-        .whileTrue(
-            sequence(
-                drivebase.setSpeedMult(.2),
-                claw.close(),
-                parallel(
-                    drivebase.alignToPose(new Pose2d(.775, 0.2, Rotation2d.kZero)),
-                    slide.alignHighSpecimen()),
-                slide.scoreHighSpecimen(),
-                claw.open(),
-                slide.retract()));
+    registerAutoCommand(
+        sequence(
+            drivebase.setSpeedMult(.4),
+            claw.close(),
+            parallel(
+                drivebase.alignToPose(new Pose2d(.775, 0.2, Rotation2d.kZero)),
+                slide.alignHighSpecimen()),
+            slide.scoreHighSpecimen(),
+            claw.open(),
+            parallel(slide.retract(), drivebase.alignToPose(new Pose2d(0.1, -1, Rotation2d.kZero)))));
   }
 }

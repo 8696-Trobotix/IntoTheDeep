@@ -3,6 +3,8 @@
 
 package org.firstinspires.ftc.teamcode.hardware;
 
+import static org.firstinspires.ftc.lib.wpilib.commands.Commands.sequence;
+
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import java.util.function.DoubleSupplier;
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
@@ -48,6 +50,10 @@ public class Drivebase extends SubsystemBase {
   private final Telemetry telemetry;
 
   public Drivebase(BaseOpMode opMode) {
+    this(opMode, false);
+  }
+
+  public Drivebase(BaseOpMode opMode, boolean resetGyro) {
     double trackLength = Units.inchesToMeters(18);
     double trackWidth = Units.inchesToMeters(18);
     kinematics =
@@ -111,7 +117,8 @@ public class Drivebase extends SubsystemBase {
             "IMU",
             new RevHubOrientationOnRobot(
                 RevHubOrientationOnRobot.LogoFacingDirection.BACKWARD,
-                RevHubOrientationOnRobot.UsbFacingDirection.UP));
+                RevHubOrientationOnRobot.UsbFacingDirection.UP),
+            resetGyro);
 
     xController = new PIDController(5, 0, 0);
     yController = new PIDController(5, 0, 0);
@@ -166,33 +173,42 @@ public class Drivebase extends SubsystemBase {
   }
 
   public Command alignToPose(Pose2d pose) {
-    return run(() -> {
-          fieldRelativeDrive(
-              new ChassisSpeeds(
-                  MathUtil.clamp(
-                      xController.calculate(odometry.getPoseMeters().getX(), pose.getX()),
-                      -topTranslationalSpeedMetersPerSec * speedMult,
-                      topTranslationalSpeedMetersPerSec * speedMult),
-                  MathUtil.clamp(
-                      yController.calculate(odometry.getPoseMeters().getY(), pose.getY()),
-                      -topTranslationalSpeedMetersPerSec * speedMult,
-                      topTranslationalSpeedMetersPerSec * speedMult),
-                  MathUtil.clamp(
-                      yawController.calculate(
-                          odometry.getPoseMeters().getRotation().getRadians(),
-                          pose.getRotation().getRadians()),
-                      -topTranslationalSpeedMetersPerSec * speedMult,
-                      topTranslationalSpeedMetersPerSec * speedMult)));
-          telemetry.addData("PID/X Error", pose.getX() - odometry.getPoseMeters().getX());
-          telemetry.addData("PID/Y Error", pose.getY() - odometry.getPoseMeters().getY());
-          telemetry.addData(
-              "PID/Yaw Error",
-              pose.getRotation().minus(odometry.getPoseMeters().getRotation()).getDegrees());
-        })
-        .until(
-            () ->
-                xController.atSetpoint() && yController.atSetpoint() && yawController.atSetpoint())
-        .finallyDo(() -> robotRelativeDrive(new ChassisSpeeds()));
+    return sequence(
+        runOnce(
+            () -> {
+              xController.reset();
+              yController.reset();
+              yawController.reset();
+            }),
+        run(() -> {
+              fieldRelativeDrive(
+                  new ChassisSpeeds(
+                      MathUtil.clamp(
+                          xController.calculate(odometry.getPoseMeters().getX(), pose.getX()),
+                          -topTranslationalSpeedMetersPerSec * speedMult,
+                          topTranslationalSpeedMetersPerSec * speedMult),
+                      MathUtil.clamp(
+                          yController.calculate(odometry.getPoseMeters().getY(), pose.getY()),
+                          -topTranslationalSpeedMetersPerSec * speedMult,
+                          topTranslationalSpeedMetersPerSec * speedMult),
+                      MathUtil.clamp(
+                          yawController.calculate(
+                              odometry.getPoseMeters().getRotation().getRadians(),
+                              pose.getRotation().getRadians()),
+                          -topTranslationalSpeedMetersPerSec * speedMult,
+                          topTranslationalSpeedMetersPerSec * speedMult)));
+              telemetry.addData("PID/X Error", pose.getX() - odometry.getPoseMeters().getX());
+              telemetry.addData("PID/Y Error", pose.getY() - odometry.getPoseMeters().getY());
+              telemetry.addData(
+                  "PID/Yaw Error",
+                  pose.getRotation().minus(odometry.getPoseMeters().getRotation()).getDegrees());
+            })
+            .until(
+                () ->
+                    xController.atSetpoint()
+                        && yController.atSetpoint()
+                        && yawController.atSetpoint())
+            .finallyDo(() -> robotRelativeDrive(new ChassisSpeeds())));
   }
 
   public Command teleopDrive(
