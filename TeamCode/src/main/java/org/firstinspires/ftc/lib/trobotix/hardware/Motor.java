@@ -9,7 +9,6 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import java.util.function.DoubleSupplier;
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
 import org.firstinspires.ftc.lib.wpilib.math.MathUtil;
-import org.firstinspires.ftc.lib.wpilib.math.system.plant.DCMotor;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 /** Wrapper for {@link DcMotorEx} for extra functionality and cleaner code. */
@@ -65,54 +64,11 @@ public class Motor {
         brake ? DcMotor.ZeroPowerBehavior.BRAKE : DcMotor.ZeroPowerBehavior.FLOAT);
   }
 
-  private double dutyCycleTolerance = .001;
-
-  /**
-   * Sets the tolerance for which setting new power values is ignored.
-   *
-   * <p>It's a waste of time to tell the motor to move at .9 power and immediately tell it to move
-   * at .901 power, so we use the cache tolerance to ignore the latter command. Default value is
-   * 0.001. (.1% duty cycle)
-   *
-   * @param dutyCycleTolerance The new power tolerance.
-   */
-  public void setTolerance(double dutyCycleTolerance) {
-    this.dutyCycleTolerance = dutyCycleTolerance;
-  }
-
-  private double currentLimitAmps = -1;
-  private double ticksPerRad;
-  private DCMotor motorModel;
-
-  /**
-   * Sets the current limit of the motor.
-   *
-   * <p>Motors can draw hell of a lot of current when pushed hard, and if too many motors draw too
-   * much current, the voltage sag can cause things to brown out. To prevent this, the duty cycle of
-   * the motor is reduced when the limit is hit.
-   *
-   * <p>This is calculated by using
-   *
-   * @param currentLimitAmps The current limit to apply.
-   * @param ticksPerRad The encoder ticks per rad on the shaft.
-   * @param motorModel A {@link DCMotor} that models the motor.
-   */
-  public void setCurrentLimit(double currentLimitAmps, double ticksPerRad, DCMotor motorModel) {
-    this.currentLimitAmps = currentLimitAmps;
-    this.ticksPerRad = ticksPerRad;
-    this.motorModel = motorModel;
-  }
-
-  private double lastDutyCycle = 0;
-
   /**
    * Set the voltage of the motor.
    *
    * <p>This compensates for voltage sag by raising the duty cycle when voltage drops, allowing for
    * a more consistent experience with commanding motor power.
-   *
-   * <p>If current limiting is enabled via {@link Motor#setCurrentLimit}, then this also lowers the
-   * commanded voltage when the current limit is exceeded.
    *
    * @param volts The motor voltage to set. From -12 to 12.
    */
@@ -121,34 +77,11 @@ public class Motor {
     var busVoltage = MathUtil.clamp(0, 12, voltageSupplier.getAsDouble());
     volts = MathUtil.clamp(volts, -busVoltage, busVoltage);
 
-    if (currentLimitAmps > 0) {
-      var velTicksPerSec = cachedPosition.latestVelocity * conversionFactor;
-      var velRadPerSec = velTicksPerSec / ticksPerRad;
-      var currentDraw = motorModel.getCurrent(Math.abs(velRadPerSec), Math.abs(volts));
-      if (currentDraw > currentLimitAmps) {
-        // Equation for current draw:
-        // C = -1 / kV / rOhms * vel + 1 / rOhms * volts
-        // Simplifying the equation:
-        // C = -vel / (kV * rOhms) + volts / rOhms
-        // Rearranging the equation to solve for volts:
-        // volts / rOhms = currentDraw + vel / (kV * rOhms)
-        // volts = currentDraw * rOhms + vel / kV
-        double maxVoltage =
-            currentLimitAmps * motorModel.rOhms
-                + Math.abs(velRadPerSec) / motorModel.KvRadPerSecPerVolt;
-        volts = MathUtil.clamp(volts, -maxVoltage, maxVoltage);
-      }
-    }
-
     var dutyCycle = volts / busVoltage;
     if (inverted) {
       dutyCycle *= -1;
     }
-    if (MathUtil.isNear(lastDutyCycle, dutyCycle, dutyCycleTolerance)) {
-      return;
-    }
     motorInternal.setPower(dutyCycle);
-    lastDutyCycle = dutyCycle;
   }
 
   /**

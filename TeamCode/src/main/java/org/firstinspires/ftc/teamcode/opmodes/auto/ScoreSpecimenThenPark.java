@@ -23,7 +23,7 @@ public class ScoreSpecimenThenPark extends BaseOpMode {
     var claw = new Claw(this);
 
     enabled()
-        .onTrue(
+        .whileTrue(
             sequence(
                 drivebase.setSpeedMult(.2),
                 claw.close(),

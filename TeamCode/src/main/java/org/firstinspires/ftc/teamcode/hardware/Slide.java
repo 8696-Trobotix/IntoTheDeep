@@ -37,8 +37,6 @@ public class Slide extends SubsystemBase {
     motor.setInverted(false);
     motor.setPosition(minPosMm);
 
-    motor.setCurrentLimit(2, ticksPerRad, DCMotor.getGoBILDA5203_0019(1));
-
     var kV = 12 / (Units.rotationsPerMinuteToRadiansPerSecond(312) * (pulleyDiameterMm / 2));
     velocityFF = new ViperSlideFeedforward(minPosMm, maxPosMm, .765, .335, .625, 1.175, kV);
     maxVelMmPerSec =

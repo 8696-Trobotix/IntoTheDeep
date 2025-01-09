@@ -83,16 +83,8 @@ public class Drivebase extends SubsystemBase {
 
     var driveMotor = DCMotor.getGoBILDA5203_0019(1);
 
-    frontLeft.setCurrentLimit(2, driveMotorTicksPerRad, driveMotor);
-    frontRight.setCurrentLimit(2, driveMotorTicksPerRad, driveMotor);
-    backLeft.setCurrentLimit(2, driveMotorTicksPerRad, driveMotor);
-    backRight.setCurrentLimit(2, driveMotorTicksPerRad, driveMotor);
-
-    double kV_VoltsPerMeterPerSec =
-        1.0 / (driveMotor.KvRadPerSecPerVolt * (driveWheelDiameter / 2));
-    driveController = new SimpleMotorFeedforward(.85, kV_VoltsPerMeterPerSec);
-    topTranslationalSpeedMetersPerSec =
-        (driveWheelDiameter / 2) * driveMotor.getSpeed(0, (12.0 - driveController.ks) / 12.0);
+    topTranslationalSpeedMetersPerSec = (driveWheelDiameter / 2) * driveMotor.freeSpeedRadPerSec;
+    driveController = new SimpleMotorFeedforward(.85, 12 / topTranslationalSpeedMetersPerSec);
     topAngularSpeedRadPerSec =
         topTranslationalSpeedMetersPerSec / Math.hypot(trackWidth / 2, trackLength / 2);
 
@@ -121,8 +113,8 @@ public class Drivebase extends SubsystemBase {
                 RevHubOrientationOnRobot.LogoFacingDirection.BACKWARD,
                 RevHubOrientationOnRobot.UsbFacingDirection.UP));
 
-    xController = new PIDController(3, 0, 0);
-    yController = new PIDController(3, 0, 0);
+    xController = new PIDController(5, 0, 0);
+    yController = new PIDController(5, 0, 0);
     yawController = new PIDController(1, 0, 0);
     yawController.enableContinuousInput(-Math.PI, Math.PI);
 
@@ -158,6 +150,10 @@ public class Drivebase extends SubsystemBase {
   private void robotRelativeDrive(ChassisSpeeds chassisSpeeds) {
     var speeds = kinematics.toWheelSpeeds(chassisSpeeds);
     speeds.desaturate(topTranslationalSpeedMetersPerSec);
+    var desaturatedChassisSpeeds = kinematics.toChassisSpeeds(speeds);
+    telemetry.addData("Drivebase/Commanded vel X", desaturatedChassisSpeeds.vxMetersPerSecond);
+    telemetry.addData("Drivebase/Commanded vel Y", desaturatedChassisSpeeds.vyMetersPerSecond);
+    telemetry.addData("Drivebase/Commanded omega", desaturatedChassisSpeeds.omegaRadiansPerSecond);
 
     frontLeft.set(driveController.calculate(speeds.frontLeftMetersPerSecond));
     frontRight.set(driveController.calculate(speeds.frontRightMetersPerSecond));
