@@ -37,7 +37,7 @@ public class TeleopDrive extends BaseOpMode {
     slide.setDefaultCommand(slide.teleopControl(() -> secondaryController().getLeftY()));
     secondaryController().y().onTrue(slide.alignHighSpecimen());
 
-    secondaryController().a().onTrue(claw.open());
-    secondaryController().b().onTrue(claw.close());
+    secondaryController().b().onTrue(claw.open());
+    secondaryController().a().onTrue(claw.close());
   }
 }
