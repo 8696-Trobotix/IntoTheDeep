@@ -16,9 +16,26 @@ public class Motor {
   private final DcMotorEx motorInternal;
   private final DoubleSupplier voltageSupplier;
 
-  private final BaseOpMode.CachedValue.CachedPosition cachedPosition;
+  private BaseOpMode.CachedValue.CachedPosition cachedPosition;
 
+  /**
+   * Constructs a new Motor without an encoder, using the specified op mode and name.
+   *
+   * @param opMode The current op mode.
+   * @param name The name of the motor in the configuration.
+   */
   public Motor(BaseOpMode opMode, String name) {
+    this(opMode, name, false);
+  }
+
+  /**
+   * Constructs a new Motor using the specified op mode and name.
+   *
+   * @param opMode The current op mode.
+   * @param name The name of the motor in the configuration.
+   * @param hasEncoder If the motor has an encoder or not.
+   */
+  public Motor(BaseOpMode opMode, String name, boolean hasEncoder) {
     motorInternal = (DcMotorEx) opMode.hardwareMap.dcMotor.get(name);
     voltageSupplier = opMode.busVoltageSupplier();
 
@@ -26,14 +43,16 @@ public class Motor {
     motorInternal.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     motorInternal.setDirection(DcMotorSimple.Direction.FORWARD);
 
-    cachedPosition =
-        new BaseOpMode.CachedValue.CachedPosition(
-            () ->
-                (inverted
-                            ? -motorInternal.getCurrentPosition()
-                            : motorInternal.getCurrentPosition())
-                        / conversionFactor
-                    - offset);
+    if (hasEncoder) {
+      cachedPosition =
+          new BaseOpMode.CachedValue.CachedPosition(
+              () ->
+                  (inverted
+                              ? -motorInternal.getCurrentPosition()
+                              : motorInternal.getCurrentPosition())
+                          / conversionFactor
+                      - offset);
+    }
   }
 
   private boolean inverted = false;
@@ -116,13 +135,28 @@ public class Motor {
   /**
    * Gets the motor's current position.
    *
+   * <p>This always returns 0 if there's no encoder connected.
+   *
    * @return The position.
    */
   public double getPosition() {
+    if (cachedPosition == null) {
+      return 0;
+    }
     return cachedPosition.latestPosition;
   }
 
+  /**
+   * Sets the motor's current position.
+   *
+   * <p>Does nothing if there's no encoder connected.
+   *
+   * @param position The new position.
+   */
   public void setPosition(double position) {
+    if (cachedPosition == null) {
+      return;
+    }
     offset += cachedPosition.latestPosition - position;
     cachedPosition.latestPosition = position;
   }
@@ -133,10 +167,15 @@ public class Motor {
    * <p>We calculate motor velocity ourselves because REV sucks and only calculates velocity at 20
    * hz.
    *
+   * <p>This always returns 0 if there's no encoder connected.
+   *
    * @return The velocity. Numerator units follow {@link Motor#getPosition()}. Denominator unit is
    *     seconds.
    */
   public double getVelocity() {
+    if (cachedPosition == null) {
+      return 0;
+    }
     return cachedPosition.latestVelocity;
   }
 }

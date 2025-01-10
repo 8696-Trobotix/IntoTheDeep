@@ -11,6 +11,7 @@ import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
 import org.firstinspires.ftc.lib.trobotix.hardware.Gyro;
 import org.firstinspires.ftc.lib.trobotix.hardware.Motor;
 import org.firstinspires.ftc.lib.trobotix.hardware.RelativeEncoder;
+import org.firstinspires.ftc.lib.trobotix.kinematics.OdometryPodKinematics;
 import org.firstinspires.ftc.lib.trobotix.kinematics.OdometryPodWheelPositions;
 import org.firstinspires.ftc.lib.trobotix.kinematics.OdometryPods;
 import org.firstinspires.ftc.lib.wpilib.commands.Command;
@@ -32,6 +33,8 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class Drivebase extends SubsystemBase {
   private final MecanumDriveKinematics kinematics;
   private final OdometryPods odometry;
+  private final OdometryPodKinematics podKinematics;
+  private final double maxStrafePodSpeed;
   private final Gyro gyro;
 
   private final Motor frontLeft;
@@ -79,13 +82,6 @@ public class Drivebase extends SubsystemBase {
     backRight.setIdleBrake(true);
 
     double driveWheelDiameter = 104.0 / 1000.0;
-    double driveMotorTicksPerRad = 537.689839572 / (2 * Math.PI);
-
-    // Convert from encoder ticks to meters
-    frontLeft.setConversionFactor(driveMotorTicksPerRad / (driveWheelDiameter / 2));
-    frontRight.setConversionFactor(driveMotorTicksPerRad / (driveWheelDiameter / 2));
-    backLeft.setConversionFactor(driveMotorTicksPerRad / (driveWheelDiameter / 2));
-    backRight.setConversionFactor(driveMotorTicksPerRad / (driveWheelDiameter / 2));
 
     var driveMotor = DCMotor.getGoBILDA5203_0019(1);
 
@@ -102,15 +98,20 @@ public class Drivebase extends SubsystemBase {
         new RelativeEncoder(opMode, "rightPod", false, podTicksPerRotation / podWheelCircumference);
     encoders[2] =
         new RelativeEncoder(opMode, "backPod", false, podTicksPerRotation / podWheelCircumference);
+    double minMicrosecondsPerTick = 18;
+    double maxTicksPerSecond = 1.0 / (minMicrosecondsPerTick / 1e6);
+    maxStrafePodSpeed = (maxTicksPerSecond / podTicksPerRotation) * podWheelCircumference;
 
     // +X = forwards
     // +Y = left
     // CCW+
-    odometry =
-        new OdometryPods(
+    podKinematics =
+        new OdometryPodKinematics(
             new Transform2d(.0275, 0.0775 / 2, Rotation2d.kZero),
             new Transform2d(.0275, -0.0725, Rotation2d.kZero),
             new Transform2d(-.07, 0.05, Rotation2d.kCCW_90deg));
+    odometry = new OdometryPods(podKinematics);
+
     gyro =
         new Gyro(
             opMode,
@@ -168,10 +169,6 @@ public class Drivebase extends SubsystemBase {
     backRight.set(driveController.calculate(speeds.rearRightMetersPerSecond));
   }
 
-  private void fieldRelativeDrive(ChassisSpeeds speeds) {
-    robotRelativeDrive(ChassisSpeeds.fromFieldRelativeSpeeds(speeds, gyro.getYaw()));
-  }
-
   public Command alignToPose(Pose2d pose) {
     return sequence(
         runOnce(
@@ -181,7 +178,7 @@ public class Drivebase extends SubsystemBase {
               yawController.reset();
             }),
         run(() -> {
-              fieldRelativeDrive(
+              var fieldRelativeSpeeds =
                   new ChassisSpeeds(
                       MathUtil.clamp(
                           xController.calculate(odometry.getPoseMeters().getX(), pose.getX()),
@@ -196,7 +193,19 @@ public class Drivebase extends SubsystemBase {
                               odometry.getPoseMeters().getRotation().getRadians(),
                               pose.getRotation().getRadians()),
                           -topTranslationalSpeedMetersPerSec * speedMult,
-                          topTranslationalSpeedMetersPerSec * speedMult)));
+                          topTranslationalSpeedMetersPerSec * speedMult));
+              var robotRelativeSpeeds =
+                  ChassisSpeeds.fromFieldRelativeSpeeds(fieldRelativeSpeeds, gyro.getYaw());
+
+              // Limit strafing speed to prevent pod drift in that direction
+              var podSpeeds = podKinematics.toWheelSpeeds(robotRelativeSpeeds);
+              if (Math.abs(podSpeeds.podSpeeds[2]) > maxStrafePodSpeed) {
+                podSpeeds.podSpeeds[2] = Math.copySign(maxStrafePodSpeed, podSpeeds.podSpeeds[2]);
+                robotRelativeSpeeds = podKinematics.toChassisSpeeds(podSpeeds);
+              }
+
+              robotRelativeDrive(robotRelativeSpeeds);
+
               telemetry.addData("PID/X Error", pose.getX() - odometry.getPoseMeters().getX());
               telemetry.addData("PID/Y Error", pose.getY() - odometry.getPoseMeters().getY());
               telemetry.addData(
@@ -215,11 +224,13 @@ public class Drivebase extends SubsystemBase {
       DoubleSupplier xInput, DoubleSupplier yInput, DoubleSupplier omegaInput) {
     return run(
         () ->
-            fieldRelativeDrive(
-                new ChassisSpeeds(
-                    xInput.getAsDouble() * topTranslationalSpeedMetersPerSec * speedMult,
-                    yInput.getAsDouble() * topTranslationalSpeedMetersPerSec * speedMult,
-                    omegaInput.getAsDouble() * topAngularSpeedRadPerSec * speedMult)));
+            robotRelativeDrive(
+                ChassisSpeeds.fromFieldRelativeSpeeds(
+                    new ChassisSpeeds(
+                        xInput.getAsDouble() * topTranslationalSpeedMetersPerSec * speedMult,
+                        yInput.getAsDouble() * topTranslationalSpeedMetersPerSec * speedMult,
+                        omegaInput.getAsDouble() * topAngularSpeedRadPerSec * speedMult),
+                    gyro.getYaw())));
   }
 
   public Command alignHumanPlayer(DoubleSupplier xInput, DoubleSupplier yInput) {

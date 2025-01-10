@@ -104,6 +104,7 @@ public abstract class BaseOpMode extends LinearOpMode {
   }
 
   private Command autoCommand;
+
   protected void registerAutoCommand(Command command) {
     autoCommand = command;
   }

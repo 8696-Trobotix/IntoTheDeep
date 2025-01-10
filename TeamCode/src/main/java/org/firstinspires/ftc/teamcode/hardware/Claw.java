@@ -22,8 +22,8 @@ public class Claw extends SubsystemBase {
   public Command open() {
     return runOnce(
             () -> {
-              left.setPosition(.1);
-              right.setPosition(0.9);
+              left.setPosition(.2);
+              right.setPosition(0.8);
             })
         .andThen(waitSeconds(.4));
   }

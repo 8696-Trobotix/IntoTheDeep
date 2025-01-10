@@ -95,4 +95,8 @@ public class OdometryPodKinematics
       OdometryPodWheelPositions startValue, OdometryPodWheelPositions endValue, double t) {
     return startValue.interpolate(endValue, t);
   }
+
+  public int getPodCount() {
+    return podCount;
+  }
 }

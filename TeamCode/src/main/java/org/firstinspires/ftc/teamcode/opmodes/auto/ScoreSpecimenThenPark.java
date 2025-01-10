@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.hardware.Slide;
 public class ScoreSpecimenThenPark extends BaseOpMode {
   @Override
   protected void startup() {
-    var drivebase = new Drivebase(this);
+    var drivebase = new Drivebase(this, true);
     var slide = new Slide(this);
     var claw = new Claw(this);
 
@@ -31,6 +31,7 @@ public class ScoreSpecimenThenPark extends BaseOpMode {
                 slide.alignHighSpecimen()),
             slide.scoreHighSpecimen(),
             claw.open(),
-            parallel(slide.retract(), drivebase.alignToPose(new Pose2d(0.1, -1.2, Rotation2d.kZero)))));
+            parallel(
+                slide.retract(), drivebase.alignToPose(new Pose2d(0.1, -1.35, Rotation2d.kZero)))));
   }
 }

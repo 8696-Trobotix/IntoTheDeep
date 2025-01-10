@@ -11,7 +11,6 @@ import org.firstinspires.ftc.lib.wpilib.commands.Command;
 import org.firstinspires.ftc.lib.wpilib.commands.SubsystemBase;
 import org.firstinspires.ftc.lib.wpilib.math.MathUtil;
 import org.firstinspires.ftc.lib.wpilib.math.controller.PIDController;
-import org.firstinspires.ftc.lib.wpilib.math.system.plant.DCMotor;
 import org.firstinspires.ftc.lib.wpilib.math.utils.Units;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -28,7 +27,7 @@ public class Slide extends SubsystemBase {
   private final double maxPosMm = 862;
 
   public Slide(BaseOpMode opMode) {
-    motor = new Motor(opMode, "linearSlide");
+    motor = new Motor(opMode, "linearSlide", true);
     telemetry = opMode.telemetry;
 
     double ticksPerRad = 537.689839572 / (2 * Math.PI);
