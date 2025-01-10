@@ -31,6 +31,6 @@ public class ScoreSpecimenThenPark extends BaseOpMode {
                 slide.alignHighSpecimen()),
             slide.scoreHighSpecimen(),
             claw.open(),
-            parallel(slide.retract(), drivebase.alignToPose(new Pose2d(0.1, -1, Rotation2d.kZero)))));
+            parallel(slide.retract(), drivebase.alignToPose(new Pose2d(0.1, -1.2, Rotation2d.kZero)))));
   }
 }
