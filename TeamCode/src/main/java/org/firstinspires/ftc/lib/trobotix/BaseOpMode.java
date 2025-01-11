@@ -105,6 +105,12 @@ public abstract class BaseOpMode extends LinearOpMode {
 
   private Command autoCommand;
 
+  /**
+   * Registers the {@link Command} that runs on auto start.
+   *
+   * <p>Normally this should be a {@link Trigger} but for unknown reasons that's flaky and
+   * unreliable.
+   */
   protected void registerAutoCommand(Command command) {
     autoCommand = command;
   }
