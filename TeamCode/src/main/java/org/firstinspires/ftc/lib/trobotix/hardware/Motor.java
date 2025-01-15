@@ -16,7 +16,7 @@ public class Motor {
   private final DcMotorEx motorInternal;
   private final DoubleSupplier voltageSupplier;
 
-  private BaseOpMode.CachedValue.CachedPosition cachedPosition;
+  private final BaseOpMode.CachedValue.CachedPosition cachedPosition;
 
   /**
    * Constructs a new Motor without an encoder, using the specified op mode and name.
@@ -43,16 +43,16 @@ public class Motor {
     motorInternal.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     motorInternal.setDirection(DcMotorSimple.Direction.FORWARD);
 
-    if (hasEncoder) {
-      cachedPosition =
-          new BaseOpMode.CachedValue.CachedPosition(
-              () ->
-                  (inverted
-                              ? -motorInternal.getCurrentPosition()
-                              : motorInternal.getCurrentPosition())
-                          / conversionFactor
-                      - offset);
-    }
+    cachedPosition =
+        new BaseOpMode.CachedValue.CachedPosition(
+            hasEncoder
+                ? () ->
+                    (inverted
+                                ? -motorInternal.getCurrentPosition()
+                                : motorInternal.getCurrentPosition())
+                            / conversionFactor
+                        - offset
+                : () -> 0);
   }
 
   private boolean inverted = false;
@@ -140,9 +140,6 @@ public class Motor {
    * @return The position.
    */
   public double getPosition() {
-    if (cachedPosition == null) {
-      return 0;
-    }
     return cachedPosition.latestPosition;
   }
 
@@ -154,9 +151,6 @@ public class Motor {
    * @param position The new position.
    */
   public void setPosition(double position) {
-    if (cachedPosition == null) {
-      return;
-    }
     offset += cachedPosition.latestPosition - position;
     cachedPosition.latestPosition = position;
   }
@@ -173,9 +167,6 @@ public class Motor {
    *     seconds.
    */
   public double getVelocity() {
-    if (cachedPosition == null) {
-      return 0;
-    }
     return cachedPosition.latestVelocity;
   }
 }
