@@ -77,6 +77,7 @@ public abstract class BaseOpMode extends LinearOpMode {
     secondaryController = null;
     autoCommand = null;
     cachedValues.clear();
+    System.gc();
   }
 
   /**
