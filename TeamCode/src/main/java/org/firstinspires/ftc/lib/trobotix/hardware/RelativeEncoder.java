@@ -25,7 +25,7 @@ public class RelativeEncoder {
                     - offset);
   }
 
-  /** Gets the motor's current position. */
+  /** Gets the encoder's current position. */
   public double getPosition() {
     return cachedPosition.latestPosition;
   }
@@ -38,7 +38,7 @@ public class RelativeEncoder {
   }
 
   /**
-   * Gets the motor's current velocity.
+   * Gets the encoder's current velocity.
    *
    * <p>We calculate motor velocity ourselves because REV sucks and only calculates velocity at 20
    * hz.
