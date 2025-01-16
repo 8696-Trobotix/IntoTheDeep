@@ -223,14 +223,29 @@ public class Drivebase extends SubsystemBase {
   public Command teleopDrive(
       DoubleSupplier xInput, DoubleSupplier yInput, DoubleSupplier omegaInput) {
     return run(
-        () ->
-            robotRelativeDrive(
-                ChassisSpeeds.fromFieldRelativeSpeeds(
-                    new ChassisSpeeds(
-                        xInput.getAsDouble() * topTranslationalSpeedMetersPerSec * speedMult,
-                        yInput.getAsDouble() * topTranslationalSpeedMetersPerSec * speedMult,
-                        omegaInput.getAsDouble() * topAngularSpeedRadPerSec * speedMult),
-                    gyro.getYaw())));
+        () -> {
+          var xControl = xInput.getAsDouble();
+          var yControl = yInput.getAsDouble();
+          var omegaControl = omegaInput.getAsDouble();
+
+          var controlMagnitude = Math.hypot(xControl, yControl);
+          if (controlMagnitude > 1) {
+            xControl /= controlMagnitude;
+            yControl /= controlMagnitude;
+          } else {
+            xControl *= controlMagnitude;
+            yControl *= controlMagnitude;
+          }
+
+          omegaControl *= Math.abs(omegaControl);
+          robotRelativeDrive(
+              ChassisSpeeds.fromFieldRelativeSpeeds(
+                  new ChassisSpeeds(
+                      xControl * topTranslationalSpeedMetersPerSec * speedMult,
+                      yControl * topTranslationalSpeedMetersPerSec * speedMult,
+                      omegaControl * topAngularSpeedRadPerSec * speedMult),
+                  gyro.getYaw()));
+        });
   }
 
   public Command alignHumanPlayer(DoubleSupplier xInput, DoubleSupplier yInput) {
