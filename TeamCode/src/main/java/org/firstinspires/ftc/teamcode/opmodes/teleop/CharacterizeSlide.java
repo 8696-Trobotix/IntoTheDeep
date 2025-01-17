@@ -19,7 +19,7 @@ public class CharacterizeSlide extends BaseOpMode {
         slide.runVoltage(
             () -> {
               var control = -primaryController().getLeftX();
-              control = 2 * Math.copySign(control * control, control);
+              control = Math.copySign(2 * control * control, control) + 1;
               telemetry.addData("Voltage", control);
               return control;
             }));

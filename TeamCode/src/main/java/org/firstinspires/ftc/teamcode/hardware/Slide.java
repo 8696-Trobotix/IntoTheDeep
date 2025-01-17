@@ -37,15 +37,15 @@ public class Slide extends SubsystemBase {
     motor.setPosition(minPosMm);
 
     var kV = 12 / (Units.rotationsPerMinuteToRadiansPerSecond(312) * (pulleyDiameterMm / 2));
-    velocityFF = new ViperSlideFeedforward(minPosMm, maxPosMm, .765, .335, .625, 1.175, kV);
+    velocityFF = new ViperSlideFeedforward(minPosMm, maxPosMm, .95, .5, .35, 1.115, kV);
     maxVelMmPerSec =
         (12
                 - Math.max(
                     velocityFF.kS_bottom + velocityFF.kG_bottom,
                     velocityFF.kS_top + velocityFF.kG_top))
             / kV;
-    positionPID = new PIDController(3, 0, 0);
-    positionPID.setTolerance(5, 5);
+    positionPID = new PIDController(7.5, 0, 0);
+    positionPID.setTolerance(10, 5);
   }
 
   @Override
@@ -71,11 +71,11 @@ public class Slide extends SubsystemBase {
   }
 
   public Command alignHighSpecimen() {
-    return goToPosition(750);
+    return goToPosition(655);
   }
 
   public Command scoreHighSpecimen() {
-    return goToPosition(530);
+    return goToPosition(540);
   }
 
   public Command retract() {
