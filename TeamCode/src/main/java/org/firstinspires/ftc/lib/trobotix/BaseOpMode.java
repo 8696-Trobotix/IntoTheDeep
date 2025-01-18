@@ -100,7 +100,7 @@ public abstract class BaseOpMode extends LinearOpMode {
    * A {@link DoubleSupplier} that returns the delta time between the current tick and the last
    * tick.
    */
-  protected DoubleSupplier dtSupplier() {
+  public DoubleSupplier dtSupplier() {
     return () -> dt;
   }
 

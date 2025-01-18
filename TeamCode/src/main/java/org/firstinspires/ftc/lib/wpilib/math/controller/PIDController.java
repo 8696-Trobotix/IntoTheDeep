@@ -3,7 +3,7 @@
 
 package org.firstinspires.ftc.lib.wpilib.math.controller;
 
-import org.firstinspires.ftc.lib.trobotix.Utils;
+import java.util.function.DoubleSupplier;
 import org.firstinspires.ftc.lib.wpilib.math.MathUtil;
 
 /** Implements a PID control loop. */
@@ -51,19 +51,17 @@ public class PIDController {
   private boolean m_haveMeasurement;
   private boolean m_haveSetpoint;
 
+  private final DoubleSupplier periodSupplier;
+
   /**
    * Allocates a PIDController with the given constants for kp, ki, and kd and a default period of
    * 0.02 seconds.
    *
    * @param kp The proportional coefficient.
-   * @param ki The integral coefficient.
-   * @param kd The derivative coefficient.
    * @throws IllegalArgumentException if kp &lt; 0
-   * @throws IllegalArgumentException if ki &lt; 0
-   * @throws IllegalArgumentException if kd &lt; 0
    */
-  public PIDController(double kp, double ki, double kd) {
-    this(kp, ki, kd, 0.02);
+  public PIDController(double kp) {
+    this(kp, 0, 0, null);
   }
 
   /**
@@ -72,17 +70,19 @@ public class PIDController {
    * @param kp The proportional coefficient.
    * @param ki The integral coefficient.
    * @param kd The derivative coefficient.
-   * @param period The period between controller updates in seconds.
+   * @param periodSupplier The period between controller updates in seconds.
    * @throws IllegalArgumentException if kp &lt; 0
    * @throws IllegalArgumentException if ki &lt; 0
    * @throws IllegalArgumentException if kd &lt; 0
    * @throws IllegalArgumentException if period &lt;= 0
    */
   @SuppressWarnings("this-escape")
-  public PIDController(double kp, double ki, double kd, double period) {
+  public PIDController(double kp, double ki, double kd, DoubleSupplier periodSupplier) {
     m_kp = kp;
     m_ki = ki;
     m_kd = kd;
+
+    this.periodSupplier = periodSupplier;
 
     if (kp < 0.0) {
       throw new IllegalArgumentException("Kp must be a non-negative number!");
@@ -351,12 +351,6 @@ public class PIDController {
    * @return The next controller output.
    */
   public double calculate(double measurement) {
-    double currentTime = Utils.getTimeSeconds();
-    if (lastTime == -1) {
-      lastTime = currentTime - .01;
-    }
-    double period = lastTime - currentTime;
-
     m_measurement = measurement;
     m_prevError = m_positionError;
     m_haveMeasurement = true;
@@ -368,21 +362,25 @@ public class PIDController {
       m_positionError = m_setpoint - m_measurement;
     }
 
-    m_velocityError = (m_positionError - m_prevError) / period;
+    if (periodSupplier != null) {
+      var period = periodSupplier.getAsDouble();
+      m_velocityError = (m_positionError - m_prevError) / period;
 
-    // If the absolute value of the position error is greater than IZone, reset the total error
-    if (Math.abs(m_positionError) > m_iZone) {
-      m_totalError = 0;
-    } else if (m_ki != 0) {
-      m_totalError =
-          MathUtil.clamp(
-              m_totalError + m_positionError * period,
-              m_minimumIntegral / m_ki,
-              m_maximumIntegral / m_ki);
+      // If the absolute value of the position error is greater than IZone, reset the total error
+      if (Math.abs(m_positionError) > m_iZone) {
+        m_totalError = 0;
+      } else if (m_ki != 0) {
+        m_totalError =
+            MathUtil.clamp(
+                m_totalError + m_positionError * period,
+                m_minimumIntegral / m_ki,
+                m_maximumIntegral / m_ki);
+      }
+
+      return m_kp * m_positionError + m_ki * m_totalError + m_kd * m_velocityError;
+    } else {
+      return m_kp * m_positionError;
     }
-
-    lastTime = currentTime;
-    return m_kp * m_positionError + m_ki * m_totalError + m_kd * m_velocityError;
   }
 
   /** Resets the previous error and the integral term. */

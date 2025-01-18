@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Pose2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation2d;
+import org.firstinspires.ftc.lib.wpilib.math.utils.Units;
 import org.firstinspires.ftc.teamcode.hardware.Drivebase;
 
 @Disabled
@@ -19,11 +20,11 @@ public class PositionTest extends BaseOpMode {
   protected void startup() {
     var drivebase = new Drivebase(this);
 
-    enabled()
-        .onTrue(
-            sequence(
-                drivebase.setPosition(new Pose2d(.205, 0, Rotation2d.kZero)),
-                drivebase.alignToPose(new Pose2d(.8, 0, Rotation2d.k180deg)),
-                drivebase.alignToPose(new Pose2d(.205, 0, Rotation2d.kZero))));
+    registerAutoCommand(
+        sequence(
+            drivebase.setSpeedMult(1),
+            drivebase.setPosition(new Pose2d(0, 0, Rotation2d.kZero)),
+            drivebase.alignToPose(new Pose2d(Units.feetToMeters(6), 0, Rotation2d.kZero)),
+            drivebase.alignToPose(new Pose2d(0, 0, Rotation2d.kZero))));
   }
 }

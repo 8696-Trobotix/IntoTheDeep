@@ -44,7 +44,7 @@ public class Slide extends SubsystemBase {
                     velocityFF.kS_bottom + velocityFF.kG_bottom,
                     velocityFF.kS_top + velocityFF.kG_top))
             / kV;
-    positionPID = new PIDController(7.5, 0, 0);
+    positionPID = new PIDController(7.5, 0, 0, opMode.dtSupplier());
     positionPID.setTolerance(10, 5);
   }
 

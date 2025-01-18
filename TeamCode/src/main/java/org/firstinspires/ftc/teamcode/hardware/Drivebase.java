@@ -121,13 +121,13 @@ public class Drivebase extends SubsystemBase {
                 RevHubOrientationOnRobot.UsbFacingDirection.UP),
             resetGyro);
 
-    xController = new PIDController(5, 0, 0);
-    yController = new PIDController(5, 0, 0);
-    yawController = new PIDController(1, 0, 0);
+    xController = new PIDController(4);
+    yController = new PIDController(4);
+    yawController = new PIDController(2);
     yawController.enableContinuousInput(-Math.PI, Math.PI);
 
-    xController.setTolerance(.05, .05);
-    yController.setTolerance(.05, .05);
+    xController.setTolerance(.025, .05);
+    yController.setTolerance(.025, .05);
     yawController.setTolerance(Units.degreesToRadians(10), Units.degreesToRadians(10));
 
     this.telemetry = opMode.telemetry;
