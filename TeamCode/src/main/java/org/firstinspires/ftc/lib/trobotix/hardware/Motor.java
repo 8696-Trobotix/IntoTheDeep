@@ -83,6 +83,9 @@ public class Motor {
         brake ? DcMotor.ZeroPowerBehavior.BRAKE : DcMotor.ZeroPowerBehavior.FLOAT);
   }
 
+  private double lastDutyCycle = 0;
+  private double tolerance = .001;
+
   /**
    * Set the voltage of the motor.
    *
@@ -100,7 +103,10 @@ public class Motor {
     if (inverted) {
       dutyCycle *= -1;
     }
-    motorInternal.setPower(dutyCycle);
+    if (tolerance > 0 && !MathUtil.isNear(lastDutyCycle, dutyCycle, tolerance)) {
+      motorInternal.setPower(dutyCycle);
+      lastDutyCycle = dutyCycle;
+    }
   }
 
   /**

@@ -126,8 +126,8 @@ public class Drivebase extends SubsystemBase {
     yawController = new PIDController(2);
     yawController.enableContinuousInput(-Math.PI, Math.PI);
 
-    xController.setTolerance(.025, .05);
-    yController.setTolerance(.025, .05);
+    xController.setTolerance(.02, .05);
+    yController.setTolerance(.02, .05);
     yawController.setTolerance(Units.degreesToRadians(10), Units.degreesToRadians(10));
 
     this.telemetry = opMode.telemetry;
