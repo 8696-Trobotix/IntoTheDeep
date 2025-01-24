@@ -25,11 +25,11 @@ public class CycleSpecimen extends BaseOpMode {
 
     registerAutoCommand(
         sequence(
-            drivebase.setSpeedMult(.6),
+            drivebase.setSpeedMult(.55),
             claw.close(),
             // Score the preload
             parallel(
-                drivebase.alignToPose(new Pose2d(.76, 0.1, Rotation2d.kZero)),
+                drivebase.alignToPose(new Pose2d(.78, 0.1, Rotation2d.kZero)),
                 slide.alignHighSpecimen()),
             slide.scoreHighSpecimen(),
             claw.open(),
@@ -37,11 +37,11 @@ public class CycleSpecimen extends BaseOpMode {
             parallel(
                 slide.retract(),
                 sequence(
-                    drivebase.alignToPose(new Pose2d(0.6, -.85, Rotation2d.kZero)),
-                    drivebase.alignToPose(new Pose2d(1.35, -.85, Rotation2d.k180deg)),
-                    drivebase.alignToPose(new Pose2d(1.35, -1.06, Rotation2d.k180deg)),
-                    drivebase.alignToPose(new Pose2d(.1, -1.06, Rotation2d.k180deg)),
-                    drivebase.alignToPose(new Pose2d(-.01, -1.06, Rotation2d.k180deg)))),
+                    drivebase.alignToPose(new Pose2d(0.6, -.73, Rotation2d.kZero)),
+                    drivebase.alignToPose(new Pose2d(1.35, -.73, Rotation2d.k180deg)),
+                    drivebase.alignToPose(new Pose2d(1.35, -1.08, Rotation2d.k180deg)),
+                    drivebase.alignToPose(new Pose2d(.1, -1.1, Rotation2d.k180deg)),
+                    drivebase.alignToPose(new Pose2d(0.03, -1.1, Rotation2d.k180deg)))),
             claw.close(),
             // Go score the first HP station specimen
             parallel(
@@ -49,26 +49,28 @@ public class CycleSpecimen extends BaseOpMode {
                 sequence(
                     waitSeconds(.2),
                     drivebase.alignToPose(new Pose2d(.4, 0.2, Rotation2d.kZero)),
-                    drivebase.alignToPose(new Pose2d(.76, 0.2, Rotation2d.kZero)))),
+                    drivebase.alignToPose(new Pose2d(.78, 0.2, Rotation2d.kZero)))),
             slide.scoreHighSpecimen(),
             claw.open(),
             // Go push another piece into HP station and grab the second specimen
             parallel(
                 slide.retract(),
                 sequence(
-                    drivebase.alignToPose(new Pose2d(0.6, -.85, Rotation2d.kZero)),
-                    drivebase.alignToPose(new Pose2d(1.35, -.85, Rotation2d.k180deg)),
-                    drivebase.alignToPose(new Pose2d(1.35, -1.26, Rotation2d.k180deg)),
-                    drivebase.alignToPose(new Pose2d(.1, -1.26, Rotation2d.k180deg)),
-                    drivebase.alignToPose(new Pose2d(-.01, -1.06, Rotation2d.k180deg)))),
+                    drivebase.alignToPose(new Pose2d(0.6, -.8, Rotation2d.kZero)),
+                    drivebase.alignToPose(new Pose2d(1.35, -.8, Rotation2d.k180deg)),
+                    drivebase.alignToPose(new Pose2d(1.35, -1.38, Rotation2d.k180deg)),
+                    drivebase.alignToPose(new Pose2d(.6, -1.23 , Rotation2d.k180deg)),
+                    drivebase.alignToPose(new Pose2d(0.03, -1.1, Rotation2d.k180deg)))),
             claw.close(),
+            // Go score the second HP station specimen
             parallel(
                 slide.alignHighSpecimen(),
                 sequence(
                     waitSeconds(.2),
                     drivebase.alignToPose(new Pose2d(.4, .3, Rotation2d.kZero)),
-                    drivebase.alignToPose(new Pose2d(.76, .3, Rotation2d.kZero)))),
+                    drivebase.alignToPose(new Pose2d(.78, .3, Rotation2d.kZero)))),
             slide.scoreHighSpecimen(),
-            claw.open()));
+            claw.open(),
+            slide.retract()));
   }
 }

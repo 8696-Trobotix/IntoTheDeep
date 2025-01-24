@@ -98,7 +98,7 @@ public class Drivebase extends SubsystemBase {
         new RelativeEncoder(opMode, "rightPod", false, podTicksPerRotation / podWheelCircumference);
     encoders[2] =
         new RelativeEncoder(opMode, "backPod", false, podTicksPerRotation / podWheelCircumference);
-    double minMicrosecondsPerTick = 18;
+    double minMicrosecondsPerTick = 19;
     double maxTicksPerSecond = 1.0 / (minMicrosecondsPerTick / 1e6);
     maxStrafePodSpeed = (maxTicksPerSecond / podTicksPerRotation) * podWheelCircumference;
 
