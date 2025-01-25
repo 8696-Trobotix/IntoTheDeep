@@ -8,7 +8,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
 import org.firstinspires.ftc.teamcode.hardware.Drivebase;
 
-@Disabled
 @TeleOp
 public class CharacterizeDrive extends BaseOpMode {
   @Override

@@ -37,40 +37,40 @@ public class CycleSpecimen extends BaseOpMode {
             parallel(
                 slide.retract(),
                 sequence(
-                    drivebase.alignToPose(new Pose2d(0.6, -.73, Rotation2d.kZero)),
-                    drivebase.alignToPose(new Pose2d(1.35, -.73, Rotation2d.k180deg)),
-                    drivebase.alignToPose(new Pose2d(1.35, -1.08, Rotation2d.k180deg)),
-                    drivebase.alignToPose(new Pose2d(.1, -1.1, Rotation2d.k180deg)),
-                    drivebase.alignToPose(new Pose2d(0.03, -1.1, Rotation2d.k180deg)))),
+                    drivebase.alignToPose(new Pose2d(0.6, -.7, Rotation2d.kZero)),
+                    drivebase.alignToPose(new Pose2d(1.5, -.7, Rotation2d.k180deg)),
+                    drivebase.alignToPose(new Pose2d(1.5, -.875, Rotation2d.k180deg)),
+//                    drivebase.alignToPose(new Pose2d(.5, -.875, Rotation2d.k180deg)),
+                    drivebase.alignToPose(new Pose2d(0.03, -.875, Rotation2d.k180deg)))),
             claw.close(),
-            // Go score the first HP station specimen
-            parallel(
-                slide.alignHighSpecimen(),
-                sequence(
-                    waitSeconds(.2),
-                    drivebase.alignToPose(new Pose2d(.4, 0.2, Rotation2d.kZero)),
-                    drivebase.alignToPose(new Pose2d(.78, 0.2, Rotation2d.kZero)))),
-            slide.scoreHighSpecimen(),
-            claw.open(),
-            // Go push another piece into HP station and grab the second specimen
-            parallel(
-                slide.retract(),
-                sequence(
-                    drivebase.alignToPose(new Pose2d(0.6, -.8, Rotation2d.kZero)),
-                    drivebase.alignToPose(new Pose2d(1.35, -.8, Rotation2d.k180deg)),
-                    drivebase.alignToPose(new Pose2d(1.35, -1.38, Rotation2d.k180deg)),
-                    drivebase.alignToPose(new Pose2d(.6, -1.23 , Rotation2d.k180deg)),
-                    drivebase.alignToPose(new Pose2d(0.03, -1.1, Rotation2d.k180deg)))),
-            claw.close(),
-            // Go score the second HP station specimen
-            parallel(
-                slide.alignHighSpecimen(),
-                sequence(
-                    waitSeconds(.2),
-                    drivebase.alignToPose(new Pose2d(.4, .3, Rotation2d.kZero)),
-                    drivebase.alignToPose(new Pose2d(.78, .3, Rotation2d.kZero)))),
-            slide.scoreHighSpecimen(),
-            claw.open(),
+//            // Go score the first HP station specimen
+//            parallel(
+//                slide.alignHighSpecimen(),
+//                sequence(
+//                    waitSeconds(.2),
+//                    drivebase.alignToPose(new Pose2d(.4, 0.2, Rotation2d.kZero)),
+//                    drivebase.alignToPose(new Pose2d(.78, 0.2, Rotation2d.kZero)))),
+//            slide.scoreHighSpecimen(),
+//            claw.open(),
+//            // Go push another piece into HP station and grab the second specimen
+//            parallel(
+//                slide.retract(),
+//                sequence(
+//                    drivebase.alignToPose(new Pose2d(0.6, -.8, Rotation2d.kZero)),
+//                    drivebase.alignToPose(new Pose2d(1.33, -.8, Rotation2d.k180deg)),
+//                    drivebase.alignToPose(new Pose2d(1.33, -1.32, Rotation2d.k180deg)),
+//                    drivebase.alignToPose(new Pose2d(.9, -1.11, Rotation2d.k180deg)),
+//                    drivebase.alignToPose(new Pose2d(0.03, -1.11, Rotation2d.k180deg)))),
+//            claw.close(),
+//            // Go score the second HP station specimen
+//            parallel(
+//                slide.alignHighSpecimen(),
+//                sequence(
+//                    waitSeconds(.2),
+//                    drivebase.alignToPose(new Pose2d(.4, .3, Rotation2d.kZero)),
+//                    drivebase.alignToPose(new Pose2d(.78, .3, Rotation2d.kZero)))),
+//            slide.scoreHighSpecimen(),
+//            claw.open(),
             slide.retract()));
   }
 }

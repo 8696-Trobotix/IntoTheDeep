@@ -44,7 +44,9 @@ public class Drivebase extends SubsystemBase {
 
   private final SimpleMotorFeedforward driveController;
 
-  private final RelativeEncoder[] encoders = new RelativeEncoder[3];
+  private final RelativeEncoder leftEncoder;
+  private final RelativeEncoder rightEncoder;
+  private final RelativeEncoder backEncoder;
 
   private final PIDController xController;
   private final PIDController yController;
@@ -86,17 +88,17 @@ public class Drivebase extends SubsystemBase {
     var driveMotor = DCMotor.getGoBILDA5203_0019(1);
 
     topTranslationalSpeedMetersPerSec = (driveWheelDiameter / 2) * driveMotor.freeSpeedRadPerSec;
-    driveController = new SimpleMotorFeedforward(.85, 12 / topTranslationalSpeedMetersPerSec);
+    driveController = new SimpleMotorFeedforward(.6, 12 / topTranslationalSpeedMetersPerSec);
     topAngularSpeedRadPerSec =
         topTranslationalSpeedMetersPerSec / Math.hypot(trackWidth / 2, trackLength / 2);
 
     double podTicksPerRotation = 8192;
     double podWheelCircumference = (35.0 / 1000) * Math.PI;
-    encoders[0] =
+    leftEncoder =
         new RelativeEncoder(opMode, "leftPod", false, podTicksPerRotation / podWheelCircumference);
-    encoders[1] =
+    rightEncoder =
         new RelativeEncoder(opMode, "rightPod", false, podTicksPerRotation / podWheelCircumference);
-    encoders[2] =
+    backEncoder =
         new RelativeEncoder(opMode, "backPod", false, podTicksPerRotation / podWheelCircumference);
     double minMicrosecondsPerTick = 19;
     double maxTicksPerSecond = 1.0 / (minMicrosecondsPerTick / 1e6);
@@ -105,12 +107,13 @@ public class Drivebase extends SubsystemBase {
     // +X = forwards
     // +Y = left
     // CCW+
-    podKinematics =
-        new OdometryPodKinematics(
-            new Transform2d(.0275, 0.0775 / 2, Rotation2d.kZero),
-            new Transform2d(.0275, -0.0725, Rotation2d.kZero),
-            new Transform2d(-.07, 0.05, Rotation2d.kCCW_90deg));
-    odometry = new OdometryPods(podKinematics);
+    podKinematics =new OdometryPodKinematics(
+        new Transform2d((.238 / 2) - .10, -(.288 / 2) + .079, Rotation2d.kZero),
+        new Transform2d((.238 / 2) - .10, (.288 / 2) - .079, Rotation2d.kZero),
+        new Transform2d(-(.238 / 2) + .02, (.288 / 2) - .098, Rotation2d.kCCW_90deg));
+    odometry =
+        new OdometryPods(podKinematics
+            );
 
     gyro =
         new Gyro(
@@ -138,17 +141,16 @@ public class Drivebase extends SubsystemBase {
 
   @Override
   public void periodic() {
-    var leftPodPos = encoders[0].getPosition();
-    var rightPodPos = encoders[1].getPosition();
-    var backPodPos = encoders[2].getPosition();
+    var leftPodPos = leftEncoder.getPosition();
+    var rightPodPos = rightEncoder.getPosition();
+    var backPodPos = backEncoder.getPosition();
 
     telemetry.addData("Drivebase/leftPodPos", leftPodPos);
-    telemetry.addData("Drivebase/rightPodPos", rightPodPos);
+    telemetry.addData("Drivebase/leftPodPos", rightPodPos);
     telemetry.addData("Drivebase/backPodPos", backPodPos);
 
     var pose =
-        odometry.update(
-            gyro.getYaw(), new OdometryPodWheelPositions(leftPodPos, rightPodPos, backPodPos));
+        odometry.update(gyro.getYaw(), new OdometryPodWheelPositions(leftPodPos, rightPodPos, backPodPos));
 
     telemetry.addData("Drivebase/Odo X", pose.getX());
     telemetry.addData("Drivebase/Odo Y", pose.getY());
@@ -275,9 +277,7 @@ public class Drivebase extends SubsystemBase {
             odometry.resetPosition(
                 gyro.getYaw(),
                 new OdometryPodWheelPositions(
-                    encoders[0].getPosition(),
-                    encoders[1].getPosition(),
-                    encoders[2].getPosition()),
+                    leftEncoder.getPosition(), rightEncoder.getPosition(), backEncoder.getPosition()),
                 pose));
   }
 
