@@ -23,7 +23,6 @@ public class PositionTest extends BaseOpMode {
     registerAutoCommand(
         sequence(
             drivebase.setSpeedMult(1),
-            drivebase.setPosition(new Pose2d(0, 0, Rotation2d.kZero)),
             drivebase.alignToPose(new Pose2d(Units.feetToMeters(6), 0, Rotation2d.kZero)),
             drivebase.alignToPose(new Pose2d(0, 0, Rotation2d.kZero))));
   }

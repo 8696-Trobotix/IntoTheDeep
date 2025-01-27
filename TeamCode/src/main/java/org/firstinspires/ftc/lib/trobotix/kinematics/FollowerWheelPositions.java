@@ -30,6 +30,7 @@ public class FollowerWheelPositions {
   }
 
   public FollowerWheelPositions copy() {
-    return new FollowerWheelPositions(new Rotation2d(yaw.getRadians()), wheelPositionsMeters.clone());
+    return new FollowerWheelPositions(
+        new Rotation2d(yaw.getRadians()), wheelPositionsMeters.clone());
   }
 }
