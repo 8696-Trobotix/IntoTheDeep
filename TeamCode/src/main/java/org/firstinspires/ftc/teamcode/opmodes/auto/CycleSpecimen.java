@@ -5,6 +5,7 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import static org.firstinspires.ftc.lib.wpilib.commands.Commands.parallel;
 import static org.firstinspires.ftc.lib.wpilib.commands.Commands.sequence;
+import static org.firstinspires.ftc.lib.wpilib.commands.Commands.waitSeconds;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
@@ -28,7 +29,7 @@ public class CycleSpecimen extends BaseOpMode {
             claw.close(),
             // Score the preload
             parallel(
-                drivebase.alignToPose(new Pose2d(.78, 0.1, Rotation2d.kZero)),
+                drivebase.alignToPose(new Pose2d(.8, 0.1, Rotation2d.kZero)),
                 slide.alignHighSpecimen()),
             slide.scoreHighSpecimen(),
             claw.open(),
@@ -37,42 +38,38 @@ public class CycleSpecimen extends BaseOpMode {
                 slide.retract(),
                 sequence(
                     drivebase.alignToPose(new Pose2d(0.6, -.7, Rotation2d.kZero)),
-                    drivebase.alignToPose(new Pose2d(1.5, -.7, Rotation2d.k180deg)),
-                    drivebase.alignToPose(new Pose2d(1.5, -.875, Rotation2d.k180deg)),
-                    //                    drivebase.alignToPose(new Pose2d(.5, -.875,
-                    // Rotation2d.k180deg)),
-                    drivebase.alignToPose(new Pose2d(0.03, -.875, Rotation2d.k180deg)))),
+                    drivebase.alignToPose(new Pose2d(1.4, -.7, Rotation2d.k180deg)),
+                    drivebase.alignToPose(new Pose2d(1.4, -1.03, Rotation2d.k180deg)),
+                    drivebase.alignToPose(new Pose2d(0.05, -1.03, Rotation2d.k180deg)))),
             claw.close(),
-            //            // Go score the first HP station specimen
-            //            parallel(
-            //                slide.alignHighSpecimen(),
-            //                sequence(
-            //                    waitSeconds(.2),
-            //                    drivebase.alignToPose(new Pose2d(.4, 0.2, Rotation2d.kZero)),
-            //                    drivebase.alignToPose(new Pose2d(.78, 0.2, Rotation2d.kZero)))),
-            //            slide.scoreHighSpecimen(),
-            //            claw.open(),
-            //            // Go push another piece into HP station and grab the second specimen
-            //            parallel(
-            //                slide.retract(),
-            //                sequence(
-            //                    drivebase.alignToPose(new Pose2d(0.6, -.8, Rotation2d.kZero)),
-            //                    drivebase.alignToPose(new Pose2d(1.33, -.8, Rotation2d.k180deg)),
-            //                    drivebase.alignToPose(new Pose2d(1.33, -1.32,
-            // Rotation2d.k180deg)),
-            //                    drivebase.alignToPose(new Pose2d(.9, -1.11, Rotation2d.k180deg)),
-            //                    drivebase.alignToPose(new Pose2d(0.03, -1.11,
-            // Rotation2d.k180deg)))),
-            //            claw.close(),
-            //            // Go score the second HP station specimen
-            //            parallel(
-            //                slide.alignHighSpecimen(),
-            //                sequence(
-            //                    waitSeconds(.2),
-            //                    drivebase.alignToPose(new Pose2d(.4, .3, Rotation2d.kZero)),
-            //                    drivebase.alignToPose(new Pose2d(.78, .3, Rotation2d.kZero)))),
-            //            slide.scoreHighSpecimen(),
-            //            claw.open(),
+            // Go score the first HP station specimen
+            parallel(
+                slide.alignHighSpecimen(),
+                sequence(
+                    waitSeconds(.2),
+                    drivebase.alignToPose(new Pose2d(.6, 0.15, Rotation2d.kZero)),
+                    drivebase.alignToPose(new Pose2d(.85, 0.15, Rotation2d.kZero)))),
+            slide.scoreHighSpecimen(),
+            claw.open(),
+            // Go push another piece into HP station and grab the second specimen
+            parallel(
+                slide.retract(),
+                sequence(
+                    drivebase.alignToPose(new Pose2d(0.6, -.8, Rotation2d.kZero)),
+                    drivebase.alignToPose(new Pose2d(1.4, -.8, Rotation2d.k180deg)),
+                    drivebase.alignToPose(new Pose2d(1.4, -1.4, Rotation2d.k180deg)),
+                    drivebase.alignToPose(new Pose2d(.9, -1.09, Rotation2d.k180deg)),
+                    drivebase.alignToPose(new Pose2d(0.1, -1.09, Rotation2d.k180deg)))),
+            claw.close(),
+            // Go score the second HP station specimen
+            parallel(
+                slide.alignHighSpecimen(),
+                sequence(
+                    waitSeconds(.2),
+                    drivebase.alignToPose(new Pose2d(.6, .2, Rotation2d.kZero)),
+                    drivebase.alignToPose(new Pose2d(.915, .2, Rotation2d.kZero)))),
+            slide.scoreHighSpecimen(),
+            claw.open(),
             slide.retract()));
   }
 }

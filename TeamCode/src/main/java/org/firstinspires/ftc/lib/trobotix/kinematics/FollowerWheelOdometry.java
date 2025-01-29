@@ -56,8 +56,8 @@ public class FollowerWheelOdometry {
     var twist = kinematics.toTwist2d(positions.minus(previousWheelPositions));
     var newPose = poseMeters.exp(twist);
 
-    previousWheelPositions = previousWheelPositions.copy();
-    poseMeters = newPose;
+    previousWheelPositions = positions.copy();
+    poseMeters = new Pose2d(newPose.getTranslation(), positions.yaw);
 
     return poseMeters;
   }

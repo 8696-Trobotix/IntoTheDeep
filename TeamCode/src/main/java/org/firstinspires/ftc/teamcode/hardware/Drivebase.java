@@ -51,6 +51,8 @@ public class Drivebase extends SubsystemBase {
 
   private final Telemetry telemetry;
 
+  private final DoubleSupplier dtSupplier;
+
   public Drivebase(BaseOpMode opMode) {
     this(opMode, false);
   }
@@ -111,8 +113,8 @@ public class Drivebase extends SubsystemBase {
     odometry =
         new FollowerWheelOdometry(
             new FollowerWheelKinematics(
-                new Transform2d((.238 / 2) - .10, -(.288 / 2) + .079, Rotation2d.kZero),
-                new Transform2d(-(.238 / 2) + .02, (.288 / 2) - .098, Rotation2d.kCCW_90deg)),
+                new Transform2d((.238 / 2) - .10, -(.287 / 2) + .0775, Rotation2d.kZero),
+                new Transform2d(-(.238 / 2) + .02, (.287 / 2) - .098, Rotation2d.kCCW_90deg)),
             new FollowerWheelPositions(
                 gyro.getYaw(), frontEncoder.getPosition(), backEncoder.getPosition()),
             Pose2d.kZero);
@@ -127,6 +129,8 @@ public class Drivebase extends SubsystemBase {
     yawController.setTolerance(Units.degreesToRadians(10), Units.degreesToRadians(10));
 
     this.telemetry = opMode.telemetry;
+
+    dtSupplier = opMode.dtSupplier();
   }
 
   private final double topTranslationalSpeedMetersPerSec;
@@ -136,7 +140,7 @@ public class Drivebase extends SubsystemBase {
   public void periodic() {
     var frontPodPos = frontEncoder.getPosition();
     var backPodPos = backEncoder.getPosition();
-    telemetry.addData("Drivebase/leftPodPos", frontPodPos);
+    telemetry.addData("Drivebase/frontPodPos", frontPodPos);
     telemetry.addData("Drivebase/backPodPos", backPodPos);
 
     var pose = odometry.update(new FollowerWheelPositions(gyro.getYaw(), frontPodPos, backPodPos));
@@ -147,17 +151,18 @@ public class Drivebase extends SubsystemBase {
   }
 
   private void robotRelativeDrive(ChassisSpeeds chassisSpeeds) {
-    var speeds = kinematics.toWheelSpeeds(chassisSpeeds);
-    speeds.desaturate(topTranslationalSpeedMetersPerSec);
-    var desaturatedChassisSpeeds = kinematics.toChassisSpeeds(speeds);
+    chassisSpeeds = ChassisSpeeds.discretize(chassisSpeeds, dtSupplier.getAsDouble());
+    var wheelSpeeds = kinematics.toWheelSpeeds(chassisSpeeds);
+    wheelSpeeds.desaturate(topTranslationalSpeedMetersPerSec);
+    var desaturatedChassisSpeeds = kinematics.toChassisSpeeds(wheelSpeeds);
     telemetry.addData("Drivebase/Commanded vel X", desaturatedChassisSpeeds.vxMetersPerSecond);
     telemetry.addData("Drivebase/Commanded vel Y", desaturatedChassisSpeeds.vyMetersPerSecond);
     telemetry.addData("Drivebase/Commanded omega", desaturatedChassisSpeeds.omegaRadiansPerSecond);
 
-    frontLeft.set(driveController.calculate(speeds.frontLeftMetersPerSecond));
-    frontRight.set(driveController.calculate(speeds.frontRightMetersPerSecond));
-    backLeft.set(driveController.calculate(speeds.rearLeftMetersPerSecond));
-    backRight.set(driveController.calculate(speeds.rearRightMetersPerSecond));
+    frontLeft.set(driveController.calculate(wheelSpeeds.frontLeftMetersPerSecond));
+    frontRight.set(driveController.calculate(wheelSpeeds.frontRightMetersPerSecond));
+    backLeft.set(driveController.calculate(wheelSpeeds.rearLeftMetersPerSecond));
+    backRight.set(driveController.calculate(wheelSpeeds.rearRightMetersPerSecond));
   }
 
   public Command alignToPose(Pose2d pose) {
