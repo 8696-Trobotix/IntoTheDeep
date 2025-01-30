@@ -22,7 +22,6 @@ import org.firstinspires.ftc.lib.wpilib.math.filter.LinearFilter;
  */
 @Photon
 public abstract class BaseOpMode extends LinearOpMode {
-  private Trigger enableTrigger;
   private double dt = .01;
   private double busVoltage;
 
@@ -38,7 +37,6 @@ public abstract class BaseOpMode extends LinearOpMode {
     final var busVoltageSensor = hardwareMap.getAll(LynxVoltageSensor.class).iterator().next();
     busVoltage = busVoltageSensor.getVoltage();
     CommandScheduler.initScheduler();
-    enableTrigger = new Trigger(this::opModeIsActive);
     primaryController = new CommandXboxController(this, true);
     secondaryController = new CommandXboxController(this, false);
     // User code init
@@ -72,7 +70,6 @@ public abstract class BaseOpMode extends LinearOpMode {
     CommandScheduler.getInstance().cancelAll();
     CommandScheduler.getInstance().run();
     CommandScheduler.clearScheduler();
-    enableTrigger = null;
     primaryController = null;
     secondaryController = null;
     autoCommand = null;
@@ -90,11 +87,6 @@ public abstract class BaseOpMode extends LinearOpMode {
    * in {@link Subsystem#periodic()}
    */
   protected abstract void startup();
-
-  /** A {@link Trigger} that flips true when the Start button is pressed. */
-  protected final Trigger enabled() {
-    return enableTrigger;
-  }
 
   /**
    * A {@link DoubleSupplier} that returns the delta time between the current tick and the last
