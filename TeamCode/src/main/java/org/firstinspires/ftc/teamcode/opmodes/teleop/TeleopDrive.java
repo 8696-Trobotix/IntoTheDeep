@@ -40,6 +40,10 @@ public class TeleopDrive extends BaseOpMode {
     slide.setDefaultCommand(slide.teleopControl(() -> secondaryController().getLeftY()));
     secondaryController().y().onTrue(slide.alignHighSpecimen());
     secondaryController().x().onTrue(slide.retract());
+    secondaryController()
+        .leftTrigger()
+        .onTrue(slide.enableOverride())
+        .onFalse(slide.disableOverride());
 
     secondaryController().b().onTrue(claw.open());
     secondaryController().a().onTrue(claw.close());

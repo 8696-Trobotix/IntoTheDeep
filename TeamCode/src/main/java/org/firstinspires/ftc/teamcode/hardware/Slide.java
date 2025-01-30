@@ -8,6 +8,7 @@ import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
 import org.firstinspires.ftc.lib.trobotix.controller.ViperSlideFeedforward;
 import org.firstinspires.ftc.lib.trobotix.hardware.Motor;
 import org.firstinspires.ftc.lib.wpilib.commands.Command;
+import org.firstinspires.ftc.lib.wpilib.commands.Commands;
 import org.firstinspires.ftc.lib.wpilib.commands.SubsystemBase;
 import org.firstinspires.ftc.lib.wpilib.math.MathUtil;
 import org.firstinspires.ftc.lib.wpilib.math.controller.PIDController;
@@ -71,7 +72,7 @@ public class Slide extends SubsystemBase {
   }
 
   public Command alignHighSpecimen() {
-    return goToPosition(655);
+    return goToPosition(650);
   }
 
   public Command scoreHighSpecimen() {
@@ -83,8 +84,10 @@ public class Slide extends SubsystemBase {
   }
 
   private void runVel(double targetVel) {
-    if ((motor.getPosition() < minPosMm && targetVel < 0)
-        || (motor.getPosition() > maxPosMm && targetVel > 0)) {
+    telemetry.addData("Slide/Override enabled", override);
+    if (!override
+        && ((motor.getPosition() < minPosMm && targetVel < 0)
+            || (motor.getPosition() > maxPosMm && targetVel > 0))) {
       targetVel = 0;
     }
     targetVel =
@@ -98,6 +101,20 @@ public class Slide extends SubsystemBase {
     var voltage = velocityFF.calculate(motor.getPosition(), targetVel);
     telemetry.addData("Slide/Voltage", voltage);
     motor.set(voltage);
+  }
+
+  private boolean override = false;
+
+  public Command enableOverride() {
+    return Commands.runOnce(() -> override = true);
+  }
+
+  public Command disableOverride() {
+    return Commands.runOnce(
+        () -> {
+          override = false;
+          motor.setPosition(minPosMm);
+        });
   }
 
   private void runPosition(double targetPosition) {
