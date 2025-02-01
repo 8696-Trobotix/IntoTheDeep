@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.hardware.Claw;
 import org.firstinspires.ftc.teamcode.hardware.Drivebase;
 import org.firstinspires.ftc.teamcode.hardware.Slide;
 
-@Autonomous
+@Autonomous(preselectTeleOp = "TeleopDrive")
 public class CycleSpecimenAndPark extends BaseOpMode {
   @Override
   protected void startup() {
@@ -47,6 +47,7 @@ public class CycleSpecimenAndPark extends BaseOpMode {
                 slide.alignHighSpecimen(),
                 sequence(
                     waitSeconds(.2),
+                    drivebase.alignToPose(new Pose2d(0.2, -1.04, Rotation2d.k180deg)),
                     drivebase.alignToPose(new Pose2d(.5, 0.15, Rotation2d.kZero)),
                     drivebase.alignToPose(new Pose2d(.82, 0.15, Rotation2d.kZero)))),
             slide.scoreHighSpecimen(),
@@ -63,6 +64,7 @@ public class CycleSpecimenAndPark extends BaseOpMode {
                 slide.alignHighSpecimen(),
                 sequence(
                     waitSeconds(.2),
+                    drivebase.alignToPose(new Pose2d(0.2, -1.04, Rotation2d.k180deg)),
                     drivebase.alignToPose(new Pose2d(.5, .2, Rotation2d.kZero)),
                     drivebase.alignToPose(new Pose2d(.82, .2, Rotation2d.kZero)))),
             slide.scoreHighSpecimen(),
