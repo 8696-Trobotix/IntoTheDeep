@@ -4,6 +4,7 @@
 package org.firstinspires.ftc.lib.trobotix.kinematics;
 
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Pose2d;
+import org.firstinspires.ftc.lib.wpilib.math.geometry.Translation2d;
 
 public class FollowerWheelOdometry {
   private FollowerWheelKinematics kinematics;
@@ -29,9 +30,9 @@ public class FollowerWheelOdometry {
    * @param positions The current readings of the encoders and the gyro.
    * @param poseMeters The position on the field that your robot is at.
    */
-  public void resetPosition(FollowerWheelPositions positions, Pose2d poseMeters) {
+  public void resetPosition(FollowerWheelPositions positions, Translation2d poseMeters) {
     previousWheelPositions = positions;
-    this.poseMeters = poseMeters;
+    this.poseMeters = new Pose2d(poseMeters, this.poseMeters.getRotation());
   }
 
   /**

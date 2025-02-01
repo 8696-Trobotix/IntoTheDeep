@@ -25,7 +25,7 @@ public class CycleSpecimenAndPark extends BaseOpMode {
 
     registerAutoCommand(
         sequence(
-            drivebase.setSpeedMult(.45),
+            drivebase.setSpeedMult(.5),
             claw.close(),
             // Score the preload
             parallel(
@@ -38,8 +38,8 @@ public class CycleSpecimenAndPark extends BaseOpMode {
                 slide.retract(),
                 sequence(
                     drivebase.alignToPose(new Pose2d(0.6, -.7, Rotation2d.kZero)),
-                    drivebase.alignToPose(new Pose2d(1.4, -.7, Rotation2d.k180deg)),
-                    drivebase.alignToPose(new Pose2d(1.4, -1.03, Rotation2d.k180deg)),
+                    drivebase.alignToPose(new Pose2d(1.3, -.7, Rotation2d.k180deg)),
+                    drivebase.alignToPose(new Pose2d(1.3, -1.03, Rotation2d.k180deg)),
                     drivebase.alignToPose(new Pose2d(0.05, -1.03, Rotation2d.k180deg)))),
             claw.close(),
             // Go score the first HP station specimen
@@ -48,7 +48,7 @@ public class CycleSpecimenAndPark extends BaseOpMode {
                 sequence(
                     waitSeconds(.2),
                     drivebase.alignToPose(new Pose2d(.6, 0.15, Rotation2d.kZero)),
-                    drivebase.alignToPose(new Pose2d(.85, 0.15, Rotation2d.kZero)))),
+                    drivebase.alignToPose(new Pose2d(.845, 0.15, Rotation2d.kZero)))),
             slide.scoreHighSpecimen(),
             claw.open(),
             // Go grab the second specimen
@@ -56,7 +56,7 @@ public class CycleSpecimenAndPark extends BaseOpMode {
                 slide.retract(),
                 sequence(
                     drivebase.alignToPose(new Pose2d(.3, -1.065, Rotation2d.k180deg)),
-                    drivebase.alignToPose(new Pose2d(0.065, -1.065, Rotation2d.k180deg)))),
+                    drivebase.alignToPose(new Pose2d(0.075, -1.065, Rotation2d.k180deg)))),
             claw.close(),
             // Go score the second HP station specimen
             parallel(

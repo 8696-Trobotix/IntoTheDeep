@@ -25,7 +25,7 @@ public class Claw extends SubsystemBase {
               left.setPosition(.2);
               right.setPosition(0.8);
             })
-        .andThen(waitSeconds(.3));
+        .andThen(waitSeconds(.2));
   }
 
   public Command close() {
@@ -34,6 +34,6 @@ public class Claw extends SubsystemBase {
               left.setPosition(0);
               right.setPosition(1);
             })
-        .andThen(waitSeconds(.3));
+        .andThen(waitSeconds(.2));
   }
 }

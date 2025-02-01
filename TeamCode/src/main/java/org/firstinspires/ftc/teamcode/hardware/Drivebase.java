@@ -119,14 +119,15 @@ public class Drivebase extends SubsystemBase {
                 gyro.getYaw(), frontEncoder.getPosition(), backEncoder.getPosition()),
             Pose2d.kZero);
 
-    xController = new PIDController(4);
-    yController = new PIDController(4);
+    xController = new PIDController(3);
+    yController = new PIDController(3);
     yawController = new PIDController(2);
     yawController.enableContinuousInput(-Math.PI, Math.PI);
 
-    xController.setTolerance(.02, .05);
-    yController.setTolerance(.02, .05);
+    xController.setTolerance(.03, .05);
+    yController.setTolerance(.03, .05);
     yawController.setTolerance(Units.degreesToRadians(10), Units.degreesToRadians(10));
+
 
     this.telemetry = opMode.telemetry;
 
