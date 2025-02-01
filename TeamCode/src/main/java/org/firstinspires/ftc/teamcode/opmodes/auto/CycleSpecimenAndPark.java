@@ -37,10 +37,10 @@ public class CycleSpecimenAndPark extends BaseOpMode {
             parallel(
                 slide.retract(),
                 sequence(
-                    drivebase.alignToPose(new Pose2d(0.6, -.7, Rotation2d.kZero)),
-                    drivebase.alignToPose(new Pose2d(1.3, -.7, Rotation2d.k180deg)),
-                    drivebase.alignToPose(new Pose2d(1.3, -1.03, Rotation2d.k180deg)),
-                    drivebase.alignToPose(new Pose2d(0.05, -1.03, Rotation2d.k180deg)))),
+                    drivebase.alignToPose(new Pose2d(0.6, -.75, Rotation2d.kZero)),
+                    drivebase.alignToPose(new Pose2d(1.4, -.75, Rotation2d.kZero)),
+                    drivebase.alignToPose(new Pose2d(1.4, -1.03, Rotation2d.k180deg)),
+                    drivebase.alignToPose(new Pose2d(0.02, -1.03, Rotation2d.k180deg)))),
             claw.close(),
             // Go score the first HP station specimen
             parallel(
@@ -48,7 +48,7 @@ public class CycleSpecimenAndPark extends BaseOpMode {
                 sequence(
                     waitSeconds(.2),
                     drivebase.alignToPose(new Pose2d(.5, 0.15, Rotation2d.kZero)),
-                    drivebase.alignToPose(new Pose2d(.815, 0.15, Rotation2d.kZero)))),
+                    drivebase.alignToPose(new Pose2d(.82, 0.15, Rotation2d.kZero)))),
             slide.scoreHighSpecimen(),
             claw.open(),
             // Go grab the second specimen
@@ -56,7 +56,7 @@ public class CycleSpecimenAndPark extends BaseOpMode {
                 slide.retract(),
                 sequence(
                     drivebase.alignToPose(new Pose2d(.3, -1.04, Rotation2d.k180deg)),
-                    drivebase.alignToPose(new Pose2d(0.0, -1.04, Rotation2d.k180deg)))),
+                    drivebase.alignToPose(new Pose2d(0.02, -1.04, Rotation2d.k180deg)))),
             claw.close(),
             // Go score the second HP station specimen
             parallel(
@@ -64,11 +64,11 @@ public class CycleSpecimenAndPark extends BaseOpMode {
                 sequence(
                     waitSeconds(.2),
                     drivebase.alignToPose(new Pose2d(.5, .2, Rotation2d.kZero)),
-                    drivebase.alignToPose(new Pose2d(.775, .2, Rotation2d.kZero)))),
+                    drivebase.alignToPose(new Pose2d(.82, .2, Rotation2d.kZero)))),
             slide.scoreHighSpecimen(),
             claw.open(),
             parallel(
                 slide.retract(),
-                drivebase.alignToPose(new Pose2d(0.15, -1.47, Rotation2d.kZero)))));
+                drivebase.alignToPose(new Pose2d(0.1, -1.47, Rotation2d.kZero)))));
   }
 }
