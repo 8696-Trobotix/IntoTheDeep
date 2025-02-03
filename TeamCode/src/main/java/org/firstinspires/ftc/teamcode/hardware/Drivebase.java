@@ -128,7 +128,6 @@ public class Drivebase extends SubsystemBase {
     yController.setTolerance(.02, .05);
     yawController.setTolerance(Units.degreesToRadians(10), Units.degreesToRadians(10));
 
-
     this.telemetry = opMode.telemetry;
 
     dtSupplier = opMode.dtSupplier();

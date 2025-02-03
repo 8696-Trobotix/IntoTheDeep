@@ -5,17 +5,26 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.firstinspires.ftc:Inspection:10.1.1'
-    implementation 'org.firstinspires.ftc:Blocks:10.1.1'
-    implementation 'org.firstinspires.ftc:RobotCore:10.1.1'
-    implementation 'org.firstinspires.ftc:RobotServer:10.1.1'
-    implementation 'org.firstinspires.ftc:OnBotJava:10.1.1'
-    implementation 'org.firstinspires.ftc:Hardware:10.1.1'
-    implementation 'org.firstinspires.ftc:FtcCommon:10.1.1'
-    implementation 'org.firstinspires.ftc:Vision:10.1.1'
+    implementation 'org.firstinspires.ftc:Inspection:10.2.0'
+    implementation 'org.firstinspires.ftc:Blocks:10.2.0'
+    implementation 'org.firstinspires.ftc:RobotCore:10.2.0'
+    implementation 'org.firstinspires.ftc:RobotServer:10.2.0'
+    implementation 'org.firstinspires.ftc:OnBotJava:10.2.0'
+    implementation 'org.firstinspires.ftc:Hardware:10.2.0'
+    implementation 'org.firstinspires.ftc:FtcCommon:10.2.0'
+    implementation 'org.firstinspires.ftc:Vision:10.2.0'
     //noinspection GradleDependency
     implementation 'androidx.appcompat:appcompat:1.2.0'
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
     implementation 'com.github.Eeshwar-Krishnan:PhotonFTC:v3.0.1-ALPHA'
     implementation 'org.ejml:ejml-simple:0.43.1'
+
+    constraints {
+        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.0") {
+            because("kotlin-stdlib-jdk7 is now a part of kotlin-stdlib")
+        }
+        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0") {
+            because("kotlin-stdlib-jdk8 is now a part of kotlin-stdlib")
+        }
+    }
 }
