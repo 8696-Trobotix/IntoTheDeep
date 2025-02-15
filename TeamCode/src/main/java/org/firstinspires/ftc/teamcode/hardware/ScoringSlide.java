@@ -12,10 +12,9 @@ import org.firstinspires.ftc.lib.wpilib.commands.Commands;
 import org.firstinspires.ftc.lib.wpilib.commands.SubsystemBase;
 import org.firstinspires.ftc.lib.wpilib.math.MathUtil;
 import org.firstinspires.ftc.lib.wpilib.math.controller.PIDController;
-import org.firstinspires.ftc.lib.wpilib.math.utils.Units;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-public class Slide extends SubsystemBase {
+public class ScoringSlide extends SubsystemBase {
   private final Motor motor;
   private final ViperSlideFeedforward velocityFF;
   private final PIDController positionPID;
@@ -27,17 +26,18 @@ public class Slide extends SubsystemBase {
   private final double minPosMm = 240;
   private final double maxPosMm = 862;
 
-  public Slide(BaseOpMode opMode) {
+  public ScoringSlide(BaseOpMode opMode) {
     motor = new Motor(opMode, "linearSlide", true);
     telemetry = opMode.telemetry;
 
-    double ticksPerRad = 537.689839572 / (2 * Math.PI);
-    double pulleyDiameterMm = Units.inchesToMeters(1.5) * 1000;
-    motor.setConversionFactor(ticksPerRad / (pulleyDiameterMm / 2));
+    double gearRatio = (((1 + (46.0 / 17.0))) * (1 + (46.0 / 17.0)));
+    double ticksPerRotation = (28 * gearRatio);
+    double distancePerRotation = 2 * 60; // Pitch * teeth
+    motor.setConversionFactor(ticksPerRotation / distancePerRotation);
     motor.setInverted(false);
     motor.setPosition(minPosMm);
 
-    var kV = 12 / (Units.rotationsPerMinuteToRadiansPerSecond(312) * (pulleyDiameterMm / 2));
+    var kV = 12 / ((6000.0 / 60.0) / gearRatio * distancePerRotation);
     velocityFF = new ViperSlideFeedforward(minPosMm, maxPosMm, .95, .5, .35, 1.115, kV);
     maxVelMmPerSec =
         (12
@@ -54,7 +54,7 @@ public class Slide extends SubsystemBase {
     telemetry.addData("Slide/Position", motor.getPosition());
   }
 
-  public Command teleopControl(DoubleSupplier control) {
+  public Command manualControl(DoubleSupplier control) {
     return run(
         () -> {
           telemetry.addData("Gamepad2/control", control.getAsDouble());
@@ -81,6 +81,10 @@ public class Slide extends SubsystemBase {
 
   public Command retract() {
     return goToPosition(minPosMm);
+  }
+
+  public Command retractDefault() {
+    return runOnce(positionPID::reset).andThen(run(() -> runPosition(minPosMm)));
   }
 
   private void runVel(double targetVel) {

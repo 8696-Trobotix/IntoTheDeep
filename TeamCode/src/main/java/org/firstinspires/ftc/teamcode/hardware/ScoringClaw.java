@@ -10,13 +10,13 @@ import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
 import org.firstinspires.ftc.lib.wpilib.commands.Command;
 import org.firstinspires.ftc.lib.wpilib.commands.SubsystemBase;
 
-public class Claw extends SubsystemBase {
+public class ScoringClaw extends SubsystemBase {
   private final Servo left;
   private final Servo right;
 
-  public Claw(BaseOpMode opMode) {
-    left = opMode.hardwareMap.servo.get("clawServoLeft");
-    right = opMode.hardwareMap.servo.get("clawServoRight");
+  public ScoringClaw(BaseOpMode opMode) {
+    left = opMode.hardwareMap.servo.get("scoringClawLeft");
+    right = opMode.hardwareMap.servo.get("scoringClawRight");
   }
 
   public Command open() {

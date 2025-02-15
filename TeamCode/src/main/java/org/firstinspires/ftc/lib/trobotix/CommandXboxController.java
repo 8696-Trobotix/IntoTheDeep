@@ -259,6 +259,38 @@ public class CommandXboxController {
     return new Trigger(loop, () -> getGamepad().back);
   }
 
+  public Trigger dPadUp() {
+    return dPadUp(CommandScheduler.getInstance().getDefaultButtonLoop());
+  }
+
+  public Trigger dPadUp(EventLoop loop) {
+    return new Trigger(loop, () -> getGamepad().dpad_up);
+  }
+
+  public Trigger dPadDown() {
+    return dPadDown(CommandScheduler.getInstance().getDefaultButtonLoop());
+  }
+
+  public Trigger dPadDown(EventLoop loop) {
+    return new Trigger(loop, () -> getGamepad().dpad_down);
+  }
+
+  public Trigger dPadLeft() {
+    return dPadLeft(CommandScheduler.getInstance().getDefaultButtonLoop());
+  }
+
+  public Trigger dPadLeft(EventLoop loop) {
+    return new Trigger(loop, () -> getGamepad().dpad_left);
+  }
+
+  public Trigger dPadRight() {
+    return dPadRight(CommandScheduler.getInstance().getDefaultButtonLoop());
+  }
+
+  public Trigger dPadRight(EventLoop loop) {
+    return new Trigger(loop, () -> getGamepad().dpad_right);
+  }
+
   /**
    * Constructs a Trigger instance around the axis value of the left trigger. The returned trigger
    * will be true when the axis value is greater than {@code threshold}.

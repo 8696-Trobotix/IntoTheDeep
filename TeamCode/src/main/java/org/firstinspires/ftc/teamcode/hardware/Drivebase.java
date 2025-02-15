@@ -43,7 +43,7 @@ public class Drivebase extends SubsystemBase {
   private final SimpleMotorFeedforward driveController;
 
   private final RelativeEncoder frontEncoder;
-  private final RelativeEncoder backEncoder;
+  private final RelativeEncoder podB;
 
   private final PIDController xController;
   private final PIDController yController;
@@ -72,9 +72,9 @@ public class Drivebase extends SubsystemBase {
     backLeft = new Motor(opMode, "backLeft"); // 0
     backRight = new Motor(opMode, "backRight"); // 2
 
-    frontLeft.setInverted(false);
+    frontLeft.setInverted(true);
     backLeft.setInverted(true);
-    frontRight.setInverted(true);
+    frontRight.setInverted(false);
     backRight.setInverted(false);
 
     frontLeft.setIdleBrake(true);
@@ -94,14 +94,13 @@ public class Drivebase extends SubsystemBase {
     double podTicksPerRotation = 8192;
     double podWheelCircumference = (35.0 / 1000) * Math.PI;
     frontEncoder =
-        new RelativeEncoder(opMode, "frontPod", false, podTicksPerRotation / podWheelCircumference);
-    backEncoder =
-        new RelativeEncoder(opMode, "backPod", false, podTicksPerRotation / podWheelCircumference);
+        new RelativeEncoder(opMode, "podA", false, podTicksPerRotation / podWheelCircumference);
+    podB = new RelativeEncoder(opMode, "podB", false, podTicksPerRotation / podWheelCircumference);
 
     gyro =
         new Gyro(
             opMode,
-            "IMU",
+            "imu",
             new RevHubOrientationOnRobot(
                 RevHubOrientationOnRobot.LogoFacingDirection.BACKWARD,
                 RevHubOrientationOnRobot.UsbFacingDirection.UP),
@@ -113,10 +112,10 @@ public class Drivebase extends SubsystemBase {
     odometry =
         new FollowerWheelOdometry(
             new FollowerWheelKinematics(
-                new Transform2d((.238 / 2) - .10, -(.287 / 2) + .0775, Rotation2d.kZero),
-                new Transform2d(-(.238 / 2) + .02, (.287 / 2) - .098, Rotation2d.kCCW_90deg)),
+                new Transform2d((-.327 / 2) + 25.0 / 1000, 25.0 / 10007, Rotation2d.k180deg),
+                new Transform2d((-.327 / 2) + 25.0 / 1000, -25.0 / 1000, Rotation2d.kCCW_90deg)),
             new FollowerWheelPositions(
-                gyro.getYaw(), frontEncoder.getPosition(), backEncoder.getPosition()),
+                gyro.getYaw(), frontEncoder.getPosition(), podB.getPosition()),
             Pose2d.kZero);
 
     xController = new PIDController(4);
@@ -139,11 +138,11 @@ public class Drivebase extends SubsystemBase {
   @Override
   public void periodic() {
     var frontPodPos = frontEncoder.getPosition();
-    var backPodPos = backEncoder.getPosition();
+    var podBPos = podB.getPosition();
     telemetry.addData("Drivebase/frontPodPos", frontPodPos);
-    telemetry.addData("Drivebase/backPodPos", backPodPos);
+    telemetry.addData("Drivebase/podBPos", podBPos);
 
-    var pose = odometry.update(new FollowerWheelPositions(gyro.getYaw(), frontPodPos, backPodPos));
+    var pose = odometry.update(new FollowerWheelPositions(gyro.getYaw(), frontPodPos, podBPos));
 
     telemetry.addData("Drivebase/Odo X", pose.getX());
     telemetry.addData("Drivebase/Odo Y", pose.getY());

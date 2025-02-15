@@ -12,9 +12,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Pose2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation2d;
-import org.firstinspires.ftc.teamcode.hardware.Claw;
+import org.firstinspires.ftc.teamcode.hardware.ScoringClaw;
 import org.firstinspires.ftc.teamcode.hardware.Drivebase;
-import org.firstinspires.ftc.teamcode.hardware.Slide;
+import org.firstinspires.ftc.teamcode.hardware.ScoringSlide;
 
 @Disabled
 @Autonomous
@@ -22,8 +22,8 @@ public class CycleSpecimen extends BaseOpMode {
   @Override
   protected void startup() {
     var drivebase = new Drivebase(this, true);
-    var slide = new Slide(this);
-    var claw = new Claw(this);
+    var slide = new ScoringSlide(this);
+    var claw = new ScoringClaw(this);
 
     registerAutoCommand(
         sequence(

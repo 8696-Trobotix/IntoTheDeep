@@ -5,17 +5,19 @@ package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
-import org.firstinspires.ftc.teamcode.hardware.Claw;
 import org.firstinspires.ftc.teamcode.hardware.Drivebase;
-import org.firstinspires.ftc.teamcode.hardware.Slide;
+import org.firstinspires.ftc.teamcode.hardware.IntakeClaw;
+import org.firstinspires.ftc.teamcode.hardware.IntakeSlide;
+import org.firstinspires.ftc.teamcode.hardware.ScoringClaw;
+import org.firstinspires.ftc.teamcode.hardware.ScoringSlide;
 
 @TeleOp
 public class TeleopDrive extends BaseOpMode {
   @Override
   public void startup() {
     var drivebase = new Drivebase(this);
-    var slide = new Slide(this);
-    var claw = new Claw(this);
+    var scoringSlide = new ScoringSlide(this);
+    var scoringClaw = new ScoringClaw(this);
 
     drivebase.setDefaultCommand(
         drivebase.teleopDrive(
@@ -37,15 +39,18 @@ public class TeleopDrive extends BaseOpMode {
             drivebase.alignSpecimen(
                 () -> primaryController().getLeftY(), () -> primaryController().getLeftX()));
 
-    slide.setDefaultCommand(slide.teleopControl(() -> secondaryController().getLeftY()));
-    secondaryController().y().onTrue(slide.alignHighSpecimen());
-    secondaryController().x().onTrue(slide.retract());
+    scoringSlide.setDefaultCommand(scoringSlide.retractDefault());
     secondaryController()
-        .leftTrigger()
-        .onTrue(slide.enableOverride())
-        .onFalse(slide.disableOverride());
+        .y()
+        .whileTrue(scoringSlide.alignHighSpecimen())
+        .onFalse(scoringSlide.scoreHighSpecimen().andThen(scoringClaw.open()));
+    secondaryController()
+        .rightTrigger()
+        .onTrue(scoringSlide.enableOverride())
+        .whileTrue(scoringSlide.manualControl(() -> secondaryController().getRightY()))
+        .onFalse(scoringSlide.disableOverride());
 
-    secondaryController().b().onTrue(claw.open());
-    secondaryController().a().onTrue(claw.close());
+    secondaryController().b().onTrue(scoringClaw.open());
+    secondaryController().a().onTrue(scoringClaw.close());
   }
 }
