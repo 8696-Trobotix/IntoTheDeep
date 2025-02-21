@@ -24,8 +24,8 @@ public class IntakeClaw extends SubsystemBase {
   public Command open() {
     return runOnce(
             () -> {
-              left.setPosition(.5);
-              right.setPosition(0.5);
+              left.setPosition(.6);
+              right.setPosition(0.4);
             })
         .andThen(waitSeconds(.2));
   }
@@ -33,8 +33,8 @@ public class IntakeClaw extends SubsystemBase {
   public Command close() {
     return runOnce(
             () -> {
-              left.setPosition(0.75);
-              right.setPosition(.25);
+              left.setPosition(0.74);
+              right.setPosition(.26);
             })
         .andThen(waitSeconds(.2));
   }
@@ -44,6 +44,6 @@ public class IntakeClaw extends SubsystemBase {
   }
 
   public Command pivotUp() {
-    return runOnce(() -> pivot.setPosition(0.4)).andThen(waitSeconds(1));
+    return runOnce(() -> pivot.setPosition(0.2)).andThen(waitSeconds(1));
   }
 }

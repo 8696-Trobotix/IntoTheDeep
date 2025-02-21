@@ -75,6 +75,12 @@ public class ScoringSlide extends SubsystemBase {
     return goToPosition(650);
   }
 
+  public Command alignHighSpecimenTeleop() {
+    return runOnce(positionPID::reset)
+        .andThen(
+            run(() -> runPosition(650)));
+  }
+
   public Command scoreHighSpecimen() {
     return goToPosition(540);
   }

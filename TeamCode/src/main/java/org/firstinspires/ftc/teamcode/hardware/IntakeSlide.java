@@ -14,6 +14,7 @@ public class IntakeSlide extends SubsystemBase {
 
   public IntakeSlide(BaseOpMode opMode) {
     motor = new Motor(opMode, "intakeSlide");
+    motor.setInverted(true);
   }
 
   public Command manualControl(DoubleSupplier control) {
