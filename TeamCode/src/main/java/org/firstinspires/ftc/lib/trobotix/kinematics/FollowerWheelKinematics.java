@@ -28,11 +28,10 @@ public class FollowerWheelKinematics {
           wheelTransforms[i].getRotation().getCos(),
           wheelTransforms[i].getRotation().getSin());
       angularInverseKinematics[i] =
-          wheelTransforms[i]
-                  .getRotation()
-                  .minus(wheelTransforms[i].getTranslation().getAngle())
-                  .getSin()
-              * wheelTransforms[i].getTranslation().getNorm();
+          // Cross product between a vector that represents the translation component of the robot
+          // to wheel transform, and a unit vector with the direction of the wheel
+          wheelTransforms[i].getX() * wheelTransforms[i].getRotation().getSin()
+              - wheelTransforms[i].getY() * wheelTransforms[i].getRotation().getCos();
     }
     translationalForwardKinematics = translationalInverseKinematics.pseudoInverse();
   }

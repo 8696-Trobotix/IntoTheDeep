@@ -6,8 +6,6 @@ package org.firstinspires.ftc.teamcode.opmodes.teleop;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
 import org.firstinspires.ftc.teamcode.hardware.Drivebase;
-import org.firstinspires.ftc.teamcode.hardware.IntakeClaw;
-import org.firstinspires.ftc.teamcode.hardware.IntakeSlide;
 import org.firstinspires.ftc.teamcode.hardware.ScoringClaw;
 import org.firstinspires.ftc.teamcode.hardware.ScoringSlide;
 

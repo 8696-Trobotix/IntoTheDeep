@@ -91,7 +91,7 @@ public class Drivebase extends SubsystemBase {
     topAngularSpeedRadPerSec =
         topTranslationalSpeedMetersPerSec / Math.hypot(trackWidth / 2, trackLength / 2);
 
-    double podTicksPerRotation = 8192;
+    double podTicksPerRotation = 2000;
     double podWheelCircumference = (35.0 / 1000) * Math.PI;
     frontEncoder =
         new RelativeEncoder(opMode, "podA", false, podTicksPerRotation / podWheelCircumference);
@@ -112,15 +112,15 @@ public class Drivebase extends SubsystemBase {
     odometry =
         new FollowerWheelOdometry(
             new FollowerWheelKinematics(
-                new Transform2d((-.327 / 2) + 25.0 / 1000, 25.0 / 10007, Rotation2d.k180deg),
-                new Transform2d((-.327 / 2) + 25.0 / 1000, -25.0 / 1000, Rotation2d.kCCW_90deg)),
+                new Transform2d((-.327 / 2) + (25.0 / 1000), 25.0 / 1000, Rotation2d.k180deg),
+                new Transform2d((-.327 / 2) + (25.0 / 1000), -25.0 / 1000, Rotation2d.kCCW_90deg)),
             new FollowerWheelPositions(
                 gyro.getYaw(), frontEncoder.getPosition(), podB.getPosition()),
             Pose2d.kZero);
 
-    xController = new PIDController(4);
-    yController = new PIDController(3);
-    yawController = new PIDController(2);
+    xController = new PIDController(5);
+    yController = new PIDController(5);
+    yawController = new PIDController(5);
     yawController.enableContinuousInput(-Math.PI, Math.PI);
 
     xController.setTolerance(.05, .1);

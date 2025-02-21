@@ -10,8 +10,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Pose2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation2d;
-import org.firstinspires.ftc.teamcode.hardware.ScoringClaw;
 import org.firstinspires.ftc.teamcode.hardware.Drivebase;
+import org.firstinspires.ftc.teamcode.hardware.ScoringClaw;
 import org.firstinspires.ftc.teamcode.hardware.ScoringSlide;
 
 @Autonomous
