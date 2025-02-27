@@ -87,7 +87,7 @@ public class Drivebase extends SubsystemBase {
     var driveMotor = DCMotor.getGoBILDA5203_0019(1);
 
     topTranslationalSpeedMetersPerSec = (driveWheelDiameter / 2) * driveMotor.freeSpeedRadPerSec;
-    driveController = new SimpleMotorFeedforward(.7, 12 / topTranslationalSpeedMetersPerSec);
+    driveController = new SimpleMotorFeedforward(1, 12 / topTranslationalSpeedMetersPerSec);
     topAngularSpeedRadPerSec =
         topTranslationalSpeedMetersPerSec / Math.hypot(trackWidth / 2, trackLength / 2);
 

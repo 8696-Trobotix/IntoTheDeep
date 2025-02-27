@@ -9,14 +9,14 @@ import org.firstinspires.ftc.teamcode.hardware.Drivebase;
 import org.firstinspires.ftc.teamcode.hardware.IntakeClaw;
 import org.firstinspires.ftc.teamcode.hardware.IntakeSlide;
 import org.firstinspires.ftc.teamcode.hardware.ScoringClaw;
-import org.firstinspires.ftc.teamcode.hardware.ScoringSlide;
+import org.firstinspires.ftc.teamcode.hardware.ScoringElevator;
 
 @TeleOp
 public class TeleopDrive extends BaseOpMode {
   @Override
   public void startup() {
     var drivebase = new Drivebase(this);
-    var scoringSlide = new ScoringSlide(this);
+    var scoringSlide = new ScoringElevator(this);
     var scoringClaw = new ScoringClaw(this);
     var intakeSlide = new IntakeSlide(this);
     var intakeClaw = new IntakeClaw(this);

@@ -7,19 +7,22 @@ import static org.firstinspires.ftc.lib.wpilib.commands.Commands.parallel;
 import static org.firstinspires.ftc.lib.wpilib.commands.Commands.sequence;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Pose2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation2d;
 import org.firstinspires.ftc.teamcode.hardware.Drivebase;
 import org.firstinspires.ftc.teamcode.hardware.ScoringClaw;
-import org.firstinspires.ftc.teamcode.hardware.ScoringSlide;
+import org.firstinspires.ftc.teamcode.hardware.ScoringElevator;
 
+@Disabled
 @Autonomous
 public class ScoreSpecimenThenPark extends BaseOpMode {
   @Override
   protected void startup() {
     var drivebase = new Drivebase(this, true);
-    var slide = new ScoringSlide(this);
+    var slide = new ScoringElevator(this);
     var claw = new ScoringClaw(this);
 
     registerAutoCommand(

@@ -14,7 +14,7 @@ import org.firstinspires.ftc.lib.wpilib.math.MathUtil;
 import org.firstinspires.ftc.lib.wpilib.math.controller.PIDController;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-public class ScoringSlide extends SubsystemBase {
+public class ScoringElevator extends SubsystemBase {
   private final Motor motor;
   private final ViperSlideFeedforward velocityFF;
   private final PIDController positionPID;
@@ -26,7 +26,7 @@ public class ScoringSlide extends SubsystemBase {
   private final double minPosMm = 240;
   private final double maxPosMm = 862;
 
-  public ScoringSlide(BaseOpMode opMode) {
+  public ScoringElevator(BaseOpMode opMode) {
     motor = new Motor(opMode, "linearSlide", true);
     telemetry = opMode.telemetry;
 
