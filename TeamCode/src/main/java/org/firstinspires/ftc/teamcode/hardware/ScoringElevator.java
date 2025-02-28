@@ -72,17 +72,17 @@ public class ScoringElevator extends SubsystemBase {
   }
 
   public Command alignHighSpecimen() {
-    return goToPosition(650);
+    return goToPosition(660);
   }
 
   public Command alignHighSpecimenTeleop() {
     return runOnce(positionPID::reset)
         .andThen(
-            run(() -> runPosition(650)));
+            run(() -> runPosition(660)));
   }
 
   public Command scoreHighSpecimen() {
-    return goToPosition(540);
+    return goToPosition(525);
   }
 
   public Command retract() {
