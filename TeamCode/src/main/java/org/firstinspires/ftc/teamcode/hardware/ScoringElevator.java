@@ -82,7 +82,7 @@ public class ScoringElevator extends SubsystemBase {
   }
 
   public Command scoreHighSpecimen() {
-    return goToPosition(525);
+    return goToPosition(545);
   }
 
   public Command retract() {

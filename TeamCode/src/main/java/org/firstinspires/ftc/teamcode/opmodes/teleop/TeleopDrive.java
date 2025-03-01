@@ -45,7 +45,7 @@ public class TeleopDrive extends BaseOpMode {
     secondaryController()
         .y()
         .whileTrue(scoringSlide.alignHighSpecimenTeleop())
-        .onFalse(scoringSlide.scoreHighSpecimen().andThen(scoringClaw.open()));
+        .onFalse(scoringSlide.scoreHighSpecimen().withTimeout(.5).andThen(scoringClaw.open()));
     secondaryController()
         .rightTrigger()
         .onTrue(scoringSlide.enableOverride())
