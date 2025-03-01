@@ -52,6 +52,7 @@ public class Drivebase extends SubsystemBase {
   private final Telemetry telemetry;
 
   private final DoubleSupplier dtSupplier;
+  private final DoubleSupplier voltageSupplier;
 
   public Drivebase(BaseOpMode opMode) {
     this(opMode, false);
@@ -130,6 +131,7 @@ public class Drivebase extends SubsystemBase {
     this.telemetry = opMode.telemetry;
 
     dtSupplier = opMode.dtSupplier();
+    voltageSupplier = opMode.busVoltageSupplier();
   }
 
   private final double topTranslationalSpeedMetersPerSec;
@@ -152,7 +154,8 @@ public class Drivebase extends SubsystemBase {
   private void robotRelativeDrive(ChassisSpeeds chassisSpeeds) {
     chassisSpeeds = ChassisSpeeds.discretize(chassisSpeeds, dtSupplier.getAsDouble());
     var wheelSpeeds = kinematics.toWheelSpeeds(chassisSpeeds);
-    wheelSpeeds.desaturate(topTranslationalSpeedMetersPerSec);
+    wheelSpeeds.desaturate(
+        topTranslationalSpeedMetersPerSec * (Math.min(voltageSupplier.getAsDouble(), 12.0) / 12.0));
     var desaturatedChassisSpeeds = kinematics.toChassisSpeeds(wheelSpeeds);
     telemetry.addData("Drivebase/Commanded vel X", desaturatedChassisSpeeds.vxMetersPerSecond);
     telemetry.addData("Drivebase/Commanded vel Y", desaturatedChassisSpeeds.vyMetersPerSecond);
