@@ -28,8 +28,8 @@ public class TeleopDrive extends BaseOpMode {
             () -> primaryController().getRightX()));
     primaryController()
         .rightTrigger()
-        .onTrue(drivebase.setSpeedMult(1))
-        .onFalse(drivebase.setSpeedMult(.5));
+        .onTrue(drivebase.setSpeedMult(.4))
+        .onFalse(drivebase.setSpeedMult(1));
     primaryController()
         .a()
         .whileTrue(

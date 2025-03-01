@@ -247,7 +247,7 @@ public class Drivebase extends SubsystemBase {
         xInput, yInput, () -> yawController.calculate(gyro.getYaw().getRadians(), 0));
   }
 
-  private double speedMult = .5;
+  private double speedMult = 1;
 
   public Command setSpeedMult(double speedMult) {
     return Commands.runOnce(() -> this.speedMult = speedMult);
