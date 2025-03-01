@@ -8,6 +8,7 @@ import static org.firstinspires.ftc.lib.wpilib.commands.Commands.sequence;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import java.util.function.DoubleSupplier;
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
+import org.firstinspires.ftc.lib.trobotix.controller.PDController;
 import org.firstinspires.ftc.lib.trobotix.hardware.Gyro;
 import org.firstinspires.ftc.lib.trobotix.hardware.Motor;
 import org.firstinspires.ftc.lib.trobotix.hardware.RelativeEncoder;
@@ -18,7 +19,6 @@ import org.firstinspires.ftc.lib.wpilib.commands.Command;
 import org.firstinspires.ftc.lib.wpilib.commands.Commands;
 import org.firstinspires.ftc.lib.wpilib.commands.SubsystemBase;
 import org.firstinspires.ftc.lib.wpilib.math.MathUtil;
-import org.firstinspires.ftc.lib.wpilib.math.controller.PIDController;
 import org.firstinspires.ftc.lib.wpilib.math.controller.SimpleMotorFeedforward;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Pose2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation2d;
@@ -45,9 +45,9 @@ public class Drivebase extends SubsystemBase {
   private final RelativeEncoder frontEncoder;
   private final RelativeEncoder podB;
 
-  private final PIDController xController;
-  private final PIDController yController;
-  private final PIDController yawController;
+  private final PDController xController;
+  private final PDController yController;
+  private final PDController yawController;
 
   private final Telemetry telemetry;
 
@@ -118,9 +118,9 @@ public class Drivebase extends SubsystemBase {
                 gyro.getYaw(), frontEncoder.getPosition(), podB.getPosition()),
             Pose2d.kZero);
 
-    xController = new PIDController(5);
-    yController = new PIDController(5);
-    yawController = new PIDController(1.5);
+    xController = new PDController(5, 0, opMode.dtSupplier());
+    yController = new PDController(5, 0, opMode.dtSupplier());
+    yawController = new PDController(1.5, 0, opMode.dtSupplier());
     yawController.enableContinuousInput(-Math.PI, Math.PI);
 
     xController.setTolerance(.05, .1);

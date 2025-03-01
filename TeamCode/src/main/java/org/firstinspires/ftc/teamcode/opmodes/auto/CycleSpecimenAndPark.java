@@ -70,6 +70,7 @@ public class CycleSpecimenAndPark extends BaseOpMode {
             slide.scoreHighSpecimen(),
             claw.open(),
             parallel(
-                slide.retract(), drivebase.alignToPose(new Pose2d(0.075, -1.47, Rotation2d.kZero)))));
+                slide.retract(),
+                drivebase.alignToPose(new Pose2d(0.075, -1.47, Rotation2d.kZero)))));
   }
 }

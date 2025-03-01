@@ -1,28 +1,18 @@
 // Copyright (c) 2024-2025 FTC 8696
 // All rights reserved.
 
-package org.firstinspires.ftc.lib.wpilib.math.controller;
+package org.firstinspires.ftc.lib.trobotix.controller;
 
 import java.util.function.DoubleSupplier;
 import org.firstinspires.ftc.lib.wpilib.math.MathUtil;
 
-/** Implements a PID control loop. */
-public class PIDController {
+/** Implements a PD control loop. */
+public class PDController {
   // Factor for "proportional" control
   private double m_kp;
 
-  // Factor for "integral" control
-  private double m_ki;
-
   // Factor for "derivative" control
   private double m_kd;
-
-  // The error range where "integral" control applies
-  private double m_iZone = Double.POSITIVE_INFINITY;
-
-  private double m_maximumIntegral = 1.0;
-
-  private double m_minimumIntegral = -1.0;
 
   private double m_maximumInput;
 
@@ -32,14 +22,11 @@ public class PIDController {
   private boolean m_continuous;
 
   // The error at the time of the most recent call to calculate()
-  private double m_positionError;
-  private double m_velocityError;
+  private double m_error;
+  private double m_errorDerivative;
 
   // The error at the time of the second-most-recent call to calculate() (used to compute velocity)
   private double m_prevError;
-
-  // The sum of the errors for use in the integral calc
-  private double m_totalError;
 
   // The error that is considered at setpoint.
   private double m_positionTolerance = 0.05;
@@ -51,44 +38,26 @@ public class PIDController {
   private boolean m_haveMeasurement;
   private boolean m_haveSetpoint;
 
-  private final DoubleSupplier periodSupplier;
+  private final DoubleSupplier dtSupplier;
 
   /**
-   * Allocates a PIDController with the given constants for kp, ki, and kd and a default period of
-   * 0.02 seconds.
+   * Allocates a PIDController with the given constants for kp and kd.
    *
    * @param kp The proportional coefficient.
-   * @throws IllegalArgumentException if kp &lt; 0
-   */
-  public PIDController(double kp) {
-    this(kp, 0, 0, null);
-  }
-
-  /**
-   * Allocates a PIDController with the given constants for kp, ki, and kd.
-   *
-   * @param kp The proportional coefficient.
-   * @param ki The integral coefficient.
    * @param kd The derivative coefficient.
-   * @param periodSupplier The period between controller updates in seconds.
+   * @param dTSupplier The period between controller updates in seconds.
    * @throws IllegalArgumentException if kp &lt; 0
-   * @throws IllegalArgumentException if ki &lt; 0
    * @throws IllegalArgumentException if kd &lt; 0
    * @throws IllegalArgumentException if period &lt;= 0
    */
-  @SuppressWarnings("this-escape")
-  public PIDController(double kp, double ki, double kd, DoubleSupplier periodSupplier) {
+  public PDController(double kp, double kd, DoubleSupplier dTSupplier) {
     m_kp = kp;
-    m_ki = ki;
     m_kd = kd;
 
-    this.periodSupplier = periodSupplier;
+    this.dtSupplier = dTSupplier;
 
     if (kp < 0.0) {
       throw new IllegalArgumentException("Kp must be a non-negative number!");
-    }
-    if (ki < 0.0) {
-      throw new IllegalArgumentException("Ki must be a non-negative number!");
     }
     if (kd < 0.0) {
       throw new IllegalArgumentException("Kd must be a non-negative number!");
@@ -101,12 +70,10 @@ public class PIDController {
    * <p>Set the proportional, integral, and differential coefficients.
    *
    * @param kp The proportional coefficient.
-   * @param ki The integral coefficient.
    * @param kd The derivative coefficient.
    */
-  public void setPID(double kp, double ki, double kd) {
+  public void setPID(double kp, double kd) {
     m_kp = kp;
-    m_ki = ki;
     m_kd = kd;
   }
 
@@ -120,38 +87,12 @@ public class PIDController {
   }
 
   /**
-   * Sets the Integral coefficient of the PID controller gain.
-   *
-   * @param ki The integral coefficient. Must be &gt;= 0.
-   */
-  public void setI(double ki) {
-    m_ki = ki;
-  }
-
-  /**
    * Sets the Differential coefficient of the PID controller gain.
    *
    * @param kd The differential coefficient. Must be &gt;= 0.
    */
   public void setD(double kd) {
     m_kd = kd;
-  }
-
-  /**
-   * Sets the IZone range. When the absolute value of the position error is greater than IZone, the
-   * total accumulated error will reset to zero, disabling integral gain until the absolute value of
-   * the position error is less than IZone. This is used to prevent integral windup. Must be
-   * non-negative. Passing a value of zero will effectively disable integral gain. Passing a value
-   * of {@link Double#POSITIVE_INFINITY} disables IZone functionality.
-   *
-   * @param iZone Maximum magnitude of error to allow integral control.
-   * @throws IllegalArgumentException if iZone &lt; 0
-   */
-  public void setIZone(double iZone) {
-    if (iZone < 0) {
-      throw new IllegalArgumentException("IZone must be a non-negative number!");
-    }
-    m_iZone = iZone;
   }
 
   /**
@@ -164,30 +105,12 @@ public class PIDController {
   }
 
   /**
-   * Get the Integral coefficient.
-   *
-   * @return integral coefficient
-   */
-  public double getI() {
-    return m_ki;
-  }
-
-  /**
    * Get the Differential coefficient.
    *
    * @return differential coefficient
    */
   public double getD() {
     return m_kd;
-  }
-
-  /**
-   * Get the IZone range.
-   *
-   * @return Maximum magnitude of error to allow integral control.
-   */
-  public double getIZone() {
-    return m_iZone;
   }
 
   /**
@@ -219,9 +142,9 @@ public class PIDController {
 
     if (m_continuous) {
       double errorBound = (m_maximumInput - m_minimumInput) / 2.0;
-      m_positionError = MathUtil.inputModulus(m_setpoint - m_measurement, -errorBound, errorBound);
+      m_error = MathUtil.inputModulus(m_setpoint - m_measurement, -errorBound, errorBound);
     } else {
-      m_positionError = m_setpoint - m_measurement;
+      m_error = m_setpoint - m_measurement;
     }
   }
 
@@ -244,8 +167,8 @@ public class PIDController {
   public boolean atSetpoint() {
     return m_haveMeasurement
         && m_haveSetpoint
-        && Math.abs(m_positionError) < m_positionTolerance
-        && Math.abs(m_velocityError) < m_velocityTolerance;
+        && Math.abs(m_error) < m_positionTolerance
+        && Math.abs(m_errorDerivative) < m_velocityTolerance;
   }
 
   /**
@@ -278,20 +201,6 @@ public class PIDController {
   }
 
   /**
-   * Sets the minimum and maximum values for the integrator.
-   *
-   * <p>When the cap is reached, the integrator value is added to the controller output rather than
-   * the integrator value times the integral gain.
-   *
-   * @param minimumIntegral The minimum value of the integrator.
-   * @param maximumIntegral The maximum value of the integrator.
-   */
-  public void setIntegratorRange(double minimumIntegral, double maximumIntegral) {
-    m_minimumIntegral = minimumIntegral;
-    m_maximumIntegral = maximumIntegral;
-  }
-
-  /**
    * Sets the error which is considered tolerable for use with atSetpoint().
    *
    * @param positionTolerance Position error which is tolerable.
@@ -317,7 +226,7 @@ public class PIDController {
    * @return The error.
    */
   public double getPositionError() {
-    return m_positionError;
+    return m_error;
   }
 
   /**
@@ -326,7 +235,7 @@ public class PIDController {
    * @return The velocity error.
    */
   public double getVelocityError() {
-    return m_velocityError;
+    return m_errorDerivative;
   }
 
   /**
@@ -342,8 +251,6 @@ public class PIDController {
     return calculate(measurement);
   }
 
-  private double lastTime = -1;
-
   /**
    * Returns the next output of the PID controller.
    *
@@ -352,43 +259,28 @@ public class PIDController {
    */
   public double calculate(double measurement) {
     m_measurement = measurement;
-    m_prevError = m_positionError;
+    m_prevError = m_error;
     m_haveMeasurement = true;
 
     if (m_continuous) {
       double errorBound = (m_maximumInput - m_minimumInput) / 2.0;
-      m_positionError = MathUtil.inputModulus(m_setpoint - m_measurement, -errorBound, errorBound);
+      m_error = MathUtil.inputModulus(m_setpoint - m_measurement, -errorBound, errorBound);
     } else {
-      m_positionError = m_setpoint - m_measurement;
+      m_error = m_setpoint - m_measurement;
     }
 
-    if (periodSupplier != null) {
-      var period = periodSupplier.getAsDouble();
-      m_velocityError = (m_positionError - m_prevError) / period;
+    double dt = dtSupplier.getAsDouble();
 
-      // If the absolute value of the position error is greater than IZone, reset the total error
-      if (Math.abs(m_positionError) > m_iZone) {
-        m_totalError = 0;
-      } else if (m_ki != 0) {
-        m_totalError =
-            MathUtil.clamp(
-                m_totalError + m_positionError * period,
-                m_minimumIntegral / m_ki,
-                m_maximumIntegral / m_ki);
-      }
+    m_errorDerivative = (m_error - m_prevError) / dt;
 
-      return m_kp * m_positionError + m_ki * m_totalError + m_kd * m_velocityError;
-    } else {
-      return m_kp * m_positionError;
-    }
+    return m_kp * m_error + m_kd * m_errorDerivative;
   }
 
   /** Resets the previous error and the integral term. */
   public void reset() {
-    m_positionError = 0;
+    m_error = 0;
     m_prevError = 0;
-    m_totalError = 0;
-    m_velocityError = 0;
+    m_errorDerivative = 0;
     m_haveMeasurement = false;
   }
 }

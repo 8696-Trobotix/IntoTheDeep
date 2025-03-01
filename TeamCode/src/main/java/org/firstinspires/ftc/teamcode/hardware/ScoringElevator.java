@@ -5,19 +5,19 @@ package org.firstinspires.ftc.teamcode.hardware;
 
 import java.util.function.DoubleSupplier;
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
+import org.firstinspires.ftc.lib.trobotix.controller.PDController;
 import org.firstinspires.ftc.lib.trobotix.controller.ViperSlideFeedforward;
 import org.firstinspires.ftc.lib.trobotix.hardware.Motor;
 import org.firstinspires.ftc.lib.wpilib.commands.Command;
 import org.firstinspires.ftc.lib.wpilib.commands.Commands;
 import org.firstinspires.ftc.lib.wpilib.commands.SubsystemBase;
 import org.firstinspires.ftc.lib.wpilib.math.MathUtil;
-import org.firstinspires.ftc.lib.wpilib.math.controller.PIDController;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class ScoringElevator extends SubsystemBase {
   private final Motor motor;
   private final ViperSlideFeedforward velocityFF;
-  private final PIDController positionPID;
+  private final PDController positionPID;
 
   private final double maxVelMmPerSec;
 
@@ -45,7 +45,7 @@ public class ScoringElevator extends SubsystemBase {
                     velocityFF.kS_bottom + velocityFF.kG_bottom,
                     velocityFF.kS_top + velocityFF.kG_top))
             / kV;
-    positionPID = new PIDController(7.5, 0, 0, opMode.dtSupplier());
+    positionPID = new PDController(7.5, 0, opMode.dtSupplier());
     positionPID.setTolerance(10, 5);
   }
 
@@ -76,9 +76,7 @@ public class ScoringElevator extends SubsystemBase {
   }
 
   public Command alignHighSpecimenTeleop() {
-    return runOnce(positionPID::reset)
-        .andThen(
-            run(() -> runPosition(660)));
+    return runOnce(positionPID::reset).andThen(run(() -> runPosition(660)));
   }
 
   public Command scoreHighSpecimen() {
