@@ -87,7 +87,7 @@ public class Drivebase extends SubsystemBase {
     var driveMotor = DCMotor.getGoBILDA5203_0019(1);
 
     topTranslationalSpeedMetersPerSec = (driveWheelDiameter / 2) * driveMotor.freeSpeedRadPerSec;
-    driveController = new SimpleMotorFeedforward(1, 12 / topTranslationalSpeedMetersPerSec);
+    driveController = new SimpleMotorFeedforward(.5, 12 / topTranslationalSpeedMetersPerSec);
     topAngularSpeedRadPerSec =
         topTranslationalSpeedMetersPerSec / Math.hypot(trackWidth / 2, trackLength / 2);
 
@@ -118,13 +118,13 @@ public class Drivebase extends SubsystemBase {
                 gyro.getYaw(), frontEncoder.getPosition(), podB.getPosition()),
             Pose2d.kZero);
 
-    xController = new PDController(5, 0, opMode.dtSupplier());
-    yController = new PDController(5, 0, opMode.dtSupplier());
-    yawController = new PDController(1.5, 0, opMode.dtSupplier());
+    xController = new PDController(7.5, 0.75, opMode.dtSupplier());
+    yController = new PDController(7.5, 0.75, opMode.dtSupplier());
+    yawController = new PDController(2, .15, opMode.dtSupplier());
     yawController.enableContinuousInput(-Math.PI, Math.PI);
 
-    xController.setTolerance(.05, .1);
-    yController.setTolerance(.02, .05);
+    xController.setTolerance(.04, .2);
+    yController.setTolerance(.04, .2);
     yawController.setTolerance(Units.degreesToRadians(10), Units.degreesToRadians(10));
 
     this.telemetry = opMode.telemetry;
