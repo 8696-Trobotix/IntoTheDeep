@@ -29,7 +29,7 @@ public class CycleSpecimenAndPark extends BaseOpMode {
             claw.close(),
             // Score the preload
             parallel(
-                drivebase.alignToPose(new Pose2d(.81, 0.1, Rotation2d.kZero)),
+                drivebase.alignToPose(new Pose2d(.82, 0.1, Rotation2d.kZero)),
                 slide.alignHighSpecimen()),
             slide.scoreHighSpecimen(),
             claw.open(),
@@ -49,7 +49,7 @@ public class CycleSpecimenAndPark extends BaseOpMode {
                     waitSeconds(.2),
                     drivebase.alignToPose(new Pose2d(0.2, -1.04, Rotation2d.k180deg)),
                     drivebase.alignToPose(new Pose2d(.5, 0.175, Rotation2d.kZero)),
-                    drivebase.alignToPose(new Pose2d(.81, 0.175, Rotation2d.kZero)))),
+                    drivebase.alignToPose(new Pose2d(.82, 0.175, Rotation2d.kZero)))),
             slide.scoreHighSpecimen(),
             claw.open(),
             // Go grab the second specimen
@@ -57,7 +57,7 @@ public class CycleSpecimenAndPark extends BaseOpMode {
                 slide.retract(),
                 sequence(
                     drivebase.alignToPose(new Pose2d(.5, -1.16, Rotation2d.k180deg)),
-                    drivebase.alignToPose(new Pose2d(0.07, -1.16, Rotation2d.k180deg)))),
+                    drivebase.alignToPose(new Pose2d(0.04, -1.16, Rotation2d.k180deg)))),
             claw.close(),
             // Go score the second HP station specimen
             parallel(
@@ -66,11 +66,11 @@ public class CycleSpecimenAndPark extends BaseOpMode {
                     waitSeconds(.2),
                     drivebase.alignToPose(new Pose2d(0.2, -1.04, Rotation2d.k180deg)),
                     drivebase.alignToPose(new Pose2d(.5, .25, Rotation2d.kZero)),
-                    drivebase.alignToPose(new Pose2d(.81, .25, Rotation2d.kZero)))),
+                    drivebase.alignToPose(new Pose2d(.82, .25, Rotation2d.kZero)))),
             slide.scoreHighSpecimen(),
             claw.open(),
             parallel(
                 slide.retract(),
-                drivebase.alignToPose(new Pose2d(0.075, -1.47, Rotation2d.kZero)))));
+                drivebase.alignToPose(new Pose2d(0.05, -1.47, Rotation2d.kZero)))));
   }
 }
